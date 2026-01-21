@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🍜 NoodlePOS Tracker
 
-## Getting Started
+แอปรับจดรายรับ-รายจ่ายสุดเท่ ในธีม **Dark Professional** ออกแบบมาเพื่อจัดการการเงินในชีวิตประจำวัน และแยกค่าใช้จ่ายสำหรับ **"ทริปเที่ยว"** โดยเฉพาะ
 
-First, run the development server:
+![Project Screenshot](public/screenshot.png)
+*(คุณสามารถเอารูปหน้าจอสวยๆ มาใส่ในโฟลเดอร์ public แล้วตั้งชื่อว่า screenshot.png เพื่อโชว์รูปตรงนี้ได้)*
+
+## ✨ ฟีเจอร์เด่น (Key Features)
+
+* **🎨 Dark Mode & Teal Theme:** ดีไซน์ทันสมัย สบายตา เน้นความเข้มขรึมและเป็นมืออาชีพ (ใช้ Tailwind CSS)
+* **✈️ Trip Management:** แยกรายการจดสำหรับทริปเที่ยวได้ (เช่น "ญี่ปุ่น 2025") และดูยอดแยกเฉพาะทริปได้ทันที
+* **🔍 Smart Filtering:** ระบบตัวกรองอัจฉริยะ เลือกดูยอดเงินตาม "ช่วงวันที่" หรือ "ตามทริป" ได้ดั่งใจ
+* **🧾 Slip Scan (Demo):** ฟีเจอร์จำลองการสแกนสลิปโอนเงิน เพื่อ Auto-fill ข้อมูล (รองรับการต่อ API จริงในอนาคต)
+* **📊 Reports & Charts:** กราฟวงกลมสรุปค่าใช้จ่ายแยกตามหมวดหมู่ พร้อมชื่อภาษาไทย (ใช้ Recharts)
+* **🔐 Secure Authentication:** ระบบล็อกอินปลอดภัยด้วย Google Sign-In (ผ่าน Firebase Auth)
+
+## 🛠️ Tech Stack
+
+* **Framework:** [Next.js](https://nextjs.org/) (App Router)
+* **Database & Auth:** [Firebase](https://firebase.google.com/) (Firestore & Authentication)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+* **Icons:** [Lucide React](https://lucide.dev/)
+* **Charts:** [Recharts](https://recharts.org/)
+
+## 🚀 วิธีเริ่มต้นใช้งาน (Getting Started)
+
+1.  **Clone โปรเจกต์:**
+    ```bash
+    git clone [https://github.com/your-username/noodlepos-tracker.git](https://github.com/your-username/noodlepos-tracker.git)
+    cd noodlepos-tracker
+    ```
+
+2.  **ติดตั้ง dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **ตั้งค่า Environment Variables:**
+    สร้างไฟล์ `.env.local` ที่ root directory และใส่ค่า Config จาก Firebase ของคุณ:
+    ```env
+    NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+    NEXT_PUBLIC_FIREBASE_APP_ID=...
+    ```
+
+4.  **รันโปรเจกต์:**
+    ```bash
+    npm run dev
+    ```
+    เปิด [http://localhost:3000](http://localhost:3000) เพื่อใช้งาน
+
+## 📦 การ Deploy (Firebase Hosting)
+
+โปรเจกต์นี้ตั้งค่าให้รองรับ Firebase Hosting เรียบร้อยแล้ว
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# สร้าง Build และ Deploy ในคำสั่งเดียว
+npm run build && firebase deploy
