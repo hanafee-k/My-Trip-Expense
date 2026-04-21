@@ -528,19 +528,19 @@ export default function Home() {
       )}
 
       {/* === Header === */}
-      <div className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50 backdrop-blur-lg bg-opacity-95">
-        <div className="max-w-md mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold flex items-center justify-center gap-2 text-white tracking-wide">
+      <div className="bg-zinc-900/80 border-b border-zinc-800 sticky top-0 z-50 backdrop-blur-lg">
+        <div className="max-w-6xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+          <h1 className="text-xl lg:text-2xl font-bold flex items-center gap-2 text-white tracking-wide">
             <span className="text-2xl"></span>
             <span>MY TRIP <span className="text-teal-500">EXPENSE</span></span>
           </h1>
         </div>
       </div>
 
-      <div className="max-w-md mx-auto pt-6 px-4">
+      <div className="max-w-6xl mx-auto pt-6 px-4 lg:px-8">
         
         {/* === 📊 สรุปยอดเงิน (Enhanced Dashboard Cards) === */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {/* การ์ดรายจ่าย */}
           <div className="bg-gradient-to-br from-rose-950 to-rose-900 rounded-2xl p-5 border border-rose-800 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 text-rose-800 opacity-20 text-7xl">💸</div>

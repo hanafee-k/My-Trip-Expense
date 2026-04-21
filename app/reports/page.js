@@ -275,7 +275,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto pt-6 px-4">
+      <div className="max-w-6xl mx-auto pt-6 px-4 lg:px-8">
         
         {/* Filter Bar */}
         <div className="mb-5">

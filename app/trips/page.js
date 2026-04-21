@@ -167,7 +167,7 @@ export default function ProjectsPage() {
         </h1>
       </div>
 
-      <div className="max-w-md mx-auto pt-6 px-4">
+      <div className="max-w-6xl mx-auto pt-6 px-4 lg:px-8">
         
         {/* Add Form */}
         <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-lg mb-6">
@@ -242,7 +242,7 @@ export default function ProjectsPage() {
 
         {/* List */}
         {!isLoading && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {displayProjects.length === 0 ? (
               <div className="text-center py-12 text-zinc-600 bg-zinc-900 rounded-xl border border-zinc-800 border-dashed">
                 <Layers size={40} className="mx-auto mb-2 opacity-20"/>
