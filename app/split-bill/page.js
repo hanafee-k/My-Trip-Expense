@@ -28,6 +28,11 @@ export default function SplitBillPage() {
   const [savedHistory, setSavedHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  const [customTxns, setCustomTxns] = useState([]);
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [customNote, setCustomNote] = useState("");
+  const [customAmount, setCustomAmount] = useState("");
+
   const categories = [
     { id: "food", name: "อาหาร", icon: "🍜" },
     { id: "transport", name: "เดินทาง", icon: "🚕" },
@@ -56,12 +61,16 @@ export default function SplitBillPage() {
     });
   }, [transactions, selectedTrip]);
 
+  const combinedTxns = useMemo(() => {
+    return [...customTxns, ...filteredTxns];
+  }, [filteredTxns, customTxns]);
+
   const totalSelected = useMemo(() =>
     selectedTxns.reduce((s, id) => {
-      const t = transactions.find(tx => tx.id === id);
+      const t = transactions.find(tx => tx.id === id) || customTxns.find(ctx => ctx.id === id);
       return s + (t?.amount || 0);
     }, 0),
-    [selectedTxns, transactions]
+    [selectedTxns, transactions, customTxns]
   );
 
   const perPerson = people.length > 0 ? totalSelected / people.length : 0;
@@ -104,13 +113,40 @@ export default function SplitBillPage() {
     setPeople(prev => prev.map((p, idx) => idx === i ? { ...p, [field]: val } : p));
   };
 
+  const handleAddCustomTxn = () => {
+    if (!customNote.trim() || !customAmount || isNaN(customAmount)) return;
+    const newCustomTxn = {
+      id: `custom_${Date.now()}`,
+      note: customNote,
+      amount: parseFloat(customAmount),
+      categoryId: "other",
+      date: { toDate: () => new Date() }
+    };
+    setCustomTxns(prev => [newCustomTxn, ...prev]);
+    setSelectedTxns(prev => [...prev, newCustomTxn.id]);
+    setCustomNote("");
+    setCustomAmount("");
+    setShowCustomForm(false);
+  };
+
+  const handleReset = () => {
+    setStep(1);
+    setSelectedTxns([]);
+    setCustomTxns([]);
+    setPeople([
+      { name: "คุณ", paid: 0 },
+      { name: "เพื่อน 1", paid: 0 },
+    ]);
+  };
+
   const handleSave = async () => {
     if (!user || selectedTxns.length === 0) return;
     setSaving(true);
     try {
       const tripId = selectedTrip !== "all" && selectedTrip !== "no_trip" ? selectedTrip : null;
       const splitData = {
-        transactionIds: selectedTxns,
+        transactionIds: selectedTxns.filter(id => !id.toString().startsWith("custom_")),
+        customItems: customTxns.filter(c => selectedTxns.includes(c.id)),
         totalAmount: totalSelected,
         perPerson,
         people,
@@ -177,14 +213,44 @@ export default function SplitBillPage() {
                 {trips.map(t => <option key={t.id} value={t.id}>✈️ {t.name}</option>)}
               </select>
 
-              {filteredTxns.length === 0 ? (
+              {!showCustomForm ? (
+                <button
+                  onClick={() => setShowCustomForm(true)}
+                  className="w-full bg-zinc-950 border border-dashed border-zinc-700 hover:border-teal-500 text-zinc-400 hover:text-teal-400 p-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition mb-3"
+                >
+                  <Plus size={16} /> ระบุรายการใหม่เอง
+                </button>
+              ) : (
+                <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 mb-3 space-y-3">
+                  <input
+                    type="text"
+                    value={customNote}
+                    onChange={e => setCustomNote(e.target.value)}
+                    placeholder="ชื่อรายการ (เช่น ค่าอาหาร)"
+                    className="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-teal-500"
+                  />
+                  <input
+                    type="number"
+                    value={customAmount}
+                    onChange={e => setCustomAmount(e.target.value)}
+                    placeholder="จำนวนเงิน (฿)"
+                    className="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-teal-500"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowCustomForm(false)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-lg text-xs font-bold transition">ยกเลิก</button>
+                    <button onClick={handleAddCustomTxn} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-2 rounded-lg text-xs font-bold transition">เพิ่ม</button>
+                  </div>
+                </div>
+              )}
+
+              {combinedTxns.length === 0 ? (
                 <div className="text-center py-10 text-zinc-600">
                   <AlertCircle size={32} className="mx-auto mb-2 opacity-40" />
                   <p className="text-sm">ไม่พบรายจ่าย</p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-                  {filteredTxns.map(t => {
+                  {combinedTxns.map(t => {
                     const selected = selectedTxns.includes(t.id);
                     return (
                       <div
@@ -362,17 +428,25 @@ export default function SplitBillPage() {
               </div>
             )}
 
-            <div className="flex gap-3">
-              <button onClick={() => setStep(2)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold text-sm transition">
-                ← ย้อนกลับ
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button onClick={() => setStep(2)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold text-sm transition">
+                  ← ย้อนกลับ
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex-1 bg-teal-600 hover:bg-teal-500 disabled:bg-zinc-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition"
+                >
+                  {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                  {saving ? "กำลังบันทึก..." : "บันทึกการหาร"}
+                </button>
+              </div>
               <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 bg-teal-600 hover:bg-teal-500 disabled:bg-zinc-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition"
+                onClick={handleReset}
+                className="w-full bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition mt-4"
               >
-                {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-                {saving ? "กำลังบันทึก..." : "บันทึกการหาร"}
+                <Plus size={16} /> เริ่มการหารบิลใหม่
               </button>
             </div>
           </div>

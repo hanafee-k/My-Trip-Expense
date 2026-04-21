@@ -8,7 +8,8 @@ export default function Navbar() {
 
   const navItems = [
     { id: "home", label: "หน้าหลัก", icon: Home, href: "/" },
-    { id: "projects", label: "โปรเจกต์", icon: Layers, href: "/trips" },
+    { id: "projects", label: "ทริป", icon: Layers, href: "/trips" },
+    { id: "split-bill", label: "หารบิล", icon: Split, href: "/split-bill" },
     { id: "reports", label: "รายงาน", icon: PieChart, href: "/reports" },
     { id: "gallery", label: "คลังสลิป", icon: ImageIcon, href: "/gallery" },
     { id: "profile", label: "โปรไฟล์", icon: User, href: "/profile" },
