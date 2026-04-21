@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PieChart, Layers, User, Plane } from "lucide-react";
+import { Home, PieChart, Layers, User, Plane, Image as ImageIcon, Split } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -10,6 +10,7 @@ export default function Navbar() {
     { id: "home", label: "หน้าหลัก", icon: Home, href: "/" },
     { id: "projects", label: "โปรเจกต์", icon: Layers, href: "/trips" },
     { id: "reports", label: "รายงาน", icon: PieChart, href: "/reports" },
+    { id: "gallery", label: "คลังสลิป", icon: ImageIcon, href: "/gallery" },
     { id: "profile", label: "โปรไฟล์", icon: User, href: "/profile" },
   ];
 
