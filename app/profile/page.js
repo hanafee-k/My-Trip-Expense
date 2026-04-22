@@ -92,8 +92,8 @@ export default function ProfilePage() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 1024 * 1024) {
-      alert("กรุณาใช้รูปขนาดเล็กกว่า 1MB ครับ");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("กรุณาใช้รูปขนาดเล็กกว่า 5MB ครับ");
       return;
     }
 
@@ -180,7 +180,7 @@ export default function ProfilePage() {
   const isGoogleAccount = user.providerData[0]?.providerId === 'google.com';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 font-sans selection:bg-teal-500/30">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 selection:bg-teal-500/30">
 
       {/* Header Section - Modern Dark Theme */}
       <div className="relative border-b border-zinc-800/60 overflow-hidden bg-black/20">

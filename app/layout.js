@@ -2,6 +2,13 @@ import { AuthProvider } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import RouteGuard from "../components/RouteGuard";
 import "./globals.css";
+import { Prompt } from "next/font/google";
+
+const prompt = Prompt({
+  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['latin', 'thai'],
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'My Trip Expense - จัดการค่าใช้จ่ายการเดินทาง',
@@ -15,7 +22,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-zinc-950 text-white font-sans selection:bg-teal-500/30">
+      <body className={`bg-zinc-950 text-white selection:bg-teal-500/30 ${prompt.className}`}>
         <AuthProvider>
           <RouteGuard>
             <Navbar />
