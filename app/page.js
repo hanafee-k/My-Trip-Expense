@@ -142,10 +142,18 @@ export default function Home() {
     setOcrProgress(0);
     try {
       const result = await Tesseract.recognize(file, 'tha+eng', {
-        logger: m => { if (m.status === 'recognizing text') setOcrProgress(Math.round(m.progress * 100)); }
+        logger: m => { 
+          if (m.status === 'recognizing text') {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        }
       });
       const rawText = result.data.text;
       const text = rawText.replace(/,/g, ' ');
+      
+      // Keep track of the file for uploading later when Save is clicked
+      setPendingReceiptFile(file);
+
 
       // Date parsing
       const thaiMonths = {
@@ -263,24 +271,34 @@ export default function Home() {
       if (editId) {
         // Feature 4 — upload receipt if new file attached during edit
         if (pendingReceiptFile) {
-          const sRef = storageRef(storage, `receipts/${user.uid}/${editId}_${Date.now()}.jpg`);
-          const snap = await uploadBytes(sRef, pendingReceiptFile);
-          receiptUrl = await getDownloadURL(snap.ref);
-          payload.receiptUrl = receiptUrl;
+          try {
+            const sRef = storageRef(storage, `receipts/${user.uid}/${editId}_${Date.now()}.jpg`);
+            const snap = await uploadBytes(sRef, pendingReceiptFile);
+            receiptUrl = await getDownloadURL(snap.ref);
+            payload.receiptUrl = receiptUrl;
+          } catch (uploadErr) {
+            console.error("Receipt Upload Error:", uploadErr);
+          }
         }
         await updateDoc(doc(db, `users/${user.uid}/transactions`, editId), { ...payload, updatedAt: serverTimestamp() });
         showNotification("✅ อัปเดตรายการสำเร็จ!", "success");
       } else {
         const docRef = await addDoc(collection(db, `users/${user.uid}/transactions`), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        
         // Feature 4 — upload receipt after getting doc ID
         if (pendingReceiptFile) {
-          const sRef = storageRef(storage, `receipts/${user.uid}/${docRef.id}.jpg`);
-          const snap = await uploadBytes(sRef, pendingReceiptFile);
-          receiptUrl = await getDownloadURL(snap.ref);
-          await updateDoc(docRef, { receiptUrl });
+          try {
+            const sRef = storageRef(storage, `receipts/${user.uid}/${docRef.id}.jpg`);
+            const snap = await uploadBytes(sRef, pendingReceiptFile);
+            receiptUrl = await getDownloadURL(snap.ref);
+            await updateDoc(docRef, { receiptUrl });
+          } catch (uploadErr) {
+            console.error("Receipt Upload Error:", uploadErr);
+          }
         }
         showNotification("✅ บันทึกรายการสำเร็จ!", "success");
       }
+
 
       resetForm();
       setShowForm(false);
