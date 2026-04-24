@@ -252,7 +252,7 @@ export default function ReportsPage() {
       
       {/* Header */}
       <div className="bg-white/95 p-5 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-md shadow-sm">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <button
             onClick={() => window.history.back()}
             className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -260,7 +260,7 @@ export default function ReportsPage() {
             <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           
-          <h1 className="text-xl font-bold flex items-center gap-2.5 text-[#1A1A1A] tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2.5 text-[#1A1A1A] tracking-tight">
             <PieChartIcon size={22} className="text-[#E8622A]" />
             <span>รายงาน<span className="text-[#E8622A]">สรุปยอด</span></span>
             <Sparkles className="w-5 h-5 text-[#E8622A]" />
@@ -275,7 +275,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto pt-6 px-4 lg:px-8">
+      <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
         
         {/* Filter Bar */}
         <div className="mb-5">
@@ -505,7 +505,7 @@ export default function ReportsPage() {
         {chartData.length > 0 && (
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between px-1 mb-4">
-              <h3 className="text-[#1A1A1A] font-bold text-lg flex items-center gap-2">
+              <h3 className="text-[#1A1A1A] font-bold text-lg sm:text-xl flex items-center gap-2">
                 <BarChart3 size={20} className="text-[#E8622A]" />
                 รายละเอียดตามหมวดหมู่
               </h3>
@@ -567,7 +567,7 @@ export default function ReportsPage() {
           <div className="bg-[#FFF4EF] rounded-xl p-5 border border-[#fbdcd0] mb-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles size={18} className="text-[#E8622A]" />
-              <h3 className="text-[#1A1A1A] font-black text-sm">💡 สรุปข้อมูลเชิงลึก</h3>
+              <h3 className="text-[#1A1A1A] font-black text-base sm:text-lg">💡 สรุปข้อมูลเชิงลึก</h3>
             </div>
             
             <div className="space-y-3">

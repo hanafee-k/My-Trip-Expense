@@ -61,12 +61,12 @@ export default function GalleryPage() {
     <div className="min-h-screen pb-24 font-sans text-[#1A1A1A]">
       {/* Header */}
       <div className="bg-white/95 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-lg shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg transition">
             <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1A1A1A] flex items-center gap-2">
               <ImageIcon size={20} className="text-[#E8622A]" />
               คลังสลิป
             </h1>
@@ -82,7 +82,7 @@ export default function GalleryPage() {
 
         {/* Filter Dropdown */}
         {showFilter && (
-          <div className="max-w-4xl mx-auto px-4 pb-4 animate-in fade-in slide-in-from-top-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 animate-in fade-in slide-in-from-top-2">
             <select
               value={filterTrip}
               onChange={e => setFilterTrip(e.target.value)}
@@ -96,11 +96,11 @@ export default function GalleryPage() {
         )}
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {receipts.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-[#EBEBEB]">
             <div className="text-6xl mb-4">🧾</div>
-            <p className="text-[#1A1A1A] font-bold">ยังไม่มีสลิปในคลัง</p>
+            <p className="text-[#1A1A1A] font-bold text-lg sm:text-xl">ยังไม่มีสลิปในคลัง</p>
             <p className="text-[#6B6B6B] text-sm mt-1">เพิ่มรายการพร้อมสแกนสลิปในหน้าหลัก</p>
           </div>
         ) : (
@@ -124,10 +124,10 @@ export default function GalleryPage() {
                 </div>
                 {/* Info */}
                 <div className="p-3">
-                  <p className="text-xs font-bold text-[#1A1A1A] truncate">
+                  <p className="text-xs sm:text-sm font-bold text-[#1A1A1A] truncate">
                     {getCategoryIcon(t.categoryId)} {t.note || "ไม่ระบุ"}
                   </p>
-                  <p className="text-[#E8622A] font-black text-sm mt-0.5">฿{Number(t.amount).toLocaleString()}</p>
+                  <p className="text-[#E8622A] font-black text-sm sm:text-base mt-0.5">฿{Number(t.amount).toLocaleString()}</p>
                   <p className="text-[#6B6B6B] text-[10px] mt-0.5">{formatDate(t.date)}</p>
                   {t.tripId && (
                     <span className="inline-block mt-1.5 text-[9px] bg-[#FFF4EF] text-[#E8622A] px-1.5 py-0.5 rounded border border-[#fbdcd0] font-bold">
@@ -168,14 +168,14 @@ export default function GalleryPage() {
             <div className="bg-white rounded-2xl p-4 border border-[#EBEBEB] shadow-xl">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-[#1A1A1A] font-bold">
+                  <p className="text-[#1A1A1A] font-bold text-base sm:text-lg">
                     {getCategoryIcon(lightbox.categoryId)} {lightbox.note || "ไม่ระบุ"}
                   </p>
                   <p className="text-[#6B6B6B] text-xs flex items-center gap-1 mt-1 font-medium">
                     <Calendar size={12} /> {formatDate(lightbox.date)}
                   </p>
                 </div>
-                <p className="text-2xl font-black text-[#E8622A]">฿{Number(lightbox.amount).toLocaleString()}</p>
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#E8622A]">฿{Number(lightbox.amount).toLocaleString()}</p>
               </div>
               {lightbox.tripId && (
                 <div className="flex items-center gap-2 bg-[#FFF4EF] px-3 py-2 rounded-lg border border-[#fbdcd0] mt-2">

@@ -156,8 +156,8 @@ export default function ProjectsPage() {
       
       {/* Header */}
       <div className="bg-white/95 p-4 text-center border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-sm shadow-sm">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <h1 className="text-xl font-bold flex items-center gap-2 text-[#1A1A1A] tracking-wide">
+        <div className="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 text-[#1A1A1A] tracking-wide">
             <span className="text-2xl">✈️</span>
             <span>จัดการ<span className="text-[#E8622A]">โครงการ</span></span>
           </h1>
@@ -183,14 +183,14 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto pt-6 px-4 lg:px-8">
+      <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
 
         {/* ===== LIST VIEW ===== */}
         {viewMode === "list" && (
           <>
             {/* Add Form */}
             <div className="bg-white p-5 rounded-2xl border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)] mb-6">
-              <h2 className="text-sm font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
                 <Plus size={16} className="text-[#E8622A]"/> สร้างรายการใหม่
               </h2>
               <form onSubmit={handleAddProject} className="space-y-4">
@@ -313,7 +313,7 @@ export default function ProjectsPage() {
                                     </span>
                                   )}
                                 </div>
-                                <h3 className="font-bold text-lg text-[#1A1A1A] flex items-center gap-2">
+                                <h3 className="font-bold text-lg sm:text-xl text-[#1A1A1A] flex items-center gap-2">
                                   {item.name}
                                   {isOverBudget && stats.safeBudget > 0 && <AlertTriangle size={14} className="text-red-500" />}
                                 </h3>
@@ -440,7 +440,7 @@ export default function ProjectsPage() {
               <>
                 {/* Trip Summary */}
                 <div className="bg-[#FFF4EF] rounded-2xl p-5 border border-[#fbdcd0] mb-4 shadow-sm">
-                  <h2 className="text-[#1A1A1A] font-black text-lg">✈️ {timelineTrip.name}</h2>
+                  <h2 className="text-[#1A1A1A] font-black text-lg sm:text-xl lg:text-2xl">✈️ {timelineTrip.name}</h2>
                   <div className="flex gap-6 mt-3">
                     <div>
                       <p className="text-xs text-[#6B6B6B]">รวมทั้งหมด</p>

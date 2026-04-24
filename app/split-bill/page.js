@@ -174,16 +174,16 @@ export default function SplitBillPage() {
     <div className="min-h-screen pb-32 font-sans text-[#1A1A1A]">
       {/* Header */}
       <div className="bg-white/95 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-lg shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg transition">
             <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1A1A1A] flex items-center gap-2">
               <Split size={20} className="text-[#E8622A]" />
               หารบิล
             </h1>
-            <p className="text-xs text-[#6B6B6B]">Split Bill Calculator</p>
+            <p className="text-xs sm:text-sm text-[#6B6B6B]">Split Bill Calculator</p>
           </div>
           <div className="flex gap-1">
             {[1, 2, 3].map(s => (
@@ -193,7 +193,8 @@ export default function SplitBillPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="max-w-3xl mx-auto">
 
         {/* Step 1 — เลือก Transactions */}
         {step === 1 && (
@@ -455,6 +456,7 @@ export default function SplitBillPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

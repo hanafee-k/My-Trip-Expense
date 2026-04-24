@@ -65,10 +65,10 @@ export default function LoginPage() {
           <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-8 backdrop-blur-sm shadow-sm">
             <Plane size={24} className="text-white -rotate-12" />
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-tight mb-4">
+          <h1 className="text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-tight mb-4">
             บันทึก<br />ทุกการเดินทาง
           </h1>
-          <p className="text-white/90 text-lg font-medium leading-relaxed">
+          <p className="text-white/90 text-lg xl:text-xl font-medium leading-relaxed">
             ควบคุมงบประมาณ จัดทริปง่าย<br />จบในแอปเดียว
           </p>
         </div>
@@ -97,13 +97,13 @@ export default function LoginPage() {
             <div className="w-16 h-16 bg-[#E8622A] rounded-3xl flex items-center justify-center mb-5 shadow-xl shadow-[#E8622A]/20">
               <Plane size={32} className="text-white -rotate-12" />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Trip Expense</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">My Trip Expense</h1>
             <p className="text-slate-500 mt-2 text-sm">เข้าสู่ระบบเพื่อจัดการค่าใช้จ่ายของคุณ</p>
           </div>
 
           <div className="hidden md:block mb-10">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">ยินดีต้อนรับกลับ</h2>
-            <p className="text-slate-500 mt-2 font-medium">โปรดเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">ยินดีต้อนรับกลับ</h2>
+            <p className="text-slate-500 mt-2 text-sm sm:text-base font-medium">โปรดเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
           </div>
 
           {errorMsg && (

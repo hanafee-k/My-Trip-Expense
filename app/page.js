@@ -481,9 +481,11 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="max-w-md mx-auto">
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-3 mb-6 px-4 pt-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-4">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 gap-3">
           <div className="bg-white rounded-2xl p-4 flex flex-col border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
             <div className="flex items-center gap-2 text-[#6B6B6B] text-xs font-medium mb-1"><TrendingUp size={14} className="text-green-500" /><span>รายรับ</span></div>
             <div className="text-xl font-bold text-[#1A1A1A]">{summary.income.toLocaleString()}</div>
@@ -512,7 +514,7 @@ export default function Home() {
           const percent = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
           
           return (
-            <div className="px-4 mb-6">
+            <div>
               <div className="bg-white rounded-2xl p-4 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-2">
@@ -536,7 +538,7 @@ export default function Home() {
         })()}
 
         {/* Quick Actions */}
-        <div className="px-4 mb-6">
+        <div>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <button onClick={() => { resetForm(); setShowForm(true); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
               <div className="bg-[#FFF4EF] p-1.5 rounded-full"><Plus size={16} className="text-[#E8622A]"/></div>
@@ -570,10 +572,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Transactions List */}
-        <div className="px-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-bold text-[#1A1A1A] text-lg">รายการล่าสุด</h3>
+          </div>
+          <div className="lg:col-span-1 space-y-6">
+            {/* Transactions List */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-[#1A1A1A] text-xl sm:text-2xl lg:text-3xl">รายการล่าสุด</h3>
             <button onClick={() => setShowFilter(!showFilter)} className="text-sm text-[#E8622A] font-medium flex items-center gap-1"><Filter size={14}/> ตัวกรอง</button>
           </div>
           
@@ -596,6 +600,8 @@ export default function Home() {
                 </div>
               ))
             )}
+          </div>
+            </div>
           </div>
         </div>
       </div>

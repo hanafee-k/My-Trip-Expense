@@ -3,8 +3,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { User, Mail, LogOut, Trash2, Settings, Shield, Calendar, Plane, DollarSign, TrendingUp, ChevronRight, Camera, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { db } from "../../lib/firebase";
+import { db, storage } from "../../lib/firebase";
 import { collection, query, onSnapshot, deleteDoc, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import Image from "next/image";
 
 export default function ProfilePage() {
@@ -30,12 +31,18 @@ export default function ProfilePage() {
       return;
     }
 
-    // 1. ดึงรูปโปรไฟล์จาก Database (Base64)
+    // 1. ดึงรูปโปรไฟล์จาก Database
     const fetchProfilePic = async () => {
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists() && userDoc.data().photoBase64) {
-          setCustomPhoto(userDoc.data().photoBase64);
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          // ลองดึง photoURL ก่อน ถ้าไม่มีค่อยเอา photoBase64 (backward compatibility)
+          if (data.photoURL) {
+            setCustomPhoto(data.photoURL);
+          } else if (data.photoBase64) {
+            setCustomPhoto(data.photoBase64);
+          }
         }
       } catch (err) {
         console.error("Error fetching profile pic:", err);
@@ -98,22 +105,24 @@ export default function ProfilePage() {
     }
 
     setIsUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64String = reader.result;
-      try {
-        await setDoc(doc(db, "users", user.uid), {
-          photoBase64: base64String
-        }, { merge: true });
-        setCustomPhoto(base64String);
-      } catch (error) {
-        console.error("Save failed", error);
-        alert("บันทึกรูปไม่สำเร็จ");
-      } finally {
-        setIsUploading(false);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      // 1. อัปโหลดไปยัง Firebase Storage
+      const sRef = storageRef(storage, `profiles/${user.uid}_${Date.now()}.jpg`);
+      await uploadBytes(sRef, file);
+      const downloadURL = await getDownloadURL(sRef);
+
+      // 2. บันทึก URL ลง Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        photoURL: downloadURL
+      }, { merge: true });
+
+      setCustomPhoto(downloadURL);
+    } catch (error) {
+      console.error("Save failed", error);
+      alert("บันทึกรูปไม่สำเร็จ");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -188,13 +197,14 @@ export default function ProfilePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#FFF4EF] via-white to-white pointer-events-none"></div>
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#E8622A]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="max-w-xl mx-auto px-4 pt-12 pb-10 relative z-10">
-          <h1 className="text-3xl font-black text-[#1A1A1A] mb-8 flex items-center gap-3 tracking-tight">
-            <div className="p-2.5 bg-[#FFF4EF] text-[#E8622A] rounded-xl border border-[#fbdcd0] shadow-sm">
-              <Settings size={28} />
-            </div>
-            จัดการบัญชีของคุณ
-          </h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10 relative z-10">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1A1A1A] mb-8 flex items-center gap-3 tracking-tight">
+              <div className="p-2.5 bg-[#FFF4EF] text-[#E8622A] rounded-xl border border-[#fbdcd0] shadow-sm">
+                <Settings size={28} />
+              </div>
+              จัดการบัญชีของคุณ
+            </h1>
 
           {/* Profile Card */}
           <div className="relative overflow-hidden bg-white backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] border border-[#EBEBEB] shadow-sm group transition-all duration-500 hover:border-[#E8622A]/30 w-full">
@@ -250,11 +260,11 @@ export default function ProfilePage() {
 
               {/* User Info */}
               <div className="flex-1 min-w-0 text-center sm:text-left flex flex-col justify-center py-2 relative w-full overflow-hidden">
-                <h2 className="text-2xl font-extrabold text-[#1A1A1A] mb-1.5 truncate tracking-tight">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1A1A1A] mb-1.5 truncate tracking-tight">
                   {user.displayName || "ผู้ใช้งาน"}
                 </h2>
                 <div className="w-full overflow-hidden">
-                  <p className="text-[#6B6B6B] flex items-center justify-center sm:justify-start gap-2 mb-4 font-medium truncate w-full group/email">
+                  <p className="text-[#6B6B6B] text-sm sm:text-base flex items-center justify-center sm:justify-start gap-2 mb-4 font-medium truncate w-full group/email">
                     <Mail size={16} className="text-gray-400 shrink-0 group-hover/email:text-[#E8622A] transition-colors" />
                     <span className="truncate">{user.email}</span>
                   </p>
@@ -288,19 +298,21 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div className="max-w-xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div className="max-w-3xl mx-auto space-y-8">
 
         {/* Stats Grid */}
         <div className="bg-white border border-[#EBEBEB] p-6 sm:p-8 rounded-[2rem] shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5">
             <TrendingUp size={120} className="text-[#E8622A]" />
           </div>
-          <h3 className="text-sm font-bold text-[#1A1A1A] mb-6 flex items-center gap-2 relative z-10 uppercase tracking-widest">
+          <h3 className="text-base sm:text-lg font-bold text-[#1A1A1A] mb-6 flex items-center gap-2 relative z-10 uppercase tracking-widest">
             <TrendingUp size={16} className="text-[#E8622A]" />
             ภาพรวมการเดินทางของคุณ
           </h3>
@@ -350,7 +362,7 @@ export default function ProfilePage() {
         {/* Security / Account settings */}
         <div className="bg-white rounded-[2rem] border border-[#EBEBEB] shadow-sm overflow-hidden">
           <div className="p-6 border-b border-[#EBEBEB] bg-gray-50/50">
-            <h3 className="text-[11px] font-bold text-[#6B6B6B] flex items-center gap-2 uppercase tracking-widest">
+            <h3 className="text-xs sm:text-sm font-bold text-[#6B6B6B] flex items-center gap-2 uppercase tracking-widest">
               <Shield size={14} className="text-[#E8622A]" />
               ความปลอดภัยและการตั้งค่า
             </h3>
@@ -362,8 +374,8 @@ export default function ProfilePage() {
                   <Mail size={18} />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold text-[#1A1A1A]">อีเมลลงทะเบียน</p>
-                  <p className="text-[11px] font-bold text-[#6B6B6B] mt-1 uppercase tracking-wide">{user.emailVerified ? 'ยืนยันตัวตนเรียบร้อย' : 'รอการยืนยันอีเมล'}</p>
+                  <p className="text-sm sm:text-base font-bold text-[#1A1A1A]">อีเมลลงทะเบียน</p>
+                  <p className="text-xs sm:text-sm font-bold text-[#6B6B6B] mt-1 uppercase tracking-wide">{user.emailVerified ? 'ยืนยันตัวตนเรียบร้อย' : 'รอการยืนยันอีเมล'}</p>
                 </div>
               </div>
               {user.emailVerified ? (
@@ -378,7 +390,7 @@ export default function ProfilePage() {
         {/* Danger Zone */}
         <div className="bg-white rounded-[2rem] border border-red-200 shadow-sm overflow-hidden group/danger">
           <div className="p-6 border-b border-red-100 bg-red-50/50">
-            <h3 className="text-[11px] font-bold text-red-500 flex items-center gap-2 uppercase tracking-widest">
+            <h3 className="text-xs sm:text-sm font-bold text-red-500 flex items-center gap-2 uppercase tracking-widest">
               <Shield size={14} />
               เขตอันตราย
             </h3>
@@ -407,6 +419,7 @@ export default function ProfilePage() {
           <p className="text-[10px] font-bold text-gray-400">v1.0.0 &copy; {new Date().getFullYear()}</p>
         </div>
 
+        </div>
       </div>
     </div>
   );
