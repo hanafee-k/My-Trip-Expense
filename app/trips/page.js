@@ -2,20 +2,20 @@
 import { useState, useEffect, useMemo } from "react";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../context/AuthContext";
-import { 
-  collection, addDoc, query, onSnapshot, orderBy, 
-  deleteDoc, doc, serverTimestamp, updateDoc 
+import {
+  collection, addDoc, query, onSnapshot, orderBy,
+  deleteDoc, doc, serverTimestamp, updateDoc
 } from "firebase/firestore";
-import { 
+import {
   Trash2, Plane, Plus, Clock, TrendingDown, Edit2, X, Save,
   AlertTriangle, ShoppingBag, Home, Briefcase, Gift, Layers,
-  MapPin, Wallet, List, BarChart3, Calendar, ChevronRight, 
+  MapPin, Wallet, List, BarChart3, Calendar, ChevronRight,
   Target, Zap
 } from "lucide-react";
 
 export default function ProjectsPage() {
   const { user } = useAuth();
-  
+
   const projectTypes = [
     { id: 'trip', label: 'ท่องเที่ยว', icon: Plane, color: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-200' },
     { id: 'shopping', label: 'ช้อปปิ้ง', icon: ShoppingBag, color: 'text-pink-500', bg: 'bg-pink-50', border: 'border-pink-200' },
@@ -26,19 +26,24 @@ export default function ProjectsPage() {
 
   // State
   const [name, setName] = useState("");
-  const [budget, setBudget] = useState(""); 
+  const [budget, setBudget] = useState("");
   const [dailyLimit, setDailyLimit] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [selectedType, setSelectedType] = useState("trip");
   const [projects, setProjects] = useState([]);
-  const [transactions, setTransactions] = useState([]); 
+  const [transactions, setTransactions] = useState([]);
   const [activeTab, setActiveTab] = useState("active");
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editBudget, setEditBudget] = useState("");
   const [editDailyLimit, setEditDailyLimit] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState("list"); // "list" | "timeline"
   const [timelineTrip, setTimelineTrip] = useState(null);
+
 
   useEffect(() => {
     if (!user) { setIsLoading(false); return; }
@@ -63,11 +68,13 @@ export default function ProjectsPage() {
         name: name.trim(),
         budget: Number(budget) || 0,
         dailyLimit: Number(dailyLimit) || 0,
+        startDate: startDate ? Timestamp.fromDate(new Date(startDate)) : null,
+        endDate: endDate ? Timestamp.fromDate(new Date(endDate)) : null,
         type: selectedType,
         status: "active",
         createdAt: serverTimestamp(),
       });
-      setName(""); setBudget(""); setDailyLimit(""); setSelectedType("trip");
+      setName(""); setBudget(""); setDailyLimit(""); setStartDate(""); setEndDate(""); setSelectedType("trip");
     } catch (error) {
       console.error("Error adding project:", error);
       alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -93,7 +100,10 @@ export default function ProjectsPage() {
     setEditName(project.name);
     setEditBudget(project.budget?.toString() || "0");
     setEditDailyLimit(project.dailyLimit?.toString() || "0");
+    setEditStartDate(project.startDate ? project.startDate.toDate().toISOString().split('T')[0] : "");
+    setEditEndDate(project.endDate ? project.endDate.toDate().toISOString().split('T')[0] : "");
   };
+
 
   const saveEdit = async (id) => {
     if (!editName.trim()) return;
@@ -101,8 +111,11 @@ export default function ProjectsPage() {
       name: editName.trim(),
       budget: Number(editBudget) || 0,
       dailyLimit: Number(editDailyLimit) || 0,
+      startDate: editStartDate ? Timestamp.fromDate(new Date(editStartDate)) : null,
+      endDate: editEndDate ? Timestamp.fromDate(new Date(editEndDate)) : null,
     });
     setEditingId(null);
+
   };
 
   // Helpers
@@ -137,7 +150,7 @@ export default function ProjectsPage() {
         dayMap[d].total += Number(t.amount) || 0;
         dayMap[d].count++;
         dayMap[d].txns.push(t);
-      } catch {}
+      } catch { }
     });
     return Object.values(dayMap).sort((a, b) => a.date.localeCompare(b.date));
   }, [timelineTrip, transactions]);
@@ -152,30 +165,29 @@ export default function ProjectsPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen pb-24 font-sans text-[#1A1A1A]">
-      
+    <div className="min-h-screen pb-24 text-[#1A1A1A] bg-[#F7F6F3]">
+
+
       {/* Header */}
       <div className="bg-white/95 p-4 text-center border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-sm shadow-sm">
         <div className="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 text-[#1A1A1A] tracking-wide">
-            <span className="text-2xl">✈️</span>
+          <h1 className="text-[20px] font-bold flex items-center gap-2 text-[#1A1A1A] tracking-tight">
             <span>จัดการ<span className="text-[#E8622A]">โครงการ</span></span>
           </h1>
+
           {/* Feature 6 — View Toggle */}
           <div className="flex gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
             <button
               onClick={() => { setViewMode("list"); setTimelineTrip(null); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === "list" ? "bg-white text-[#1A1A1A] shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${viewMode === "list" ? "bg-white text-[#1A1A1A] shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
+                }`}
             >
               <List size={14} /> รายการ
             </button>
             <button
               onClick={() => setViewMode("timeline")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === "timeline" ? "bg-[#E8622A] text-white shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${viewMode === "timeline" ? "bg-[#E8622A] text-white shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
+                }`}
             >
               <BarChart3 size={14} /> Timeline
             </button>
@@ -190,9 +202,10 @@ export default function ProjectsPage() {
           <>
             {/* Add Form */}
             <div className="bg-white p-5 rounded-2xl border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)] mb-6">
-              <h2 className="text-base sm:text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-                <Plus size={16} className="text-[#E8622A]"/> สร้างรายการใหม่
+              <h2 className="text-[15px] font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Plus size={16} className="text-[#E8622A]" /> สร้างรายการใหม่
               </h2>
+
               <form onSubmit={handleAddProject} className="space-y-4">
                 {/* Type Selector */}
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -201,9 +214,8 @@ export default function ProjectsPage() {
                     const isSelected = selectedType === type.id;
                     return (
                       <button key={type.id} type="button" onClick={() => setSelectedType(type.id)}
-                        className={`flex flex-col items-center justify-center min-w-[70px] p-2 rounded-xl border transition-all ${
-                          isSelected ? `bg-white ${type.border} ${type.color} shadow-sm` : 'bg-gray-50 border-gray-200 text-[#6B6B6B] hover:bg-gray-100'
-                        }`}
+                        className={`flex flex-col items-center justify-center min-w-[70px] p-2 rounded-xl border transition-all ${isSelected ? `bg-white ${type.border} ${type.color} shadow-sm` : 'bg-gray-50 border-gray-200 text-[#6B6B6B] hover:bg-gray-100'
+                          }`}
                       >
                         <Icon size={20} className="mb-1" />
                         <span className="text-[10px] font-medium">{type.label}</span>
@@ -213,7 +225,7 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="relative">
-                  <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><MapPin size={18}/></span>
+                  <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><MapPin size={18} /></span>
                   <input type="text" value={name} onChange={(e) => setName(e.target.value)}
                     placeholder="ชื่อโครงการ (เช่น เที่ยวเชียงใหม่)"
                     className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
@@ -221,23 +233,43 @@ export default function ProjectsPage() {
                   />
                 </div>
 
+                {/* Date Range */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative">
+                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Calendar size={18} /></span>
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition"
+                    />
+                    <label className="absolute left-10 -top-2 px-1 bg-white text-[10px] text-gray-500">วันที่เริ่ม</label>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Calendar size={18} /></span>
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition"
+                    />
+                    <label className="absolute left-10 -top-2 px-1 bg-white text-[10px] text-gray-500">วันที่จบ</label>
+                  </div>
+                </div>
+
                 {/* Budget + Daily Limit */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="relative">
-                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Wallet size={18}/></span>
+                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Wallet size={18} /></span>
                     <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)}
                       placeholder="งบรวม (บาท)"
-                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
+                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
                     />
                   </div>
                   <div className="relative">
-                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Zap size={18}/></span>
+                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Zap size={18} /></span>
                     <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)}
                       placeholder="วงเงิน/วัน (บาท)"
-                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
+                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
                     />
                   </div>
                 </div>
+
+
 
                 <button type="submit" className="w-full bg-[#E8622A] hover:bg-[#d65722] text-white py-3 rounded-xl font-bold transition shadow-sm">
                   + สร้างโครงการ
@@ -260,7 +292,7 @@ export default function ProjectsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {displayProjects.length === 0 ? (
                   <div className="text-center py-12 text-[#6B6B6B] bg-white rounded-xl border border-[#EBEBEB] border-dashed col-span-2">
-                    <Layers size={40} className="mx-auto mb-2 opacity-20"/>
+                    <Layers size={40} className="mx-auto mb-2 opacity-20" />
                     <p>ไม่มีรายการ</p>
                   </div>
                 ) : (
@@ -293,6 +325,17 @@ export default function ProjectsPage() {
                                   <input type="number" value={editBudget} onChange={(e) => setEditBudget(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-sm" placeholder="งบรวม" />
                                   <input type="number" value={editDailyLimit} onChange={(e) => setEditDailyLimit(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-sm" placeholder="วงเงิน/วัน" />
                                 </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="relative">
+                                    <input type="date" value={editStartDate} onChange={(e) => setEditStartDate(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-[10px]" />
+                                    <label className="absolute left-1 -top-2 px-1 bg-white text-[8px] text-gray-500">เริ่ม</label>
+                                  </div>
+                                  <div className="relative">
+                                    <input type="date" value={editEndDate} onChange={(e) => setEditEndDate(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-[10px]" />
+                                    <label className="absolute left-1 -top-2 px-1 bg-white text-[8px] text-gray-500">จบ</label>
+                                  </div>
+                                </div>
+
                               </div>
                             ) : (
                               <>
@@ -303,11 +346,10 @@ export default function ProjectsPage() {
                                   {item.status === 'completed' && <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-bold">จบแล้ว</span>}
                                   {/* Feature 2 — Daily Limit Badge */}
                                   {dailyLimitVal > 0 && (
-                                    <span className={`text-[10px] px-2 py-0.5 rounded-full border flex items-center gap-1 font-bold ${
-                                      dailyExceeded
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full border flex items-center gap-1 font-bold ${dailyExceeded
                                         ? 'bg-red-50 text-red-500 border-red-200'
                                         : 'bg-gray-50 text-gray-500 border-gray-200'
-                                    }`}>
+                                      }`}>
                                       <Zap size={9} /> ฿{Number(dailyLimitVal).toLocaleString()}/วัน
                                       {dailyExceeded && " 🔴"}
                                     </span>
@@ -318,7 +360,7 @@ export default function ProjectsPage() {
                                   {isOverBudget && stats.safeBudget > 0 && <AlertTriangle size={14} className="text-red-500" />}
                                 </h3>
                                 <p className="text-xs text-[#6B6B6B] flex items-center gap-1 mt-1">
-                                  <Clock size={12}/> {formatDate(item.createdAt)} • {stats.count} รายการ
+                                  <Clock size={12} /> {formatDate(item.createdAt)} • {stats.count} รายการ
                                 </p>
                               </>
                             )}
@@ -327,8 +369,8 @@ export default function ProjectsPage() {
                           <div className="flex gap-2">
                             {isEditing ? (
                               <>
-                                <button onClick={() => saveEdit(item.id)} className="p-2 bg-[#E8622A] rounded text-white"><Save size={16}/></button>
-                                <button onClick={() => setEditingId(null)} className="p-2 border border-gray-200 rounded text-gray-500"><X size={16}/></button>
+                                <button onClick={() => saveEdit(item.id)} className="p-2 bg-[#E8622A] rounded text-white"><Save size={16} /></button>
+                                <button onClick={() => setEditingId(null)} className="p-2 border border-gray-200 rounded text-gray-500"><X size={16} /></button>
                               </>
                             ) : (
                               <>
@@ -338,11 +380,11 @@ export default function ProjectsPage() {
                                   className="p-2 border border-gray-200 rounded text-gray-500 hover:text-[#E8622A] hover:border-[#E8622A] transition bg-white"
                                   title="ดู Timeline"
                                 >
-                                  <BarChart3 size={16}/>
+                                  <BarChart3 size={16} />
                                 </button>
-                                <button onClick={() => startEdit(item)} className="p-2 border border-gray-200 rounded text-gray-500 hover:text-blue-500 bg-white"><Edit2 size={16}/></button>
-                                <button onClick={() => toggleStatus(item)} className="p-2 border border-gray-200 rounded text-green-500 bg-white"><Layers size={16}/></button>
-                                <button onClick={() => handleDelete(item.id)} className="p-2 border border-gray-200 rounded text-gray-500 hover:text-red-500 bg-white"><Trash2 size={16}/></button>
+                                <button onClick={() => startEdit(item)} className="p-2 border border-gray-200 rounded text-gray-500 hover:text-blue-500 bg-white"><Edit2 size={16} /></button>
+                                <button onClick={() => toggleStatus(item)} className="p-2 border border-gray-200 rounded text-green-500 bg-white"><Layers size={16} /></button>
+                                <button onClick={() => handleDelete(item.id)} className="p-2 border border-gray-200 rounded text-gray-500 hover:text-red-500 bg-white"><Trash2 size={16} /></button>
                               </>
                             )}
                           </div>
@@ -365,11 +407,10 @@ export default function ProjectsPage() {
                                 </div>
                                 {/* Feature 1 — Budget Alert inline */}
                                 {stats.percent >= 80 && (
-                                  <div className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold ${
-                                    isOverBudget
+                                  <div className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold ${isOverBudget
                                       ? 'bg-red-50 text-red-500 border border-red-200'
                                       : 'bg-orange-50 text-orange-500 border border-orange-200'
-                                  }`}>
+                                    }`}>
                                     <AlertTriangle size={12} />
                                     {isOverBudget
                                       ? `⚠️ เกินงบ ฿${Math.abs(stats.remaining).toLocaleString()}`
@@ -496,13 +537,12 @@ export default function ProjectsPage() {
                                 />
                               )}
                               <div
-                                className={`w-full rounded-t-lg transition-all duration-500 ${
-                                  isMax
+                                className={`w-full rounded-t-lg transition-all duration-500 ${isMax
                                     ? 'bg-orange-400 shadow-sm'
                                     : overDailyLimit
-                                    ? 'bg-red-400'
-                                    : 'bg-[#E8622A]'
-                                }`}
+                                      ? 'bg-red-400'
+                                      : 'bg-[#E8622A]'
+                                  }`}
                                 style={{ height: `${Math.max(heightPercent, 4)}%`, opacity: 0.8 + (heightPercent / 100) * 0.2 }}
                               />
                             </div>
@@ -557,9 +597,8 @@ export default function ProjectsPage() {
                     const overDailyLimit = dailyLimitForTimeline > 0 && day.total > dailyLimitForTimeline;
                     const dateObj = new Date(day.date + 'T00:00:00');
                     return (
-                      <div key={day.date} className={`bg-white rounded-xl p-4 border flex items-center justify-between transition shadow-sm ${
-                        overDailyLimit ? 'border-red-200' : 'border-[#EBEBEB]'
-                      }`}>
+                      <div key={day.date} className={`bg-white rounded-xl p-4 border flex items-center justify-between transition shadow-sm ${overDailyLimit ? 'border-red-200' : 'border-[#EBEBEB]'
+                        }`}>
                         <div className="flex items-center gap-3">
                           {overDailyLimit && <span className="text-red-500 text-xs">🔴</span>}
                           <div>

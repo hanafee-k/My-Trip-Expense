@@ -21,8 +21,10 @@ export default function Navbar() {
   return (
     <>
       {/* ===== DESKTOP SIDEBAR (lg+) ===== */}
-      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-60 bg-white border-r border-[#EBEBEB] z-50">
-        <div className="px-6 py-8 border-b border-[#EBEBEB]">
+      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-60 bg-white border-r border-gray-200 z-50">
+
+        <div className="px-6 py-8 border-b border-gray-200">
+
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#E8622A] rounded-xl shadow-lg shadow-orange-500/30 flex items-center justify-center rotate-6">
               <Plane size={20} className="text-white -rotate-6" />
@@ -61,13 +63,15 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="px-4 py-6 border-t border-[#EBEBEB]">
+        <div className="px-4 py-6 border-t border-gray-200">
+
           <p className="text-[10px] text-gray-400 font-medium tracking-wider text-center uppercase">v1.0.0 · Made for travelers</p>
         </div>
       </aside>
 
       {/* ===== MOBILE BOTTOM NAV (< lg) ===== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-[#EBEBEB] z-50 px-2 pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-2 pb-safe">
+
         <div className="flex justify-around items-center">
           {navItems.map((item) => {
             const Icon = item.icon;

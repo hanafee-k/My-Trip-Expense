@@ -30,7 +30,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${notoThai.variable} ${inter.variable}`}>
-      <body className={`bg-[#F7F7F5] text-[#1A1A1A] selection:bg-[#E8622A]/30 font-sans`}>
+      <body className={`bg-[#F7F6F3] text-[#1A1A1A] selection:bg-[#E8622A]/30 font-sans`}>
         <AuthProvider>
           <RouteGuard>
             <Navbar />

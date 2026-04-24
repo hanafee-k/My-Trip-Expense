@@ -4,7 +4,11 @@ import { db, auth } from "../../lib/firebase";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,BarChart,Bar,XAxis,YAxis,CartesianGrid} from "recharts";
-import { Filter, ChevronRight, Plane,TrendingDown,Calendar,PieChart as PieChartIcon,BarChart3,Loader2,ArrowLeft,Download,Sparkles,Target,AlertCircle } from "lucide-react";
+import { Filter, ChevronRight, Plane,TrendingDown,Calendar,PieChart as PieChartIcon,BarChart3,Loader2,ArrowLeft,Download,Sparkles,Target,AlertCircle, X } from "lucide-react";
+
+import FilterBar from "../../components/FilterBar";
+import { getStartOfMonth, getEndOfMonth } from "../../lib/dateUtils";
+
 
 export default function ReportsPage() {
   const [user, setUser] = useState(null);
@@ -20,26 +24,18 @@ export default function ReportsPage() {
   }, []);
 
   // --- Helper Functions ---
-  const getStartOfMonth = () => {
-    const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
-  };
-
-  const getEndOfMonth = () => {
-    const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
-  };
-
-  const getStartOfYear = () => {
-    const date = new Date();
-    return new Date(date.getFullYear(), 0, 1).toISOString().split('T')[0];
-  };
+  // (Moved to lib/dateUtils.js)
 
   // --- State Management ---
   const [trips, setTrips] = useState([]);
   const [transactions, setTransactions] = useState([]);
   
   // Filter State
+  const [reportTab, setReportTab] = useState('date'); // 'date' | 'trip'
+  const [dateFrom, setDateFrom] = useState(getStartOfMonth());
+  const [dateTo, setDateTo] = useState(getEndOfMonth());
+  const [selectedTrip, setSelectedTrip] = useState(null);
+
   const [filterStart, setFilterStart] = useState(getStartOfMonth());
   const [filterEnd, setFilterEnd] = useState(getEndOfMonth());
   const [filterTrip, setFilterTrip] = useState("all");
@@ -47,6 +43,7 @@ export default function ReportsPage() {
   
   // Chart Type Toggle
   const [chartType, setChartType] = useState("pie"); // pie or bar
+
 
   // --- Categories Configuration ---
   const categories = [
@@ -177,11 +174,13 @@ export default function ReportsPage() {
       id: "this_year",
       label: "ปีนี้",
       action: () => {
-        setFilterStart(getStartOfYear());
+        const year = new Date().getFullYear();
+        setFilterStart(`${year}-01-01`);
         setFilterEnd(getEndOfMonth());
       }
     }
   ];
+
 
   // --- Helper Functions ---
   const getTripName = (id) => trips.find(t => t.id === id)?.name || "ไม่พบทริป";
@@ -248,7 +247,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 font-sans text-[#1A1A1A]">
+    <div className="min-h-screen pb-24 text-[#1A1A1A]">
       
       {/* Header */}
       <div className="bg-white/95 p-5 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-md shadow-sm">
@@ -276,140 +275,177 @@ export default function ReportsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
+
         
-        {/* Filter Bar */}
-        <div className="mb-5">
-          <button
-            onClick={() => setShowFilter(!showFilter)}
-            className="w-full flex justify-between items-center bg-white p-4 rounded-xl border border-[#EBEBEB] shadow-sm text-sm text-[#1A1A1A] hover:border-[#E8622A] transition-all active:scale-[0.99]"
-          >
-            <div className="flex items-center gap-3">
-              <Filter size={18} className="text-[#E8622A]" />
-              <span className="font-bold">
-                {filterTrip === 'all' ? '📊 ทุกรายการ' :
-                 filterTrip === 'no_trip' ? '🏠 ชีวิตประจำวัน' :
-                 `✈️ ${getTripName(filterTrip)}`}
-              </span>
-              <span className="text-xs text-[#6B6B6B] font-medium hidden sm:inline-block">
-                {new Date(filterStart).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                {' - '}
-                {new Date(filterEnd).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-              </span>
-            </div>
-            <ChevronRight
-              size={18}
-              className={`transform transition-transform ${showFilter ? 'rotate-90' : ''} text-[#6B6B6B]`}
-            />
-          </button>
+        {/* Task 2 — Two Tab Filter System */}
+        <div className="mb-8">
+          <div className="bg-gray-100 rounded-full p-1 flex mb-6">
+            <button
+              onClick={() => setReportTab('date')}
+              className={`flex-1 py-2 rounded-full text-sm transition-all ${
+                reportTab === 'date' 
+                  ? "bg-white shadow-sm text-[#E8622A] font-semibold" 
+                  : "text-gray-500 font-normal"
+              }`}
+            >
+              ช่วงวันที่
+            </button>
+            <button
+              onClick={() => setReportTab('trip')}
+              className={`flex-1 py-2 rounded-full text-sm transition-all ${
+                reportTab === 'trip' 
+                  ? "bg-white shadow-sm text-[#E8622A] font-semibold" 
+                  : "text-gray-500 font-normal"
+              }`}
+            >
+              รายการทริป
+            </button>
+          </div>
 
-          {showFilter && (
-            <div className="mt-3 p-5 bg-white rounded-xl border border-[#EBEBEB] shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 space-y-5">
-              
-              {/* Quick Filters */}
-              <div className="flex gap-2">
-                {quickFilters.map(filter => (
-                  <button
-                    key={filter.id}
-                    onClick={filter.action}
-                    className="flex-1 bg-gray-50 border border-gray-200 hover:bg-[#FFF4EF] hover:border-[#fbdcd0] hover:text-[#E8622A] text-[#1A1A1A] px-3 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-95"
-                  >
-                    {filter.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="border-t border-gray-100"></div>
-
-              {/* Trip Filter */}
-              <div>
-                <label className="text-xs text-[#6B6B6B] font-bold flex items-center gap-2 mb-2.5">
-                  <Plane size={14} className="text-[#E8622A]" />
-                  เลือกดูข้อมูลของ
-                </label>
-                <select
-                  value={filterTrip}
-                  onChange={(e) => setFilterTrip(e.target.value)}
-                  className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition"
-                >
-                  <option value="all">🌐 รายการทั้งหมด</option>
-                  <option value="no_trip">🏠 ชีวิตประจำวัน (ไม่เข้าทริป)</option>
-                  {trips.length > 0 && <option disabled>──────────</option>}
-                  {trips.map(t => (
-                    <option key={t.id} value={t.id}>✈️ {t.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="border-t border-gray-100"></div>
-
-              {/* Date Range */}
-              <div className="space-y-3">
-                <label className="text-xs text-[#6B6B6B] font-bold flex items-center gap-2">
-                  <Calendar size={14} className="text-[#E8622A]" />
-                  ช่วงเวลา
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] text-[#6B6B6B] block mb-1.5 ml-1 font-medium">ตั้งแต่วันที่</label>
-                    <input
-                      type="date"
-                      value={filterStart}
-                      onChange={e => setFilterStart(e.target.value)}
-                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-[#6B6B6B] block mb-1.5 ml-1 font-medium">ถึงวันที่</label>
-                    <input
-                      type="date"
-                      value={filterEnd}
-                      onChange={e => setFilterEnd(e.target.value)}
-                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition"
-                    />
-                  </div>
+          {reportTab === 'date' ? (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[12px] font-medium text-gray-500 uppercase ml-1">จากวันที่</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="border border-gray-200 rounded-xl px-3 py-2 text-[14px] bg-white w-full focus:outline-none focus:border-[#E8622A]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[12px] font-medium text-gray-500 uppercase ml-1">ถึงวันที่</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="border border-gray-200 rounded-xl px-3 py-2 text-[14px] bg-white w-full focus:outline-none focus:border-[#E8622A]"
+                  />
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  setFilterStart(dateFrom);
+                  setFilterEnd(dateTo);
+                  setFilterTrip('all');
+                  setSelectedTrip(null);
+                }}
+                className="bg-[#E8622A] text-white rounded-xl w-full py-2.5 font-semibold text-[14px] hover:bg-[#d65722] transition-colors shadow-sm"
+              >
+                ดูรายงาน
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              {trips.length === 0 ? (
+                <div className="col-span-full py-12 text-center text-gray-400 text-sm bg-white rounded-2xl border border-gray-100">
+                  ยังไม่มีรายการทริป
+                </div>
+              ) : (
+                trips.map((trip) => {
+                  const tripSpent = transactions
+                    .filter(t => t.tripId === trip.id && t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                  
+                  const isActive = selectedTrip?.id === trip.id;
+                  
+                  return (
+                    <button
+                      key={trip.id}
+                      onClick={() => {
+                        setSelectedTrip(trip);
+                        const start = trip.startDate ? 
+                          (typeof trip.startDate.toDate === 'function' ? trip.startDate.toDate().toISOString().split('T')[0] : trip.startDate) 
+                          : "1970-01-01";
+                        const end = trip.endDate ? 
+                          (typeof trip.endDate.toDate === 'function' ? trip.endDate.toDate().toISOString().split('T')[0] : trip.endDate) 
+                          : "2099-12-31";
+                        setFilterStart(start);
+                        setFilterEnd(end);
+                        setFilterTrip(trip.id);
+                      }}
+                      className={`text-left p-4 rounded-2xl border transition-all shadow-sm ${
+                        isActive 
+                          ? "border-[#E8622A] border-2 bg-[#FFF4EF]" 
+                          : "bg-white border-gray-100 hover:border-gray-200"
+                      }`}
+                    >
+                      <div className="font-semibold text-gray-900 mb-1">{trip.name}</div>
+                      <div className="text-[12px] text-gray-400 flex items-center gap-1 mb-2">
+                        <Calendar size={12} />
+                        {trip.startDate ? 
+                          `${new Date(trip.startDate.toDate()).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })} - ${new Date(trip.endDate.toDate()).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}` 
+                          : 'ไม่ระบุวันที่'}
+                      </div>
+                      <div className="text-[#E8622A] font-bold text-[14px]">
+                        ฿{tripSpent.toLocaleString()}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           )}
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          {/* Total Expense */}
-          <div className="bg-[#E8622A] rounded-xl p-5 shadow-[0_4px_12px_rgba(232,98,42,0.2)] border border-[#E8622A] col-span-2">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-white text-sm font-bold opacity-90">
-                <TrendingDown size={16} />
-                รายจ่ายรวม
-              </div>
-              <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg border border-white/20">
-                <Target size={16} className="text-white" />
-              </div>
+        {/* Selected Trip Banner */}
+        {selectedTrip && (
+          <div className="mb-6 bg-[#E8622A] text-white px-4 py-3 rounded-xl flex justify-between items-center shadow-md animate-in slide-in-from-left-4">
+            <div className="flex items-center gap-2 font-semibold text-[14px]">
+              <Plane size={18} />
+              กำลังดูทริป: {selectedTrip.name}
             </div>
-            <div className="text-4xl font-black text-white mb-1">
+            <button 
+              onClick={() => {
+                setSelectedTrip(null);
+                setFilterTrip('all');
+                setFilterStart(getStartOfMonth());
+                setFilterEnd(getEndOfMonth());
+                setReportTab('date');
+              }}
+              className="p-1 hover:bg-white/20 rounded-full transition"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
+
+
+
+        {/* Task 1 — Standardized Stats Cards */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {/* Total Expense Card (Highlight) */}
+          <div className="bg-[#FFF4EF] rounded-2xl p-4 border border-[#E8622A]/20 shadow-sm col-span-2">
+            <div className="text-[12px] font-medium text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-2">
+              <TrendingDown size={14} className="text-red-500" />
+              <span>รายจ่ายรวม</span>
+            </div>
+            <div className="text-[22px] font-bold text-gray-900 leading-none">
               {totalExpense.toLocaleString()}
             </div>
-            <div className="text-white opacity-90 text-sm font-medium">บาท</div>
+            <div className="text-[11px] text-gray-400 mt-1">บาท</div>
           </div>
 
           {/* Transactions Count */}
-          <div className="bg-white rounded-xl p-4 border border-[#EBEBEB] shadow-sm">
-            <div className="text-xs text-[#6B6B6B] mb-2 font-bold">จำนวนรายการ</div>
-            <div className="text-2xl font-black text-[#1A1A1A] mb-1">
+          <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+            <div className="text-[12px] font-medium text-gray-500 uppercase tracking-wide mb-1">จำนวนรายการ</div>
+            <div className="text-[22px] font-bold text-gray-900 leading-none">
               {stats.totalTransactions}
             </div>
-            <div className="text-xs text-[#6B6B6B] font-medium">รายการ</div>
+            <div className="text-[11px] text-gray-400 mt-1">รายการ</div>
           </div>
 
           {/* Average Per Day */}
-          <div className="bg-white rounded-xl p-4 border border-[#EBEBEB] shadow-sm">
-            <div className="text-xs text-[#6B6B6B] mb-2 font-bold">เฉลี่ยต่อวัน</div>
-            <div className="text-2xl font-black text-[#1A1A1A] mb-1">
+          <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+            <div className="text-[12px] font-medium text-gray-500 uppercase tracking-wide mb-1">เฉลี่ยต่อวัน</div>
+            <div className="text-[22px] font-bold text-gray-900 leading-none">
               {Math.round(stats.avgPerDay).toLocaleString()}
             </div>
-            <div className="text-xs text-[#6B6B6B] font-medium">บาท/วัน</div>
+            <div className="text-[11px] text-gray-400 mt-1">บาท/วัน</div>
           </div>
         </div>
+
 
         {/* Chart Type Toggle */}
         <div className="flex gap-2 p-1.5 bg-gray-100 rounded-xl border border-gray-200 mb-5">
@@ -505,14 +541,12 @@ export default function ReportsPage() {
         {chartData.length > 0 && (
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between px-1 mb-4">
-              <h3 className="text-[#1A1A1A] font-bold text-lg sm:text-xl flex items-center gap-2">
+              <h3 className="text-[15px] font-semibold text-gray-800 flex items-center gap-2">
                 <BarChart3 size={20} className="text-[#E8622A]" />
                 รายละเอียดตามหมวดหมู่
               </h3>
-              <span className="text-xs text-[#6B6B6B] font-bold bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">
-                {chartData.length} หมวด
-              </span>
             </div>
+
             
             {chartData.map((item, index) => (
               <div

@@ -171,7 +171,8 @@ export default function SplitBillPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen pb-32 font-sans text-[#1A1A1A]">
+    <div className="min-h-screen pb-32 text-[#1A1A1A] bg-[#F7F6F3]">
+
       {/* Header */}
       <div className="bg-white/95 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-lg shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
@@ -179,10 +180,11 @@ export default function SplitBillPage() {
             <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1A1A1A] flex items-center gap-2">
+            <h1 className="text-[20px] font-bold text-[#1A1A1A] flex items-center gap-2">
               <Split size={20} className="text-[#E8622A]" />
               หารบิล
             </h1>
+
             <p className="text-xs sm:text-sm text-[#6B6B6B]">Split Bill Calculator</p>
           </div>
           <div className="flex gap-1">

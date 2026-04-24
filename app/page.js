@@ -12,21 +12,17 @@ import {
 } from "lucide-react";
 import Tesseract from 'tesseract.js';
 import { useRouter } from "next/navigation";
+import FilterBar from "../components/FilterBar";
+import { formatDateThai, getStartOfMonth, getEndOfMonth, getTodayDate } from "../lib/dateUtils";
+
 
 export default function Home() {
   const { user } = useAuth();
   const router = useRouter();
 
   // === Helpers ===
-  const getStartOfMonth = () => {
-    const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
-  };
-  const getEndOfMonth = () => {
-    const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
-  };
-  const getTodayDate = () => new Date().toISOString().split('T')[0];
+  // (Moved to lib/dateUtils.js)
+
 
   // === State ===
   const [filterStart, setFilterStart] = useState(getStartOfMonth());
@@ -447,7 +443,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5] text-[#1A1A1A] pb-32 font-sans selection:bg-[#E8622A]/30">
+    <div className="min-h-screen bg-[#F7F6F3] text-[#1A1A1A] pb-32 selection:bg-[#E8622A]/30">
+
 
       {/* Toast Notification */}
       {notification && (
@@ -465,142 +462,196 @@ export default function Home() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white sticky top-0 z-50 px-4 pt-6 pb-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border border-gray-100 flex items-center justify-center text-lg">
-            {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover"/> : "👤"}
+      {/* Task 1 — Redesigned Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+          <div className="flex justify-between items-start relative z-10">
+            <div className="space-y-1">
+              <p className="text-[13px] text-gray-500 font-normal">ยินดีต้อนรับกลับมา </p>
+              <h1 className="text-[18px] font-bold text-gray-900 leading-tight">
+                {user.displayName || "นักเดินทาง"}
+              </h1>
+              <p className="text-[12px] text-gray-400 font-medium">
+                {formatDateThai(getTodayDate())}
+              </p>
+            </div>
+
+
+            <div className="w-12 h-12 rounded-full border-2 border-[#E8622A] overflow-hidden shadow-sm bg-[#E8622A] flex items-center justify-center text-white font-bold">
+              {user.photoURL ? (
+                <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg">{user.displayName?.charAt(0) || "U"}</span>
+              )}
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-[#6B6B6B]">ยินดีต้อนรับ</p>
-            <p className="text-sm font-bold text-[#1A1A1A] truncate max-w-[150px]">{user.displayName || "ผู้ใช้งาน"}</p>
+
+          {/* Balance Summary Pill */}
+          <div className="mt-5 flex">
+            <div className="bg-[#E8622A] text-white rounded-full px-4 py-1.5 text-[13px] font-semibold flex items-center gap-2 self-start">
+              <span>💰 คงเหลือ ฿{(summary.income - summary.expense).toLocaleString()}</span>
+            </div>
           </div>
         </div>
-        <button onClick={() => window.location.reload()} className="p-2 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100">
-          <RefreshCw size={18} />
-        </button>
       </div>
+
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        {/* Smart Filter Bar */}
+        <FilterBar
+          trips={trips}
+          onChange={({ start, end, tripId }) => {
+            setFilterStart(start || getStartOfMonth());
+            setFilterEnd(end || getEndOfMonth());
+            setFilterTrip(tripId || "all");
+          }}
+        />
+      </div>
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-4">
           <div className="lg:col-span-2 space-y-6">
             {/* Stats Row */}
+            {/* Task 1 — Standardized Stats Cards */}
             <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-2xl p-4 flex flex-col border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-            <div className="flex items-center gap-2 text-[#6B6B6B] text-xs font-medium mb-1"><TrendingUp size={14} className="text-green-500" /><span>รายรับ</span></div>
-            <div className="text-xl font-bold text-[#1A1A1A]">{summary.income.toLocaleString()}</div>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex flex-col border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-            <div className="flex items-center gap-2 text-[#6B6B6B] text-xs font-medium mb-1"><TrendingDown size={14} className="text-red-500" /><span>รายจ่าย</span></div>
-            <div className="text-xl font-bold text-[#1A1A1A]">{summary.expense.toLocaleString()}</div>
-          </div>
-          <div className="bg-[#FFF4EF] col-span-2 rounded-2xl p-4 flex flex-col border border-[#fbdcd0] shadow-[0_1px_4px_rgba(0,0,0,0.06)] relative overflow-hidden">
-            <div className="absolute right-[-10px] top-[-10px] text-5xl opacity-10">💰</div>
-            <div className="flex items-center justify-between relative z-10">
-              <div>
-                <div className="flex items-center gap-2 text-[#E8622A] text-xs font-medium mb-1"><Wallet size={14} /><span>คงเหลือ</span></div>
-                <div className="text-3xl font-extrabold text-[#1A1A1A]">{(summary.income - summary.expense).toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Active Trip Card */}
-        {filterTrip !== 'all' && filterTrip !== 'no_trip' && (() => {
-          const trip = trips.find(t => t.id === filterTrip);
-          if(!trip) return null;
-          const spent = transactions.filter(t => t.tripId === filterTrip && t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
-          const budget = trip.budget || 0;
-          const percent = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
-          
-          return (
-            <div>
-              <div className="bg-white rounded-2xl p-4 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[#FFF4EF] flex items-center justify-center"><Plane size={14} className="text-[#E8622A]"/></div>
-                    <span className="font-bold text-[#1A1A1A]">{trip.name}</span>
-                  </div>
-                  <button onClick={() => setShowFilter(!showFilter)} className="text-[#E8622A] text-xs font-bold">รายละเอียด &gt;</button>
+              <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                <div className="text-[12px] font-medium text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-2">
+                  <TrendingUp size={14} className="text-green-500" />
+                  <span>รายรับ</span>
                 </div>
+                <div className="text-[22px] font-bold text-gray-900 leading-none">
+                  {summary.income.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-1">จำนวนรายการ</div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                <div className="text-[12px] font-medium text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-2">
+                  <TrendingDown size={14} className="text-red-500" />
+                  <span>รายจ่าย</span>
+                </div>
+                <div className="text-[22px] font-bold text-gray-900 leading-none">
+                  {summary.expense.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-1">จำนวนรายการ</div>
+              </div>
+
+              <div className="bg-white col-span-2 rounded-2xl p-4 border border-gray-100 shadow-sm relative overflow-hidden">
+                <div className="absolute right-[-10px] top-[-10px] text-5xl opacity-5">💰</div>
+                <div className="relative z-10">
+                  <div className="text-[12px] font-medium text-gray-400 uppercase tracking-wide mb-1 flex items-center gap-2">
+                    <Wallet size={14} className="text-[#E8622A]" />
+                    <span>คงเหลือ</span>
+                  </div>
+                  <div className="text-[22px] font-bold text-gray-900 leading-none">
+                    {(summary.income - summary.expense).toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-1 font-medium">ยอดคงเหลือสุทธิ</div>
+                </div>
+              </div>
+
+            </div>
+
+
+            {/* Active Trip Card */}
+            {filterTrip !== 'all' && filterTrip !== 'no_trip' && (() => {
+              const trip = trips.find(t => t.id === filterTrip);
+              if (!trip) return null;
+              const spent = transactions.filter(t => t.tripId === filterTrip && t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+              const budget = trip.budget || 0;
+              const percent = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+
+              return (
                 <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-[#6B6B6B]">งบประมาณ: {budget.toLocaleString()}</span>
-                    <span className={spent > budget ? 'text-red-500 font-bold' : 'text-[#1A1A1A]'}>{spent.toLocaleString()}</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${spent > budget ? 'bg-red-500' : 'bg-[#E8622A]'}`} style={{ width: `${percent}%` }}></div>
+                  <div className="bg-white rounded-2xl p-4 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-[#FFF4EF] flex items-center justify-center"><Plane size={14} className="text-[#E8622A]" /></div>
+                        <span className="font-bold text-[#1A1A1A]">{trip.name}</span>
+                      </div>
+                      <button onClick={() => setShowFilter(!showFilter)} className="text-[#E8622A] text-xs font-bold">รายละเอียด &gt;</button>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-[#6B6B6B]">งบประมาณ: {budget.toLocaleString()}</span>
+                        <span className={spent > budget ? 'text-red-500 font-bold' : 'text-[#1A1A1A]'}>{spent.toLocaleString()}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${spent > budget ? 'bg-red-500' : 'bg-[#E8622A]'}`} style={{ width: `${percent}%` }}></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              );
+            })()}
+
+            {/* Quick Actions */}
+            <div>
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <button onClick={() => { resetForm(); setShowForm(true); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+                  <div className="bg-[#FFF4EF] p-1.5 rounded-full"><Plus size={16} className="text-[#E8622A]" /></div>
+                  <span className="text-sm font-semibold text-[#1A1A1A]">เพิ่มรายจ่าย</span>
+                </button>
+                <button onClick={() => { resetForm(); setShowForm(true); setTimeout(() => fileInputRef.current?.click(), 100); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+                  <div className="bg-gray-100 p-1.5 rounded-full"><Camera size={16} className="text-gray-700" /></div>
+                  <span className="text-sm font-semibold text-[#1A1A1A]">สแกนสลิป</span>
+                </button>
+                <button onClick={() => router.push('/trips')} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+                  <div className="bg-blue-50 p-1.5 rounded-full"><Plane size={16} className="text-blue-500" /></div>
+                  <span className="text-sm font-semibold text-[#1A1A1A]">ทริปใหม่</span>
+                </button>
+                <button onClick={() => setShowExportMenu(!showExportMenu)} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative">
+                  <div className="bg-purple-50 p-1.5 rounded-full"><BarChart2 size={16} className="text-purple-500" /></div>
+                  <span className="text-sm font-semibold text-[#1A1A1A]">รายงาน</span>
+
+                  {/* Export Dropdown */}
+                  {showExportMenu && (
+                    <div className="absolute top-full left-0 mt-2 bg-white border border-[#EBEBEB] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
+                      <div onClick={(e) => { e.stopPropagation(); exportCSV(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
+                        <FileSpreadsheet size={16} className="text-green-500" /> <span>Export CSV</span>
+                      </div>
+                      <div className="border-t border-gray-100" />
+                      <div onClick={(e) => { e.stopPropagation(); exportPDF(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
+                        <FileText size={16} className="text-red-500" /> <span>Export PDF</span>
+                      </div>
+                    </div>
+                  )}
+                </button>
               </div>
             </div>
-          );
-        })()}
-
-        {/* Quick Actions */}
-        <div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            <button onClick={() => { resetForm(); setShowForm(true); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
-              <div className="bg-[#FFF4EF] p-1.5 rounded-full"><Plus size={16} className="text-[#E8622A]"/></div>
-              <span className="text-sm font-semibold text-[#1A1A1A]">เพิ่มรายจ่าย</span>
-            </button>
-            <button onClick={() => { resetForm(); setShowForm(true); setTimeout(() => fileInputRef.current?.click(), 100); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
-              <div className="bg-gray-100 p-1.5 rounded-full"><Camera size={16} className="text-gray-700"/></div>
-              <span className="text-sm font-semibold text-[#1A1A1A]">สแกนสลิป</span>
-            </button>
-            <button onClick={() => router.push('/trips')} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
-              <div className="bg-blue-50 p-1.5 rounded-full"><Plane size={16} className="text-blue-500"/></div>
-              <span className="text-sm font-semibold text-[#1A1A1A]">ทริปใหม่</span>
-            </button>
-            <button onClick={() => setShowExportMenu(!showExportMenu)} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative">
-              <div className="bg-purple-50 p-1.5 rounded-full"><BarChart2 size={16} className="text-purple-500"/></div>
-              <span className="text-sm font-semibold text-[#1A1A1A]">รายงาน</span>
-              
-              {/* Export Dropdown */}
-              {showExportMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-[#EBEBEB] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
-                  <div onClick={(e) => { e.stopPropagation(); exportCSV(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
-                    <FileSpreadsheet size={16} className="text-green-500" /> <span>Export CSV</span>
-                  </div>
-                  <div className="border-t border-gray-100" />
-                  <div onClick={(e) => { e.stopPropagation(); exportPDF(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
-                    <FileText size={16} className="text-red-500" /> <span>Export PDF</span>
-                  </div>
-                </div>
-              )}
-            </button>
-          </div>
-        </div>
 
           </div>
           <div className="lg:col-span-1 space-y-6">
             {/* Transactions List */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-[#1A1A1A] text-xl sm:text-2xl lg:text-3xl">รายการล่าสุด</h3>
-            <button onClick={() => setShowFilter(!showFilter)} className="text-sm text-[#E8622A] font-medium flex items-center gap-1"><Filter size={14}/> ตัวกรอง</button>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-2 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-            {filteredTransactions.length === 0 ? (
-               <div className="p-8 text-center text-[#6B6B6B] text-sm">ไม่พบรายการ</div>
-            ) : (
-              filteredTransactions.slice(0, 5).map(t => (
-                <div key={t.id} onClick={() => handleEditClick(t)} className="flex items-center gap-3 p-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-gray-100">
-                    {getCategoryIcon(t.categoryId)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#1A1A1A] truncate">{t.note || categories.find(c => c.id === t.categoryId)?.name}</p>
-                    <p className="text-xs text-[#6B6B6B]">{formatDateShort(t.date)} {t.tripId && <span className="ml-1 text-[#E8622A]">({getTripName(t.tripId)})</span>}</p>
-                  </div>
-                  <div className={`text-right font-bold flex-shrink-0 ${t.type === 'income' ? 'text-green-600' : 'text-[#1A1A1A]'}`}>
-                    {t.type === 'income' ? '+' : '-'}{Number(t.amount).toLocaleString()}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                <h3 className="text-[15px] font-semibold text-gray-800">รายการล่าสุด</h3>
+                <button onClick={() => setShowFilter(!showFilter)} className="text-[14px] text-[#E8622A] font-semibold flex items-center gap-1"><Filter size={14} /> ตัวกรอง</button>
+              </div>
+
+
+              <div className="bg-white rounded-2xl p-2 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                {filteredTransactions.length === 0 ? (
+                  <div className="p-8 text-center text-[#6B6B6B] text-sm">ไม่พบรายการ</div>
+                ) : (
+                  filteredTransactions.slice(0, 5).map(t => (
+                    <div key={t.id} onClick={() => handleEditClick(t)} className="flex items-center gap-3 p-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-gray-100">
+                        {getCategoryIcon(t.categoryId)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-normal text-gray-700 truncate">{t.note || categories.find(c => c.id === t.categoryId)?.name}</p>
+                        <p className="text-[12px] text-gray-400">{formatDateShort(t.date)} {t.tripId && <span className="ml-1 text-[#E8622A]">({getTripName(t.tripId)})</span>}</p>
+                      </div>
+                      <div className={`text-right text-[15px] font-semibold flex-shrink-0 ${t.type === 'income' ? 'text-green-600' : 'text-red-500'}`}>
+                        {t.type === 'income' ? '+' : '-'}{Number(t.amount).toLocaleString()}
+                      </div>
+                    </div>
+
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -747,9 +798,9 @@ export default function Home() {
           <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 slide-in-from-bottom-8 sm:slide-in-from-bottom-4" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg text-[#1A1A1A]">ตัวกรอง</h3>
-              <button onClick={() => setShowFilter(false)} className="text-gray-500"><X size={20}/></button>
+              <button onClick={() => setShowFilter(false)} className="text-gray-500"><X size={20} /></button>
             </div>
-            
+
             <div className="space-y-5">
               <div>
                 <label className="text-sm text-[#6B6B6B] block mb-2 font-medium flex items-center gap-2">

@@ -55,7 +55,7 @@ export default function LoginPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       {/* Left Branding Panel */}
       <div className="md:w-5/12 lg:w-1/3 bg-[#E8622A] p-8 md:p-12 flex flex-col justify-between hidden md:flex text-white relative overflow-hidden">
         {/* Simple decorative element */}
