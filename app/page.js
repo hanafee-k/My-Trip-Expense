@@ -48,10 +48,8 @@ export default function Home() {
   const [checkingSlip, setCheckingSlip] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   const fileInputRef = useRef(null);
-  const [pendingReceiptFile, setPendingReceiptFile] = useState(null); // Feature 4
-
-  // Feature 4 — Lightbox
   const [lightboxUrl, setLightboxUrl] = useState(null);
+
 
   // Feature 5 — Export
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -136,8 +134,6 @@ export default function Home() {
     if (!file.type.startsWith('image/')) {
       showNotification("⚠️ กรุณาเลือกไฟล์รูปภาพเท่านั้น", "error"); return;
     }
-    // Feature 4 — store file for later upload
-    setPendingReceiptFile(file);
     setCheckingSlip(true);
     setOcrProgress(0);
     try {
@@ -150,9 +146,7 @@ export default function Home() {
       });
       const rawText = result.data.text;
       const text = rawText.replace(/,/g, ' ');
-      
-      // Keep track of the file for uploading later when Save is clicked
-      setPendingReceiptFile(file);
+
 
 
       // Date parsing
@@ -266,38 +260,14 @@ export default function Home() {
         date: Timestamp.fromDate(new Date(form.date)),
       };
 
-      let receiptUrl = null;
-
       if (editId) {
-        // Feature 4 — upload receipt if new file attached during edit
-        if (pendingReceiptFile) {
-          try {
-            const sRef = storageRef(storage, `receipts/${user.uid}/${editId}_${Date.now()}.jpg`);
-            const snap = await uploadBytes(sRef, pendingReceiptFile);
-            receiptUrl = await getDownloadURL(snap.ref);
-            payload.receiptUrl = receiptUrl;
-          } catch (uploadErr) {
-            console.error("Receipt Upload Error:", uploadErr);
-          }
-        }
         await updateDoc(doc(db, `users/${user.uid}/transactions`, editId), { ...payload, updatedAt: serverTimestamp() });
         showNotification("✅ อัปเดตรายการสำเร็จ!", "success");
       } else {
-        const docRef = await addDoc(collection(db, `users/${user.uid}/transactions`), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-        
-        // Feature 4 — upload receipt after getting doc ID
-        if (pendingReceiptFile) {
-          try {
-            const sRef = storageRef(storage, `receipts/${user.uid}/${docRef.id}.jpg`);
-            const snap = await uploadBytes(sRef, pendingReceiptFile);
-            receiptUrl = await getDownloadURL(snap.ref);
-            await updateDoc(docRef, { receiptUrl });
-          } catch (uploadErr) {
-            console.error("Receipt Upload Error:", uploadErr);
-          }
-        }
+        await addDoc(collection(db, `users/${user.uid}/transactions`), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
         showNotification("✅ บันทึกรายการสำเร็จ!", "success");
       }
+
 
 
       resetForm();
@@ -333,9 +303,10 @@ export default function Home() {
 
   const resetForm = () => {
     setForm({ amount: "", note: "", type: "expense", category: "food", date: getTodayDate() });
-    setEditId(null); setIsTrip(false); setPendingReceiptFile(null);
+    setEditId(null); setIsTrip(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
 
   // === Helpers ===
   const getTripName = (id) => trips.find(t => t.id === id)?.name || "ทริปที่ถูกลบ";

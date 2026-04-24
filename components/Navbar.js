@@ -11,9 +11,9 @@ export default function Navbar() {
     { id: "projects", label: "ทริป", icon: Layers, href: "/trips" },
     { id: "split-bill", label: "หารบิล", icon: Split, href: "/split-bill" },
     { id: "reports", label: "รายงาน", icon: PieChart, href: "/reports" },
-    { id: "gallery", label: "คลังสลิป", icon: ImageIcon, href: "/gallery" },
     { id: "profile", label: "โปรไฟล์", icon: User, href: "/profile" },
   ];
+
 
   const isActive = (href) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
