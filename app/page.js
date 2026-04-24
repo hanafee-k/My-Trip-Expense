@@ -477,13 +477,15 @@ export default function Home() {
             </div>
 
 
-            <div className="w-12 h-12 rounded-full border-2 border-[#E8622A] overflow-hidden shadow-sm bg-[#E8622A] flex items-center justify-center text-white font-bold">
+            <div className="w-20 h-20 rounded-full border-[3px] border-[#E8622A] overflow-hidden shadow-md bg-[#E8622A] flex items-center justify-center text-white font-bold shrink-0">
               {user.photoURL ? (
                 <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-lg">{user.displayName?.charAt(0) || "U"}</span>
+                <span className="text-2xl">{user.displayName?.charAt(0) || "U"}</span>
               )}
             </div>
+
+
           </div>
 
           {/* Balance Summary Pill */}
