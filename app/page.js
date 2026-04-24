@@ -8,7 +8,7 @@ import {
   ChevronRight, Image as ImageIcon, Plus, Trash2, Save, X, Filter,
   Plane, ScanLine, Loader2, Calendar, Wallet, TrendingDown, TrendingUp,
   Clock, Tag, Receipt, AlertCircle, CheckCircle2, Camera, Download,
-  FileText, FileSpreadsheet, Split, AlertTriangle, ZoomIn, Zap
+  FileText, FileSpreadsheet, Split, AlertTriangle, ZoomIn, Zap, RefreshCw, BarChart2
 } from "lucide-react";
 import Tesseract from 'tesseract.js';
 import { useRouter } from "next/navigation";
@@ -447,429 +447,342 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-32 font-sans selection:bg-teal-800/30">
+    <div className="min-h-screen bg-[#F7F7F5] text-[#1A1A1A] pb-32 font-sans selection:bg-[#E8622A]/30">
 
       {/* Toast Notification */}
       {notification && (
         <div className="fixed top-4 right-4 z-[100] animate-in slide-in-from-top-2 fade-in">
           <div className={`px-6 py-4 rounded-xl shadow-2xl border flex items-center gap-3 min-w-[300px]
-            ${notification.type === 'success' ? 'bg-emerald-950 border-emerald-800 text-emerald-100' : ''}
-            ${notification.type === 'error' ? 'bg-red-950 border-red-800 text-red-100' : ''}
-            ${notification.type === 'warning' ? 'bg-yellow-950 border-yellow-800 text-yellow-100' : ''}
+            ${notification.type === 'success' ? 'bg-white border-green-500 text-green-700' : ''}
+            ${notification.type === 'error' ? 'bg-white border-red-500 text-red-700' : ''}
+            ${notification.type === 'warning' ? 'bg-white border-yellow-500 text-yellow-700' : ''}
           `}>
-            {notification.type === 'success' && <CheckCircle2 size={20} className="text-emerald-400" />}
-            {notification.type === 'error' && <AlertCircle size={20} className="text-red-400" />}
-            {notification.type === 'warning' && <AlertCircle size={20} className="text-yellow-400" />}
+            {notification.type === 'success' && <CheckCircle2 size={20} className="text-green-500" />}
+            {notification.type === 'error' && <AlertCircle size={20} className="text-red-500" />}
+            {notification.type === 'warning' && <AlertCircle size={20} className="text-yellow-500" />}
             <span className="font-medium">{notification.message}</span>
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-zinc-900/80 border-b border-zinc-800 sticky top-0 z-50 backdrop-blur-lg">
-        <div className="max-w-6xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
-          <h1 className="text-xl lg:text-2xl font-bold flex items-center gap-2 text-white tracking-wide">
-            <span className="text-2xl">✈️</span>
-            <span>MY TRIP <span className="text-teal-500">EXPENSE</span></span>
-          </h1>
-          {/* Feature 5 — Export Button */}
-          <div className="relative">
-            <button
-              onClick={() => setShowExportMenu(!showExportMenu)}
-              className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white px-3 py-2 rounded-xl text-sm font-bold transition"
-            >
-              <Download size={16} />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-            {showExportMenu && (
-              <div className="absolute right-0 top-12 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl z-50 overflow-hidden min-w-[160px] animate-in fade-in slide-in-from-top-2">
-                <button onClick={exportCSV} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-700 transition text-left text-sm">
-                  <FileSpreadsheet size={16} className="text-emerald-400" /> <span>Export CSV</span>
-                </button>
-                <div className="border-t border-zinc-700" />
-                <button onClick={exportPDF} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-700 transition text-left text-sm">
-                  <FileText size={16} className="text-rose-400" /> <span>Export PDF</span>
-                </button>
+      <div className="bg-white sticky top-0 z-50 px-4 pt-6 pb-4 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border border-gray-100 flex items-center justify-center text-lg">
+            {user.photoURL ? <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover"/> : "👤"}
+          </div>
+          <div>
+            <p className="text-xs text-[#6B6B6B]">ยินดีต้อนรับ</p>
+            <p className="text-sm font-bold text-[#1A1A1A] truncate max-w-[150px]">{user.displayName || "ผู้ใช้งาน"}</p>
+          </div>
+        </div>
+        <button onClick={() => window.location.reload()} className="p-2 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100">
+          <RefreshCw size={18} />
+        </button>
+      </div>
+
+      <div className="max-w-md mx-auto">
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 gap-3 mb-6 px-4 pt-4">
+          <div className="bg-white rounded-2xl p-4 flex flex-col border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+            <div className="flex items-center gap-2 text-[#6B6B6B] text-xs font-medium mb-1"><TrendingUp size={14} className="text-green-500" /><span>รายรับ</span></div>
+            <div className="text-xl font-bold text-[#1A1A1A]">{summary.income.toLocaleString()}</div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 flex flex-col border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+            <div className="flex items-center gap-2 text-[#6B6B6B] text-xs font-medium mb-1"><TrendingDown size={14} className="text-red-500" /><span>รายจ่าย</span></div>
+            <div className="text-xl font-bold text-[#1A1A1A]">{summary.expense.toLocaleString()}</div>
+          </div>
+          <div className="bg-[#FFF4EF] col-span-2 rounded-2xl p-4 flex flex-col border border-[#fbdcd0] shadow-[0_1px_4px_rgba(0,0,0,0.06)] relative overflow-hidden">
+            <div className="absolute right-[-10px] top-[-10px] text-5xl opacity-10">💰</div>
+            <div className="flex items-center justify-between relative z-10">
+              <div>
+                <div className="flex items-center gap-2 text-[#E8622A] text-xs font-medium mb-1"><Wallet size={14} /><span>คงเหลือ</span></div>
+                <div className="text-3xl font-extrabold text-[#1A1A1A]">{(summary.income - summary.expense).toLocaleString()}</div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Trip Card */}
+        {filterTrip !== 'all' && filterTrip !== 'no_trip' && (() => {
+          const trip = trips.find(t => t.id === filterTrip);
+          if(!trip) return null;
+          const spent = transactions.filter(t => t.tripId === filterTrip && t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+          const budget = trip.budget || 0;
+          const percent = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+          
+          return (
+            <div className="px-4 mb-6">
+              <div className="bg-white rounded-2xl p-4 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-[#FFF4EF] flex items-center justify-center"><Plane size={14} className="text-[#E8622A]"/></div>
+                    <span className="font-bold text-[#1A1A1A]">{trip.name}</span>
+                  </div>
+                  <button onClick={() => setShowFilter(!showFilter)} className="text-[#E8622A] text-xs font-bold">รายละเอียด &gt;</button>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-[#6B6B6B]">งบประมาณ: {budget.toLocaleString()}</span>
+                    <span className={spent > budget ? 'text-red-500 font-bold' : 'text-[#1A1A1A]'}>{spent.toLocaleString()}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${spent > budget ? 'bg-red-500' : 'bg-[#E8622A]'}`} style={{ width: `${percent}%` }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Quick Actions */}
+        <div className="px-4 mb-6">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <button onClick={() => { resetForm(); setShowForm(true); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+              <div className="bg-[#FFF4EF] p-1.5 rounded-full"><Plus size={16} className="text-[#E8622A]"/></div>
+              <span className="text-sm font-semibold text-[#1A1A1A]">เพิ่มรายจ่าย</span>
+            </button>
+            <button onClick={() => { resetForm(); setShowForm(true); setTimeout(() => fileInputRef.current?.click(), 100); }} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+              <div className="bg-gray-100 p-1.5 rounded-full"><Camera size={16} className="text-gray-700"/></div>
+              <span className="text-sm font-semibold text-[#1A1A1A]">สแกนสลิป</span>
+            </button>
+            <button onClick={() => router.push('/trips')} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+              <div className="bg-blue-50 p-1.5 rounded-full"><Plane size={16} className="text-blue-500"/></div>
+              <span className="text-sm font-semibold text-[#1A1A1A]">ทริปใหม่</span>
+            </button>
+            <button onClick={() => setShowExportMenu(!showExportMenu)} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative">
+              <div className="bg-purple-50 p-1.5 rounded-full"><BarChart2 size={16} className="text-purple-500"/></div>
+              <span className="text-sm font-semibold text-[#1A1A1A]">รายงาน</span>
+              
+              {/* Export Dropdown */}
+              {showExportMenu && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-[#EBEBEB] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
+                  <div onClick={(e) => { e.stopPropagation(); exportCSV(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
+                    <FileSpreadsheet size={16} className="text-green-500" /> <span>Export CSV</span>
+                  </div>
+                  <div className="border-t border-gray-100" />
+                  <div onClick={(e) => { e.stopPropagation(); exportPDF(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
+                    <FileText size={16} className="text-red-500" /> <span>Export PDF</span>
+                  </div>
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Transactions List */}
+        <div className="px-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-[#1A1A1A] text-lg">รายการล่าสุด</h3>
+            <button onClick={() => setShowFilter(!showFilter)} className="text-sm text-[#E8622A] font-medium flex items-center gap-1"><Filter size={14}/> ตัวกรอง</button>
+          </div>
+          
+          <div className="bg-white rounded-2xl p-2 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+            {filteredTransactions.length === 0 ? (
+               <div className="p-8 text-center text-[#6B6B6B] text-sm">ไม่พบรายการ</div>
+            ) : (
+              filteredTransactions.slice(0, 5).map(t => (
+                <div key={t.id} onClick={() => handleEditClick(t)} className="flex items-center gap-3 p-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-gray-100">
+                    {getCategoryIcon(t.categoryId)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[#1A1A1A] truncate">{t.note || categories.find(c => c.id === t.categoryId)?.name}</p>
+                    <p className="text-xs text-[#6B6B6B]">{formatDateShort(t.date)} {t.tripId && <span className="ml-1 text-[#E8622A]">({getTripName(t.tripId)})</span>}</p>
+                  </div>
+                  <div className={`text-right font-bold flex-shrink-0 ${t.type === 'income' ? 'text-green-600' : 'text-[#1A1A1A]'}`}>
+                    {t.type === 'income' ? '+' : '-'}{Number(t.amount).toLocaleString()}
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto pt-6 px-4 lg:px-8">
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 z-[200] bg-black/50 flex items-end sm:items-center justify-center sm:p-4 animate-in fade-in">
+          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col slide-in-from-bottom-8 sm:slide-in-from-bottom-4">
+            <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+              <h3 className="font-bold text-lg text-[#1A1A1A] flex items-center gap-2">
+                {editId ? 'แก้ไขรายการ' : 'จดรายการใหม่'}
+              </h3>
+              <button onClick={() => { resetForm(); setShowForm(false); }} className="p-2 rounded-full hover:bg-gray-100 text-gray-500">
+                <X size={20} />
+              </button>
+            </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-          <div className="bg-gradient-to-br from-rose-950 to-rose-900 rounded-2xl p-5 border border-rose-800 relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 text-rose-800 opacity-20 text-7xl">💸</div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 text-rose-200 text-sm font-medium mb-2"><TrendingDown size={16} /><span>รายจ่าย</span></div>
-              <div className="text-3xl font-extrabold text-white mb-1">{summary.expense.toLocaleString()}</div>
-              <div className="text-xs text-rose-200">บาท</div>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-emerald-950 to-emerald-900 rounded-2xl p-5 border border-emerald-800 relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 text-emerald-800 opacity-20 text-7xl">💰</div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 text-emerald-200 text-sm font-medium mb-2"><TrendingUp size={16} /><span>รายรับ</span></div>
-              <div className="text-3xl font-extrabold text-white mb-1">{summary.income.toLocaleString()}</div>
-              <div className="text-xs text-emerald-200">บาท</div>
-            </div>
-          </div>
-          <div className="col-span-2 bg-gradient-to-br from-teal-950 to-teal-900 rounded-2xl p-5 border border-teal-800">
-            <div className="flex justify-between items-center">
-              <div>
-                <div className="flex items-center gap-2 text-teal-200 text-sm font-medium mb-2"><Wallet size={16} /><span>ยอดคงเหลือ</span></div>
-                <div className="text-4xl font-extrabold text-white">{(summary.income - summary.expense).toLocaleString()}</div>
-                <div className="text-xs text-teal-200 mt-1">บาท</div>
-              </div>
-              <div className="bg-teal-800/50 p-4 rounded-xl"><Receipt size={32} className="text-teal-200" /></div>
+            <div className="p-4 overflow-y-auto">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* OCR Scan Area */}
+                {!editId && (
+                  <div
+                    onClick={() => !checkingSlip && fileInputRef.current.click()}
+                    className={`relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden
+                      ${checkingSlip ? 'border-[#E8622A] bg-[#FFF4EF]' : pendingReceiptFile ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-[#E8622A] hover:bg-gray-50'}`}
+                  >
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleSlipUpload} disabled={checkingSlip} />
+                    {checkingSlip ? (
+                      <div className="text-center">
+                        <div className="flex items-center gap-3 text-[#E8622A] mb-3"><Loader2 size={28} className="animate-spin" /><span className="font-bold">กำลังอ่านสลิป...</span></div>
+                        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div className="bg-[#E8622A] h-full transition-all duration-300" style={{ width: `${ocrProgress}%` }}></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-3">{ocrProgress}%</p>
+                      </div>
+                    ) : pendingReceiptFile ? (
+                      <div className="text-center">
+                        <CheckCircle2 size={28} className="text-green-500 mx-auto mb-2" />
+                        <p className="text-sm font-bold text-green-700">📎 แนบสลิปแล้ว</p>
+                        <p className="text-xs text-gray-500">{pendingReceiptFile.name}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="bg-gray-100 p-4 rounded-full mb-3"><Camera size={24} className="text-gray-500" /></div>
+                        <p className="text-sm font-bold text-[#1A1A1A] mb-1">📸 สแกนสลิปอัตโนมัติ (AI)</p>
+                        <p className="text-xs text-[#6B6B6B]">แตะเพื่ออัปโหลดรูปสลิป</p>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Type Toggle */}
+                <div className="flex gap-2 p-1 bg-gray-100 rounded-xl border border-gray-200">
+                  <button type="button" onClick={() => setForm({ ...form, type: 'expense' })}
+                    className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${form.type === 'expense' ? 'bg-white text-red-500 shadow-sm' : 'text-gray-500'}`}>
+                    <TrendingDown size={18} /> รายจ่าย
+                  </button>
+                  <button type="button" onClick={() => setForm({ ...form, type: 'income' })}
+                    className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${form.type === 'income' ? 'bg-white text-green-500 shadow-sm' : 'text-gray-500'}`}>
+                    <TrendingUp size={18} /> รายรับ
+                  </button>
+                </div>
+
+                {/* Amount */}
+                <div>
+                  <label className="text-xs text-[#6B6B6B] block mb-2 font-medium">จำนวนเงิน</label>
+                  <div className="relative">
+                    <input type="number" step="0.01" placeholder="0.00" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })}
+                      className="w-full bg-white border border-gray-200 p-4 pr-12 rounded-xl text-[#1A1A1A] text-3xl font-bold text-center focus:outline-none focus:border-[#E8622A] transition" required />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xl">฿</span>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="text-xs text-[#6B6B6B] block mb-2 font-medium flex items-center gap-1"><Tag size={14} /> หมวดหมู่</label>
+                  <div className="relative">
+                    <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                      className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] appearance-none transition pr-10">
+                      {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                    </select>
+                    <ChevronRight size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rotate-90" />
+                  </div>
+                </div>
+
+                {/* Note + Date */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-xs text-[#6B6B6B] block mb-2 font-medium">บันทึกช่วยจำ</label>
+                    <input type="text" placeholder="เช่น ข้าวเที่ยง, แท็กซี่..." value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
+                      className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs text-[#6B6B6B] block mb-2 font-medium flex items-center gap-1"><Clock size={14} /> วันที่</label>
+                    <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
+                      className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition" />
+                  </div>
+                </div>
+
+                {/* Trip Toggle */}
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" checked={isTrip} onChange={() => setIsTrip(!isTrip)} className="w-5 h-5 accent-[#E8622A] rounded cursor-pointer" />
+                      <span className="text-sm font-medium text-[#1A1A1A]">เข้าทริปเที่ยว?</span>
+                    </label>
+                    {isTrip && trips.length > 0 && <Plane size={16} className="text-[#E8622A]" />}
+                  </div>
+                  {isTrip && (
+                    trips.length > 0 ? (
+                      <select value={selectedTrip} onChange={e => setSelectedTrip(e.target.value)}
+                        className="w-full bg-white border border-gray-200 text-sm p-2.5 rounded-lg text-[#1A1A1A] focus:outline-none focus:border-[#E8622A]">
+                        {trips.map(t => <option key={t.id} value={t.id}>✈️ {t.name}</option>)}
+                      </select>
+                    ) : (
+                      <p className="text-xs text-gray-500 text-center py-3">ยังไม่มีทริป กรุณาสร้างทริปก่อน</p>
+                    )
+                  )}
+                </div>
+
+                {/* Submit */}
+                <div className="flex gap-3 pt-2 pb-4">
+                  {editId && (
+                    <button type="button" onClick={handleDelete} disabled={loading}
+                      className="bg-white hover:bg-red-50 text-red-500 p-3.5 rounded-xl font-bold transition flex items-center justify-center border border-red-200 disabled:opacity-50">
+                      <Trash2 size={20} />
+                    </button>
+                  )}
+                  <button type="submit" disabled={loading}
+                    className="flex-1 bg-[#E8622A] hover:bg-[#d65722] disabled:bg-gray-300 text-white py-3.5 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                    {loading ? (<><Loader2 size={20} className="animate-spin" /><span>กำลังบันทึก...</span></>) : (<><Save size={20} /><span>{editId ? 'อัปเดตรายการ' : 'บันทึกรายการ'}</span></>)}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Feature 1 — Budget Alert Bar */}
-        {budgetAlert && (
-          <div className={`mb-4 rounded-xl border px-4 py-3 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${budgetAlert.exceeded
-              ? 'bg-red-950/60 border-red-700 text-red-200'
-              : 'bg-amber-950/60 border-amber-700 text-amber-200'
-            }`}>
-            <AlertTriangle size={20} className={budgetAlert.exceeded ? 'text-red-400' : 'text-amber-400'} />
-            <div className="flex-1">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="font-bold text-sm">
-                  {budgetAlert.exceeded
-                    ? `🚨 เกินงบแล้ว! ใช้เกินไป ฿${(budgetAlert.totalExpense - budgetAlert.budget).toLocaleString()}`
-                    : `⚠️ ใกล้ถึงงบแล้ว — ใช้ไป ${budgetAlert.percent.toFixed(0)}%`}
-                </span>
-                <span className="text-xs opacity-80">
-                  ฿{budgetAlert.totalExpense.toLocaleString()} / ฿{budgetAlert.budget.toLocaleString()}
-                </span>
-              </div>
-              <div className="h-2 bg-black/30 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${budgetAlert.exceeded ? 'bg-red-500' : 'bg-amber-500'}`}
-                  style={{ width: `${Math.min(budgetAlert.percent, 100)}%` }}
-                />
-              </div>
+      {/* Filter Modal */}
+      {showFilter && (
+        <div className="fixed inset-0 z-[200] bg-black/50 flex items-end sm:items-center justify-center sm:p-4 animate-in fade-in" onClick={() => setShowFilter(false)}>
+          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 slide-in-from-bottom-8 sm:slide-in-from-bottom-4" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-lg text-[#1A1A1A]">ตัวกรอง</h3>
+              <button onClick={() => setShowFilter(false)} className="text-gray-500"><X size={20}/></button>
             </div>
-          </div>
-        )}
-
-        {/* Feature 2 — Daily Spending Bar */}
-        {dailySpending && (
-          <div className={`mb-4 rounded-xl border px-4 py-3 flex items-center gap-3 ${dailySpending.exceeded ? 'bg-red-950/40 border-red-800' : 'bg-indigo-950/40 border-indigo-800'
-            }`}>
-            <Zap size={18} className={dailySpending.exceeded ? 'text-red-400' : 'text-indigo-400'} />
-            <div className="flex-1">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-sm font-bold text-white">วันนี้ใช้ไป</span>
-                <span className={`text-xs font-bold ${dailySpending.exceeded ? 'text-red-400' : 'text-indigo-300'}`}>
-                  ฿{dailySpending.todaySpent.toLocaleString()} จาก ฿{Number(dailySpending.dailyLimit).toLocaleString()}
-                </span>
-              </div>
-              <div className="h-2 bg-black/30 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${dailySpending.exceeded ? 'bg-red-500' : 'bg-indigo-500'}`}
-                  style={{ width: `${Math.min((dailySpending.todaySpent / dailySpending.dailyLimit) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Filter Bar */}
-        <div className="mb-6">
-          <button
-            onClick={() => setShowFilter(!showFilter)}
-            className="w-full flex justify-between items-center bg-zinc-900 p-4 rounded-xl border border-zinc-800 hover:border-teal-600 transition group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-zinc-800 p-2 rounded-lg group-hover:bg-teal-900 transition">
-                <Filter size={18} className="text-teal-500" />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">
-                  {filterTrip === 'all' ? '🌐 ทุกรายการ' : filterTrip === 'no_trip' ? '🏠 ชีวิตประจำวัน' : `✈️ ${getTripName(filterTrip)}`}
-                </div>
-                <div className="text-xs text-zinc-400 mt-0.5">
-                  {new Date(filterStart).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })} - {new Date(filterEnd).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                </div>
-              </div>
-            </div>
-            <ChevronRight size={20} className={`transform transition-transform text-zinc-500 ${showFilter ? 'rotate-90' : ''}`} />
-          </button>
-
-          {showFilter && (
-            <div className="mt-3 p-5 bg-zinc-900 rounded-xl border border-zinc-800 animate-in fade-in slide-in-from-top-2 space-y-5">
+            
+            <div className="space-y-5">
               <div>
-                <label className="text-sm text-zinc-400 block mb-3 font-medium flex items-center gap-2">
-                  <Plane size={16} className="text-teal-500" /> เลือกดูรายการของ
+                <label className="text-sm text-[#6B6B6B] block mb-2 font-medium flex items-center gap-2">
+                  <Plane size={16} className="text-[#E8622A]" /> เลือกดูรายการของ
                 </label>
                 <select value={filterTrip} onChange={(e) => setFilterTrip(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-teal-500 transition">
+                  className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition">
                   <option value="all">🌐 รายการทั้งหมด</option>
                   <option value="no_trip">🏠 ชีวิตประจำวัน</option>
                   {trips.length > 0 && <option disabled>──────────</option>}
                   {trips.map(t => <option key={t.id} value={t.id}>✈️ {t.name}</option>)}
                 </select>
               </div>
-              <div className="border-t border-zinc-800"></div>
               <div>
-                <label className="text-sm text-zinc-400 block mb-3 font-medium flex items-center gap-2">
-                  <Calendar size={16} className="text-teal-500" /> ช่วงเวลา
+                <label className="text-sm text-[#6B6B6B] block mb-2 font-medium flex items-center gap-2">
+                  <Calendar size={16} className="text-[#E8622A]" /> ช่วงเวลา
                 </label>
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <label className="text-xs text-zinc-500 block mb-2">ตั้งแต่วันที่</label>
+                    <label className="text-xs text-gray-500 block mb-2">ตั้งแต่วันที่</label>
                     <input type="date" value={filterStart} onChange={e => setFilterStart(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-teal-500" />
+                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A]" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-zinc-500 block mb-2">ถึงวันที่</label>
+                    <label className="text-xs text-gray-500 block mb-2">ถึงวันที่</label>
                     <input type="date" value={filterEnd} onChange={e => setFilterEnd(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-teal-500" />
+                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A]" />
                   </div>
                 </div>
               </div>
-              <button onClick={() => { setFilterStart(getStartOfMonth()); setFilterEnd(getEndOfMonth()); setFilterTrip("all"); }}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 rounded-lg text-sm font-medium transition">
+              <button onClick={() => { setFilterStart(getStartOfMonth()); setFilterEnd(getEndOfMonth()); setFilterTrip("all"); setShowFilter(false); }}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] py-3 rounded-xl text-sm font-bold transition mt-2">
                 🔄 รีเซ็ตตัวกรอง
               </button>
             </div>
-          )}
-        </div>
-
-        {/* Add Button */}
-        {!showForm && (
-          <div className="flex justify-end mb-4">
-            <button onClick={() => { resetForm(); setShowForm(true); }}
-              className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 rounded-full flex items-center gap-2 font-bold text-sm transition-all active:scale-95 shadow-lg shadow-teal-900/50">
-              <Plus size={20} strokeWidth={3} /> <span>จดรายการใหม่</span>
-            </button>
           </div>
-        )}
-
-        {/* Form */}
-        {showForm && (
-          <div className="mb-6 bg-zinc-900 p-6 rounded-2xl border border-zinc-800 animate-in fade-in slide-in-from-bottom-4 shadow-2xl">
-            <div className="flex justify-between items-center mb-6 pb-4 border-b border-zinc-800">
-              <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                {editId ? (
-                  <><div className="bg-amber-900/30 p-2 rounded-lg"><Save size={20} className="text-amber-500" /></div> แก้ไขรายการ</>
-                ) : (
-                  <><div className="bg-teal-900/30 p-2 rounded-lg"><Plus size={20} className="text-teal-500" /></div> จดรายการใหม่</>
-                )}
-              </h3>
-              <button onClick={() => { resetForm(); setShowForm(false); }} className="bg-zinc-800 hover:bg-zinc-700 p-2 rounded-lg transition text-zinc-400 hover:text-white">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* OCR Scan Area */}
-              {!editId && (
-                <div
-                  onClick={() => !checkingSlip && fileInputRef.current.click()}
-                  className={`relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden
-                    ${checkingSlip ? 'border-teal-500 bg-teal-950/20' : pendingReceiptFile ? 'border-emerald-500 bg-emerald-950/10' : 'border-zinc-700 hover:border-teal-500 hover:bg-zinc-800/50'}`}
-                >
-                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleSlipUpload} disabled={checkingSlip} />
-                  {checkingSlip ? (
-                    <div className="text-center">
-                      <div className="flex items-center gap-3 text-teal-400 mb-3"><Loader2 size={28} className="animate-spin" /><span className="font-bold">กำลังอ่านสลิป...</span></div>
-                      <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
-                        <div className="bg-teal-500 h-full transition-all duration-300" style={{ width: `${ocrProgress}%` }}></div>
-                      </div>
-                      <p className="text-xs text-zinc-500 mt-3">{ocrProgress}%</p>
-                    </div>
-                  ) : pendingReceiptFile ? (
-                    <div className="text-center">
-                      <CheckCircle2 size={28} className="text-emerald-400 mx-auto mb-2" />
-                      <p className="text-sm font-bold text-emerald-300">📎 แนบสลิปแล้ว</p>
-                      <p className="text-xs text-zinc-500">{pendingReceiptFile.name}</p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="bg-teal-900/30 p-4 rounded-xl mb-3"><Camera size={32} className="text-teal-400" /></div>
-                      <p className="text-sm font-bold text-white mb-1">📸 สแกนสลิปอัตโนมัติ (AI)</p>
-                      <p className="text-xs text-zinc-500">แตะเพื่ออัปโหลดรูปสลิป</p>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Type Toggle */}
-              <div className="flex gap-3 p-1.5 bg-zinc-950 rounded-xl border border-zinc-800">
-                <button type="button" onClick={() => setForm({ ...form, type: 'expense' })}
-                  className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${form.type === 'expense' ? 'bg-rose-600 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200'}`}>
-                  <TrendingDown size={18} /> รายจ่าย
-                </button>
-                <button type="button" onClick={() => setForm({ ...form, type: 'income' })}
-                  className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${form.type === 'income' ? 'bg-emerald-600 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200'}`}>
-                  <TrendingUp size={18} /> รายรับ
-                </button>
-              </div>
-
-              {/* Amount */}
-              <div>
-                <label className="text-xs text-zinc-400 block mb-2 font-medium">จำนวนเงิน</label>
-                <div className="relative">
-                  <input type="number" step="0.01" placeholder="0.00" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })}
-                    className="w-full bg-zinc-950 border border-zinc-800 p-4 pr-12 rounded-xl text-white text-3xl font-bold text-center focus:outline-none focus:border-teal-600 transition" required />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold text-xl">฿</span>
-                </div>
-              </div>
-
-              {/* Category */}
-              <div>
-                <label className="text-xs text-zinc-400 block mb-2 font-medium flex items-center gap-1"><Tag size={14} /> หมวดหมู่</label>
-                <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-teal-600 appearance-none transition">
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-                </select>
-              </div>
-
-              {/* Note + Date */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <label className="text-xs text-zinc-400 block mb-2 font-medium">บันทึกช่วยจำ</label>
-                  <input type="text" placeholder="เช่น ข้าวเที่ยง, แท็กซี่..." value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
-                    className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-teal-600 transition" />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs text-zinc-400 block mb-2 font-medium flex items-center gap-1"><Clock size={14} /> วันที่</label>
-                  <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-                    className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-teal-600 transition" />
-                </div>
-              </div>
-
-              {/* Trip Toggle */}
-              <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800">
-                <div className="flex items-center justify-between mb-3">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={isTrip} onChange={() => setIsTrip(!isTrip)} className="w-5 h-5 accent-teal-600 rounded cursor-pointer" />
-                    <span className="text-sm font-medium text-zinc-300">เข้าทริปเที่ยว?</span>
-                  </label>
-                  {isTrip && trips.length > 0 && <Plane size={16} className="text-teal-500" />}
-                </div>
-                {isTrip && (
-                  trips.length > 0 ? (
-                    <select value={selectedTrip} onChange={e => setSelectedTrip(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-700 text-sm p-2.5 rounded-lg text-white focus:outline-none focus:border-teal-600">
-                      {trips.map(t => <option key={t.id} value={t.id}>✈️ {t.name}</option>)}
-                    </select>
-                  ) : (
-                    <p className="text-xs text-zinc-500 text-center py-3">ยังไม่มีทริป กรุณาสร้างทริปก่อน</p>
-                  )
-                )}
-              </div>
-
-              {/* Submit */}
-              <div className="flex gap-3 pt-2">
-                {editId && (
-                  <button type="button" onClick={handleDelete} disabled={loading}
-                    className="bg-zinc-900 hover:bg-red-950 text-red-500 p-3.5 rounded-xl font-bold transition flex items-center justify-center border border-zinc-800 hover:border-red-800 disabled:opacity-50">
-                    <Trash2 size={20} />
-                  </button>
-                )}
-                <button type="submit" disabled={loading}
-                  className="flex-1 bg-teal-600 hover:bg-teal-500 disabled:bg-zinc-700 text-white py-3.5 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-teal-900/50">
-                  {loading ? (<><Loader2 size={20} className="animate-spin" /><span>กำลังบันทึก...</span></>) : (<><Save size={20} /><span>{editId ? 'อัปเดตรายการ' : 'บันทึกรายการ'}</span></>)}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Transaction List */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Receipt size={20} className="text-teal-500" /> รายการล่าสุด
-            </h2>
-            <span className="text-xs text-zinc-500 font-medium bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800">
-              {filteredTransactions.length} รายการ
-            </span>
-          </div>
-
-          {Object.keys(groupedTransactions).length === 0 ? (
-            <div className="text-center py-16 bg-zinc-900 rounded-2xl border border-dashed border-zinc-800">
-              <div className="text-5xl mb-3">📭</div>
-              <p className="text-zinc-400 font-medium">ไม่พบรายการ</p>
-              <p className="text-xs text-zinc-600 mt-1">ลองเปลี่ยนตัวกรองหรือเพิ่มรายการใหม่</p>
-            </div>
-          ) : (
-            Object.entries(groupedTransactions).map(([date, dayTxns]) => (
-              <div key={date} className="space-y-2">
-                <div className="flex items-center gap-2 mb-3">
-                  <Calendar size={14} className="text-teal-500" />
-                  <h3 className="text-sm font-bold text-zinc-400">{date}</h3>
-                  <div className="flex-1 h-px bg-zinc-800"></div>
-                </div>
-                <div className="space-y-2">
-                  {dayTxns.map(t => (
-                    <div key={t.id} onClick={() => handleEditClick(t)}
-                      className="bg-zinc-900 hover:bg-zinc-800 p-4 rounded-xl flex items-center justify-between relative group transition-all border border-zinc-800 hover:border-teal-800 cursor-pointer">
-                      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${t.type === 'income' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                      <div className="flex items-center gap-4 ml-2 flex-1 min-w-0">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl border border-zinc-800 ${getCategoryColor(t.categoryId)}/20 flex-shrink-0`}>
-                          {getCategoryIcon(t.categoryId)}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-zinc-100 font-bold text-sm truncate">{t.note || categories.find(c => c.id === t.categoryId)?.name}</span>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="text-zinc-500 text-xs font-medium flex items-center gap-1"><Clock size={12} />{formatDateShort(t.date)}</span>
-                            {t.tripId && (
-                              <span className="text-[10px] bg-teal-950 text-teal-400 px-2 py-0.5 rounded-md border border-teal-800/50 font-bold">
-                                ✈️ {getTripName(t.tripId)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 ml-2 flex-shrink-0">
-                        {/* Feature 4 — Receipt Thumbnail */}
-                        {t.receiptUrl && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setLightboxUrl(t.receiptUrl); }}
-                            className="w-10 h-10 rounded-lg overflow-hidden border border-zinc-700 hover:border-teal-500 transition relative group/img flex-shrink-0"
-                          >
-                            <img src={t.receiptUrl} alt="สลิป" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/40 flex items-center justify-center transition-all">
-                              <ZoomIn size={12} className="text-white opacity-0 group-hover/img:opacity-100" />
-                            </div>
-                          </button>
-                        )}
-                        <div className="text-right">
-                          <div className={`font-black text-lg ${t.type === 'income' ? 'text-emerald-500' : 'text-white'}`}>
-                            {t.type === 'income' ? '+' : ''}{Number(t.amount).toLocaleString()}
-                          </div>
-                          <div className="text-[10px] text-zinc-600 mt-0.5">{categories.find(c => c.id === t.categoryId)?.name}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-        <div className="h-8"></div>
-      </div>
-
-      {/* Feature 4 — Lightbox */}
-      {lightboxUrl && (
-        <div className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 animate-in fade-in" onClick={() => setLightboxUrl(null)}>
-          <button className="absolute top-4 right-4 bg-zinc-800 hover:bg-zinc-700 p-2 rounded-full transition" onClick={() => setLightboxUrl(null)}>
-            <X size={20} className="text-white" />
-          </button>
-          <img src={lightboxUrl} alt="สลิปเต็ม" className="max-w-lg w-full max-h-[85vh] object-contain rounded-2xl border border-zinc-700 shadow-2xl" onClick={e => e.stopPropagation()} />
         </div>
       )}
 
-      {/* Close export menu on outside click */}
-      {showExportMenu && <div className="fixed inset-0 z-30" onClick={() => setShowExportMenu(false)} />}
     </div>
   );
 }

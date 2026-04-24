@@ -2,12 +2,20 @@ import { AuthProvider } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import RouteGuard from "../components/RouteGuard";
 import "./globals.css";
-import { Prompt } from "next/font/google";
+import { Noto_Sans_Thai, Inter } from "next/font/google";
 
-const prompt = Prompt({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin', 'thai'],
+const notoThai = Noto_Sans_Thai({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['thai', 'latin'],
   display: 'swap',
+  variable: '--font-noto-thai',
+});
+
+const inter = Inter({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
 });
 
 export const metadata = {
@@ -21,8 +29,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`bg-zinc-950 text-white selection:bg-teal-500/30 ${prompt.className}`}>
+    <html lang="en" className={`${notoThai.variable} ${inter.variable}`}>
+      <body className={`bg-[#F7F7F5] text-[#1A1A1A] selection:bg-[#E8622A]/30 font-sans`}>
         <AuthProvider>
           <RouteGuard>
             <Navbar />

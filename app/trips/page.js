@@ -17,11 +17,11 @@ export default function ProjectsPage() {
   const { user } = useAuth();
   
   const projectTypes = [
-    { id: 'trip', label: 'ท่องเที่ยว', icon: Plane, color: 'text-teal-400', bg: 'bg-teal-500/10', border: 'border-teal-500/30' },
-    { id: 'shopping', label: 'ช้อปปิ้ง', icon: ShoppingBag, color: 'text-pink-400', bg: 'bg-pink-500/10', border: 'border-pink-500/30' },
-    { id: 'home', label: 'แต่งบ้าน', icon: Home, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30' },
-    { id: 'event', label: 'อีเวนต์/งาน', icon: Gift, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30' },
-    { id: 'general', label: 'ทั่วไป', icon: Layers, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
+    { id: 'trip', label: 'ท่องเที่ยว', icon: Plane, color: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-200' },
+    { id: 'shopping', label: 'ช้อปปิ้ง', icon: ShoppingBag, color: 'text-pink-500', bg: 'bg-pink-50', border: 'border-pink-200' },
+    { id: 'home', label: 'แต่งบ้าน', icon: Home, color: 'text-orange-500', bg: 'bg-orange-50', border: 'border-orange-200' },
+    { id: 'event', label: 'อีเวนต์/งาน', icon: Gift, color: 'text-purple-500', bg: 'bg-purple-50', border: 'border-purple-200' },
+    { id: 'general', label: 'ทั่วไป', icon: Layers, color: 'text-teal-500', bg: 'bg-teal-50', border: 'border-teal-200' },
   ];
 
   // State
@@ -37,7 +37,6 @@ export default function ProjectsPage() {
   const [editBudget, setEditBudget] = useState("");
   const [editDailyLimit, setEditDailyLimit] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  // Feature 6 — View Toggle
   const [viewMode, setViewMode] = useState("list"); // "list" | "timeline"
   const [timelineTrip, setTimelineTrip] = useState(null);
 
@@ -153,21 +152,21 @@ export default function ProjectsPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 font-sans">
+    <div className="min-h-screen pb-24 font-sans text-[#1A1A1A]">
       
       {/* Header */}
-      <div className="bg-zinc-900 p-4 text-center border-b border-zinc-800 sticky top-0 z-50 backdrop-blur-sm bg-zinc-900/95">
+      <div className="bg-white/95 p-4 text-center border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-sm shadow-sm">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <h1 className="text-xl font-bold flex items-center gap-2 text-white tracking-wide">
+          <h1 className="text-xl font-bold flex items-center gap-2 text-[#1A1A1A] tracking-wide">
             <span className="text-2xl">✈️</span>
-            <span>จัดการ<span className="text-teal-500">โครงการ</span></span>
+            <span>จัดการ<span className="text-[#E8622A]">โครงการ</span></span>
           </h1>
           {/* Feature 6 — View Toggle */}
-          <div className="flex gap-1 bg-zinc-800 p-1 rounded-xl border border-zinc-700">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
             <button
               onClick={() => { setViewMode("list"); setTimelineTrip(null); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === "list" ? "bg-zinc-600 text-white" : "text-zinc-500 hover:text-zinc-300"
+                viewMode === "list" ? "bg-white text-[#1A1A1A] shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
               }`}
             >
               <List size={14} /> รายการ
@@ -175,7 +174,7 @@ export default function ProjectsPage() {
             <button
               onClick={() => setViewMode("timeline")}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === "timeline" ? "bg-teal-600 text-white" : "text-zinc-500 hover:text-zinc-300"
+                viewMode === "timeline" ? "bg-[#E8622A] text-white shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
               }`}
             >
               <BarChart3 size={14} /> Timeline
@@ -190,20 +189,20 @@ export default function ProjectsPage() {
         {viewMode === "list" && (
           <>
             {/* Add Form */}
-            <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-lg mb-6">
-              <h2 className="text-sm font-bold text-zinc-400 mb-4 flex items-center gap-2">
-                <Plus size={16} className="text-teal-500"/> สร้างรายการใหม่
+            <div className="bg-white p-5 rounded-2xl border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)] mb-6">
+              <h2 className="text-sm font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
+                <Plus size={16} className="text-[#E8622A]"/> สร้างรายการใหม่
               </h2>
               <form onSubmit={handleAddProject} className="space-y-4">
                 {/* Type Selector */}
-                <div className="flex gap-2 overflow-x-auto pb-2">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                   {projectTypes.map((type) => {
                     const Icon = type.icon;
                     const isSelected = selectedType === type.id;
                     return (
                       <button key={type.id} type="button" onClick={() => setSelectedType(type.id)}
                         className={`flex flex-col items-center justify-center min-w-[70px] p-2 rounded-xl border transition-all ${
-                          isSelected ? `bg-zinc-800 ${type.border} ${type.color}` : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:bg-zinc-800'
+                          isSelected ? `bg-white ${type.border} ${type.color} shadow-sm` : 'bg-gray-50 border-gray-200 text-[#6B6B6B] hover:bg-gray-100'
                         }`}
                       >
                         <Icon size={20} className="mb-1" />
@@ -214,10 +213,10 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="relative">
-                  <span className="absolute left-3 top-3.5 text-zinc-500"><MapPin size={18}/></span>
+                  <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><MapPin size={18}/></span>
                   <input type="text" value={name} onChange={(e) => setName(e.target.value)}
                     placeholder="ชื่อโครงการ (เช่น เที่ยวเชียงใหม่)"
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-teal-500 transition placeholder:text-zinc-600"
+                    className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
                     required
                   />
                 </div>
@@ -225,33 +224,33 @@ export default function ProjectsPage() {
                 {/* Budget + Daily Limit */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="relative">
-                    <span className="absolute left-3 top-3.5 text-zinc-500"><Wallet size={18}/></span>
+                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Wallet size={18}/></span>
                     <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)}
                       placeholder="งบรวม (บาท)"
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-teal-500 transition placeholder:text-zinc-600"
+                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
                     />
                   </div>
                   <div className="relative">
-                    <span className="absolute left-3 top-3.5 text-zinc-500"><Zap size={18}/></span>
+                    <span className="absolute left-3 top-3.5 text-[#6B6B6B]"><Zap size={18}/></span>
                     <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)}
                       placeholder="วงเงิน/วัน (บาท)"
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-teal-500 transition placeholder:text-zinc-600"
+                      className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition placeholder:text-gray-400"
                     />
                   </div>
                 </div>
 
-                <button type="submit" className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold transition shadow-lg">
+                <button type="submit" className="w-full bg-[#E8622A] hover:bg-[#d65722] text-white py-3 rounded-xl font-bold transition shadow-sm">
                   + สร้างโครงการ
                 </button>
               </form>
             </div>
 
             {/* Tabs */}
-            <div className="flex bg-zinc-900 p-1 rounded-xl mb-4 border border-zinc-800">
-              <button onClick={() => setActiveTab('active')} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'active' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-500'}`}>
+            <div className="flex bg-gray-100 p-1 rounded-xl mb-4 border border-gray-200">
+              <button onClick={() => setActiveTab('active')} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'active' ? 'bg-white text-[#1A1A1A] shadow-sm' : 'text-[#6B6B6B]'}`}>
                 🟢 กำลังดำเนินการ
               </button>
-              <button onClick={() => setActiveTab('completed')} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'completed' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-500'}`}>
+              <button onClick={() => setActiveTab('completed')} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'completed' ? 'bg-white text-[#1A1A1A] shadow-sm' : 'text-[#6B6B6B]'}`}>
                 ✅ เสร็จสิ้นแล้ว
               </button>
             </div>
@@ -260,7 +259,7 @@ export default function ProjectsPage() {
             {!isLoading && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {displayProjects.length === 0 ? (
-                  <div className="text-center py-12 text-zinc-600 bg-zinc-900 rounded-xl border border-zinc-800 border-dashed col-span-2">
+                  <div className="text-center py-12 text-[#6B6B6B] bg-white rounded-xl border border-[#EBEBEB] border-dashed col-span-2">
                     <Layers size={40} className="mx-auto mb-2 opacity-20"/>
                     <p>ไม่มีรายการ</p>
                   </div>
@@ -282,43 +281,43 @@ export default function ProjectsPage() {
                     const dailyExceeded = dailyLimitVal > 0 && todaySpent > dailyLimitVal;
 
                     return (
-                      <div key={item.id} className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 transition hover:border-zinc-700 group relative overflow-hidden shadow-lg">
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${item.status === 'completed' ? 'bg-zinc-600' : typeConfig.bg.replace('/10', '')}`}></div>
+                      <div key={item.id} className="bg-white p-5 rounded-2xl border border-[#EBEBEB] transition hover:border-[#E8622A] group relative overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${item.status === 'completed' ? 'bg-gray-300' : typeConfig.bg.replace('50', '400')}`}></div>
 
                         <div className="flex justify-between items-start mb-3 pl-2">
                           <div className="flex-1 mr-2">
                             {isEditing ? (
                               <div className="space-y-2">
-                                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-white text-sm" placeholder="ชื่อโครงการ" />
+                                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-sm" placeholder="ชื่อโครงการ" />
                                 <div className="grid grid-cols-2 gap-2">
-                                  <input type="number" value={editBudget} onChange={(e) => setEditBudget(e.target.value)} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-white text-sm" placeholder="งบรวม" />
-                                  <input type="number" value={editDailyLimit} onChange={(e) => setEditDailyLimit(e.target.value)} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-white text-sm" placeholder="วงเงิน/วัน" />
+                                  <input type="number" value={editBudget} onChange={(e) => setEditBudget(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-sm" placeholder="งบรวม" />
+                                  <input type="number" value={editDailyLimit} onChange={(e) => setEditDailyLimit(e.target.value)} className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-[#1A1A1A] text-sm" placeholder="วงเงิน/วัน" />
                                 </div>
                               </div>
                             ) : (
                               <>
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${typeConfig.color} ${typeConfig.bg} ${typeConfig.border} flex items-center gap-1`}>
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${typeConfig.color} ${typeConfig.bg} ${typeConfig.border} flex items-center gap-1 font-bold`}>
                                     <TypeIcon size={10} /> {typeConfig.label}
                                   </span>
-                                  {item.status === 'completed' && <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded">จบแล้ว</span>}
+                                  {item.status === 'completed' && <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-bold">จบแล้ว</span>}
                                   {/* Feature 2 — Daily Limit Badge */}
                                   {dailyLimitVal > 0 && (
                                     <span className={`text-[10px] px-2 py-0.5 rounded-full border flex items-center gap-1 font-bold ${
                                       dailyExceeded
-                                        ? 'bg-red-950/50 text-red-400 border-red-800/50'
-                                        : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                                        ? 'bg-red-50 text-red-500 border-red-200'
+                                        : 'bg-gray-50 text-gray-500 border-gray-200'
                                     }`}>
                                       <Zap size={9} /> ฿{Number(dailyLimitVal).toLocaleString()}/วัน
                                       {dailyExceeded && " 🔴"}
                                     </span>
                                   )}
                                 </div>
-                                <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                                <h3 className="font-bold text-lg text-[#1A1A1A] flex items-center gap-2">
                                   {item.name}
                                   {isOverBudget && stats.safeBudget > 0 && <AlertTriangle size={14} className="text-red-500" />}
                                 </h3>
-                                <p className="text-xs text-zinc-500 flex items-center gap-1 mt-1">
+                                <p className="text-xs text-[#6B6B6B] flex items-center gap-1 mt-1">
                                   <Clock size={12}/> {formatDate(item.createdAt)} • {stats.count} รายการ
                                 </p>
                               </>
@@ -328,22 +327,22 @@ export default function ProjectsPage() {
                           <div className="flex gap-2">
                             {isEditing ? (
                               <>
-                                <button onClick={() => saveEdit(item.id)} className="p-2 bg-teal-600 rounded text-white"><Save size={16}/></button>
-                                <button onClick={() => setEditingId(null)} className="p-2 border border-zinc-700 rounded text-zinc-400"><X size={16}/></button>
+                                <button onClick={() => saveEdit(item.id)} className="p-2 bg-[#E8622A] rounded text-white"><Save size={16}/></button>
+                                <button onClick={() => setEditingId(null)} className="p-2 border border-gray-200 rounded text-gray-500"><X size={16}/></button>
                               </>
                             ) : (
                               <>
                                 {/* Feature 6 — Timeline Button */}
                                 <button
                                   onClick={() => { setTimelineTrip(item); setViewMode("timeline"); }}
-                                  className="p-2 border border-zinc-800 rounded text-zinc-500 hover:text-teal-400 hover:border-teal-700 transition"
+                                  className="p-2 border border-gray-200 rounded text-gray-500 hover:text-[#E8622A] hover:border-[#E8622A] transition bg-white"
                                   title="ดู Timeline"
                                 >
                                   <BarChart3 size={16}/>
                                 </button>
-                                <button onClick={() => startEdit(item)} className="p-2 border border-zinc-800 rounded text-zinc-500 hover:text-teal-400"><Edit2 size={16}/></button>
-                                <button onClick={() => toggleStatus(item)} className="p-2 border border-zinc-800 rounded text-teal-500"><Layers size={16}/></button>
-                                <button onClick={() => handleDelete(item.id)} className="p-2 border border-zinc-800 rounded text-zinc-600 hover:text-red-500"><Trash2 size={16}/></button>
+                                <button onClick={() => startEdit(item)} className="p-2 border border-gray-200 rounded text-gray-500 hover:text-blue-500 bg-white"><Edit2 size={16}/></button>
+                                <button onClick={() => toggleStatus(item)} className="p-2 border border-gray-200 rounded text-green-500 bg-white"><Layers size={16}/></button>
+                                <button onClick={() => handleDelete(item.id)} className="p-2 border border-gray-200 rounded text-gray-500 hover:text-red-500 bg-white"><Trash2 size={16}/></button>
                               </>
                             )}
                           </div>
@@ -356,11 +355,11 @@ export default function ProjectsPage() {
                             {stats.safeBudget > 0 && (
                               <>
                                 <div className="flex justify-between text-sm mb-1">
-                                  <span className="text-zinc-400 text-xs">ใช้ไป <span className="text-white font-bold text-sm">฿{stats.totalSpent.toLocaleString()}</span></span>
-                                  <span className="text-zinc-500 text-xs">งบ <span className="text-zinc-300">฿{stats.safeBudget.toLocaleString()}</span></span>
+                                  <span className="text-[#6B6B6B] text-xs">ใช้ไป <span className="text-[#1A1A1A] font-bold text-sm">฿{stats.totalSpent.toLocaleString()}</span></span>
+                                  <span className="text-[#6B6B6B] text-xs">งบ <span className="text-gray-500">฿{stats.safeBudget.toLocaleString()}</span></span>
                                 </div>
-                                <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
-                                  <div className={`h-full rounded-full transition-all ${isOverBudget ? 'bg-red-500' : stats.percent >= 80 ? 'bg-amber-500' : 'bg-teal-500'}`}
+                                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                                  <div className={`h-full rounded-full transition-all ${isOverBudget ? 'bg-red-500' : stats.percent >= 80 ? 'bg-orange-400' : 'bg-[#E8622A]'}`}
                                     style={{ width: `${Math.min(stats.percent, 100)}%` }}>
                                   </div>
                                 </div>
@@ -368,8 +367,8 @@ export default function ProjectsPage() {
                                 {stats.percent >= 80 && (
                                   <div className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold ${
                                     isOverBudget
-                                      ? 'bg-red-950/50 text-red-400 border border-red-800/50'
-                                      : 'bg-amber-950/50 text-amber-400 border border-amber-800/50'
+                                      ? 'bg-red-50 text-red-500 border border-red-200'
+                                      : 'bg-orange-50 text-orange-500 border border-orange-200'
                                   }`}>
                                     <AlertTriangle size={12} />
                                     {isOverBudget
@@ -384,12 +383,12 @@ export default function ProjectsPage() {
                             {dailyLimitVal > 0 && (
                               <div className="mt-2">
                                 <div className="flex justify-between text-xs mb-1">
-                                  <span className="text-zinc-500 flex items-center gap-1"><Zap size={10} /> วันนี้ใช้</span>
-                                  <span className={`font-bold ${dailyExceeded ? 'text-red-400' : 'text-zinc-300'}`}>
+                                  <span className="text-[#6B6B6B] flex items-center gap-1"><Zap size={10} /> วันนี้ใช้</span>
+                                  <span className={`font-bold ${dailyExceeded ? 'text-red-500' : 'text-[#1A1A1A]'}`}>
                                     ฿{todaySpent.toLocaleString()} / ฿{dailyLimitVal.toLocaleString()}
                                   </span>
                                 </div>
-                                <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-200">
                                   <div
                                     className={`h-full rounded-full transition-all ${dailyExceeded ? 'bg-red-500' : 'bg-indigo-500'}`}
                                     style={{ width: `${Math.min((todaySpent / dailyLimitVal) * 100, 100)}%` }}
@@ -412,15 +411,15 @@ export default function ProjectsPage() {
         {viewMode === "timeline" && (
           <div>
             {/* Trip Selector */}
-            <div className="mb-4">
-              <label className="text-xs text-zinc-400 font-bold mb-2 block">เลือกทริปที่ต้องการดู Timeline</label>
+            <div className="mb-4 bg-white p-4 rounded-2xl border border-[#EBEBEB] shadow-sm">
+              <label className="text-sm text-[#1A1A1A] font-bold mb-2 block">เลือกทริปที่ต้องการดู Timeline</label>
               <select
                 value={timelineTrip?.id || ""}
                 onChange={e => {
                   const trip = projects.find(p => p.id === e.target.value);
                   setTimelineTrip(trip || null);
                 }}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-white focus:outline-none focus:border-teal-500"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[#1A1A1A] focus:outline-none focus:border-[#E8622A]"
               >
                 <option value="">— เลือกทริป —</option>
                 {projects.map(p => <option key={p.id} value={p.id}>✈️ {p.name}</option>)}
@@ -428,50 +427,50 @@ export default function ProjectsPage() {
             </div>
 
             {!timelineTrip ? (
-              <div className="text-center py-20 bg-zinc-900 rounded-2xl border border-dashed border-zinc-800">
-                <BarChart3 size={40} className="mx-auto mb-3 text-zinc-700" />
-                <p className="text-zinc-500">เลือกทริปเพื่อดู Timeline</p>
+              <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-[#EBEBEB]">
+                <BarChart3 size={40} className="mx-auto mb-3 text-gray-300" />
+                <p className="text-[#6B6B6B]">เลือกทริปเพื่อดู Timeline</p>
               </div>
             ) : timelineData.length === 0 ? (
-              <div className="text-center py-20 bg-zinc-900 rounded-2xl border border-dashed border-zinc-800">
-                <Calendar size={40} className="mx-auto mb-3 text-zinc-700" />
-                <p className="text-zinc-500">ไม่พบรายจ่ายในทริปนี้</p>
+              <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-[#EBEBEB]">
+                <Calendar size={40} className="mx-auto mb-3 text-gray-300" />
+                <p className="text-[#6B6B6B]">ไม่พบรายจ่ายในทริปนี้</p>
               </div>
             ) : (
               <>
                 {/* Trip Summary */}
-                <div className="bg-gradient-to-r from-teal-950 to-zinc-900 rounded-2xl p-4 border border-teal-800 mb-4">
-                  <h2 className="text-white font-black text-lg">✈️ {timelineTrip.name}</h2>
-                  <div className="flex gap-4 mt-2">
+                <div className="bg-[#FFF4EF] rounded-2xl p-5 border border-[#fbdcd0] mb-4 shadow-sm">
+                  <h2 className="text-[#1A1A1A] font-black text-lg">✈️ {timelineTrip.name}</h2>
+                  <div className="flex gap-6 mt-3">
                     <div>
-                      <p className="text-xs text-zinc-400">รวมทั้งหมด</p>
-                      <p className="text-teal-400 font-black">฿{timelineData.reduce((s, d) => s + d.total, 0).toLocaleString()}</p>
+                      <p className="text-xs text-[#6B6B6B]">รวมทั้งหมด</p>
+                      <p className="text-[#E8622A] font-black text-lg">฿{timelineData.reduce((s, d) => s + d.total, 0).toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-zinc-400">วันที่ใช้จ่าย</p>
-                      <p className="text-white font-bold">{timelineData.length} วัน</p>
+                      <p className="text-xs text-[#6B6B6B]">วันที่ใช้จ่าย</p>
+                      <p className="text-[#1A1A1A] font-bold text-lg">{timelineData.length} วัน</p>
                     </div>
                     {dailyLimitForTimeline > 0 && (
                       <div>
-                        <p className="text-xs text-zinc-400">วงเงิน/วัน</p>
-                        <p className="text-indigo-400 font-bold">฿{Number(dailyLimitForTimeline).toLocaleString()}</p>
+                        <p className="text-xs text-[#6B6B6B]">วงเงิน/วัน</p>
+                        <p className="text-indigo-500 font-bold text-lg">฿{Number(dailyLimitForTimeline).toLocaleString()}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Timeline Horizontal Scroll */}
-                <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-4 overflow-hidden">
-                  <p className="text-xs text-zinc-400 font-bold mb-4 flex items-center gap-2">
-                    <BarChart3 size={14} className="text-teal-500" />
+                <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 overflow-hidden shadow-sm">
+                  <p className="text-sm text-[#1A1A1A] font-bold mb-4 flex items-center gap-2">
+                    <BarChart3 size={16} className="text-[#E8622A]" />
                     ยอดรายจ่ายแต่ละวัน
                     {dailyLimitForTimeline > 0 && (
-                      <span className="text-indigo-400">• เส้นสีม่วง = วงเงิน/วัน</span>
+                      <span className="text-indigo-500 text-xs font-normal">• เส้นสีม่วง = วงเงิน/วัน</span>
                     )}
                   </p>
 
-                  <div className="overflow-x-auto pb-4">
-                    <div className="flex gap-3 min-w-max">
+                  <div className="overflow-x-auto pb-4 scrollbar-hide">
+                    <div className="flex gap-4 min-w-max">
                       {timelineData.map((day, idx) => {
                         const heightPercent = maxDayTotal > 0 ? (day.total / maxDayTotal) * 100 : 0;
                         const isMax = day.total === maxDayTotal;
@@ -483,42 +482,42 @@ export default function ProjectsPage() {
                         return (
                           <div key={day.date} className="flex flex-col items-center" style={{ minWidth: '64px' }}>
                             {/* Amount Label */}
-                            <div className={`text-[10px] font-black mb-1 ${isMax ? 'text-amber-400' : overDailyLimit ? 'text-red-400' : 'text-zinc-400'}`}>
+                            <div className={`text-[10px] font-black mb-2 ${isMax ? 'text-orange-500' : overDailyLimit ? 'text-red-500' : 'text-[#6B6B6B]'}`}>
                               ฿{day.total >= 1000 ? (day.total / 1000).toFixed(1) + 'K' : day.total.toLocaleString()}
                             </div>
 
                             {/* Bar */}
-                            <div className="w-12 h-32 flex flex-col justify-end relative">
+                            <div className="w-12 h-32 flex flex-col justify-end relative bg-gray-50 rounded-t-lg">
                               {/* Daily limit line */}
                               {dailyLimitForTimeline > 0 && maxDayTotal > 0 && (
                                 <div
-                                  className="absolute left-0 right-0 border-t-2 border-dashed border-indigo-500/60 z-10"
+                                  className="absolute left-0 right-0 border-t-2 border-dashed border-indigo-500 z-10"
                                   style={{ bottom: `${(dailyLimitForTimeline / maxDayTotal) * 128}px` }}
                                 />
                               )}
                               <div
                                 className={`w-full rounded-t-lg transition-all duration-500 ${
                                   isMax
-                                    ? 'bg-amber-500 shadow-lg shadow-amber-900/50'
+                                    ? 'bg-orange-400 shadow-sm'
                                     : overDailyLimit
-                                    ? 'bg-red-500/80'
-                                    : 'bg-teal-600'
+                                    ? 'bg-red-400'
+                                    : 'bg-[#E8622A]'
                                 }`}
-                                style={{ height: `${Math.max(heightPercent, 4)}%`, opacity: 0.7 + (heightPercent / 100) * 0.3 }}
+                                style={{ height: `${Math.max(heightPercent, 4)}%`, opacity: 0.8 + (heightPercent / 100) * 0.2 }}
                               />
                             </div>
 
                             {/* Day Label */}
-                            <div className="text-center mt-1">
-                              <div className={`text-[10px] font-bold ${overDailyLimit ? 'text-red-400' : 'text-zinc-400'}`}>
+                            <div className="text-center mt-2">
+                              <div className={`text-[10px] font-bold ${overDailyLimit ? 'text-red-500' : 'text-[#1A1A1A]'}`}>
                                 {weekDay}
                                 {overDailyLimit && <span className="ml-0.5 text-red-500">●</span>}
                               </div>
-                              <div className="text-[9px] text-zinc-600">{label}</div>
+                              <div className="text-[9px] text-[#6B6B6B] mt-0.5">{label}</div>
                             </div>
 
                             {/* Count badge */}
-                            <div className="text-[9px] bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded-full mt-1 border border-zinc-700">
+                            <div className="text-[9px] bg-gray-100 text-[#6B6B6B] px-2 py-0.5 rounded-full mt-2 font-medium">
                               {day.count} รายการ
                             </div>
                           </div>
@@ -528,24 +527,24 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Legend */}
-                  <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-zinc-800">
+                  <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-sm bg-amber-500" />
-                      <span className="text-[10px] text-zinc-400">วันใช้มากสุด</span>
+                      <div className="w-3 h-3 rounded-sm bg-orange-400" />
+                      <span className="text-xs text-[#6B6B6B]">วันใช้มากสุด</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-sm bg-teal-600" />
-                      <span className="text-[10px] text-zinc-400">ปกติ</span>
+                      <div className="w-3 h-3 rounded-sm bg-[#E8622A]" />
+                      <span className="text-xs text-[#6B6B6B]">ปกติ</span>
                     </div>
                     {dailyLimitForTimeline > 0 && (
                       <>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 rounded-sm bg-red-500/80" />
-                          <span className="text-[10px] text-zinc-400">เกินวงเงิน/วัน</span>
+                          <div className="w-3 h-3 rounded-sm bg-red-400" />
+                          <span className="text-xs text-[#6B6B6B]">เกินวงเงิน/วัน</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-5 h-0 border-t-2 border-dashed border-indigo-500" />
-                          <span className="text-[10px] text-zinc-400">วงเงิน/วัน</span>
+                          <div className="w-6 h-0 border-t-2 border-dashed border-indigo-500" />
+                          <span className="text-xs text-[#6B6B6B]">วงเงิน/วัน</span>
                         </div>
                       </>
                     )}
@@ -558,24 +557,24 @@ export default function ProjectsPage() {
                     const overDailyLimit = dailyLimitForTimeline > 0 && day.total > dailyLimitForTimeline;
                     const dateObj = new Date(day.date + 'T00:00:00');
                     return (
-                      <div key={day.date} className={`bg-zinc-900 rounded-xl p-3 border flex items-center justify-between transition ${
-                        overDailyLimit ? 'border-red-800/60' : 'border-zinc-800'
+                      <div key={day.date} className={`bg-white rounded-xl p-4 border flex items-center justify-between transition shadow-sm ${
+                        overDailyLimit ? 'border-red-200' : 'border-[#EBEBEB]'
                       }`}>
                         <div className="flex items-center gap-3">
                           {overDailyLimit && <span className="text-red-500 text-xs">🔴</span>}
                           <div>
-                            <p className="text-sm font-bold text-white">
-                              {dateObj.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            <p className="text-sm font-bold text-[#1A1A1A]">
+                              {dateObj.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                             </p>
-                            <p className="text-xs text-zinc-500">{day.count} รายการ</p>
+                            <p className="text-xs text-[#6B6B6B] mt-0.5">{day.count} รายการ</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-black ${overDailyLimit ? 'text-red-400' : 'text-white'}`}>
+                          <p className={`font-black text-lg ${overDailyLimit ? 'text-red-500' : 'text-[#1A1A1A]'}`}>
                             ฿{day.total.toLocaleString()}
                           </p>
                           {overDailyLimit && dailyLimitForTimeline > 0 && (
-                            <p className="text-[10px] text-red-500">เกิน ฿{(day.total - dailyLimitForTimeline).toLocaleString()}</p>
+                            <p className="text-[10px] text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded inline-block mt-1">เกิน ฿{(day.total - dailyLimitForTimeline).toLocaleString()}</p>
                           )}
                         </div>
                       </div>

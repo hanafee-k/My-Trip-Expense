@@ -171,23 +171,23 @@ export default function SplitBillPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-32 font-sans">
+    <div className="min-h-screen pb-32 font-sans text-[#1A1A1A]">
       {/* Header */}
-      <div className="bg-zinc-900/90 border-b border-zinc-800 sticky top-0 z-50 backdrop-blur-lg">
+      <div className="bg-white/95 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-lg shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 hover:bg-zinc-800 rounded-lg transition">
-            <ArrowLeft size={20} className="text-zinc-400" />
+          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg transition">
+            <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-white flex items-center gap-2">
-              <Split size={20} className="text-teal-500" />
+            <h1 className="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+              <Split size={20} className="text-[#E8622A]" />
               หารบิล
             </h1>
-            <p className="text-xs text-zinc-500">Split Bill Calculator</p>
+            <p className="text-xs text-[#6B6B6B]">Split Bill Calculator</p>
           </div>
           <div className="flex gap-1">
             {[1, 2, 3].map(s => (
-              <div key={s} className={`w-8 h-1.5 rounded-full transition-all ${step >= s ? 'bg-teal-500' : 'bg-zinc-700'}`} />
+              <div key={s} className={`w-8 h-1.5 rounded-full transition-all ${step >= s ? 'bg-[#E8622A]' : 'bg-gray-200'}`} />
             ))}
           </div>
         </div>
@@ -198,15 +198,15 @@ export default function SplitBillPage() {
         {/* Step 1 — เลือก Transactions */}
         {step === 1 && (
           <div className="space-y-4">
-            <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
-              <p className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                <Receipt size={16} className="text-teal-500" /> เลือกรายจ่ายที่จะหาร
+            <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+              <p className="text-sm font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
+                <Receipt size={16} className="text-[#E8622A]" /> เลือกรายจ่ายที่จะหาร
               </p>
               {/* Trip Filter */}
               <select
                 value={selectedTrip}
                 onChange={e => setSelectedTrip(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500 mb-3"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] mb-4 transition"
               >
                 <option value="all">🌐 ทุกรายการ</option>
                 <option value="no_trip">🏠 ชีวิตประจำวัน</option>
@@ -216,40 +216,40 @@ export default function SplitBillPage() {
               {!showCustomForm ? (
                 <button
                   onClick={() => setShowCustomForm(true)}
-                  className="w-full bg-zinc-950 border border-dashed border-zinc-700 hover:border-teal-500 text-zinc-400 hover:text-teal-400 p-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition mb-3"
+                  className="w-full bg-white border border-dashed border-gray-300 hover:border-[#E8622A] text-[#6B6B6B] hover:text-[#E8622A] p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition mb-4 shadow-sm"
                 >
                   <Plus size={16} /> ระบุรายการใหม่เอง
                 </button>
               ) : (
-                <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 mb-3 space-y-3">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4 space-y-3">
                   <input
                     type="text"
                     value={customNote}
                     onChange={e => setCustomNote(e.target.value)}
                     placeholder="ชื่อรายการ (เช่น ค่าอาหาร)"
-                    className="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-teal-500"
+                    className="w-full bg-white border border-gray-200 text-[#1A1A1A] text-sm px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#E8622A]"
                   />
                   <input
                     type="number"
                     value={customAmount}
                     onChange={e => setCustomAmount(e.target.value)}
                     placeholder="จำนวนเงิน (฿)"
-                    className="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-teal-500"
+                    className="w-full bg-white border border-gray-200 text-[#1A1A1A] text-sm px-3 py-2.5 rounded-lg focus:outline-none focus:border-[#E8622A]"
                   />
-                  <div className="flex gap-2">
-                    <button onClick={() => setShowCustomForm(false)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-lg text-xs font-bold transition">ยกเลิก</button>
-                    <button onClick={handleAddCustomTxn} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-2 rounded-lg text-xs font-bold transition">เพิ่ม</button>
+                  <div className="flex gap-2 pt-1">
+                    <button onClick={() => setShowCustomForm(false)} className="flex-1 bg-white hover:bg-gray-100 border border-gray-200 text-[#1A1A1A] py-2.5 rounded-lg text-xs font-bold transition">ยกเลิก</button>
+                    <button onClick={handleAddCustomTxn} className="flex-1 bg-[#E8622A] hover:bg-[#d65722] text-white py-2.5 rounded-lg text-xs font-bold transition">เพิ่ม</button>
                   </div>
                 </div>
               )}
 
               {combinedTxns.length === 0 ? (
-                <div className="text-center py-10 text-zinc-600">
-                  <AlertCircle size={32} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">ไม่พบรายจ่าย</p>
+                <div className="text-center py-10 text-[#6B6B6B]">
+                  <AlertCircle size={32} className="mx-auto mb-2 opacity-40 text-gray-400" />
+                  <p className="text-sm font-medium">ไม่พบรายจ่าย</p>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-1 scrollbar-hide">
                   {combinedTxns.map(t => {
                     const selected = selectedTxns.includes(t.id);
                     return (
@@ -258,23 +258,25 @@ export default function SplitBillPage() {
                         onClick={() => toggleTxn(t.id)}
                         className={`flex items-center justify-between p-3 rounded-xl cursor-pointer border transition-all ${
                           selected
-                            ? 'bg-teal-950 border-teal-600'
-                            : 'bg-zinc-950 border-zinc-800 hover:border-zinc-600'
+                            ? 'bg-[#FFF4EF] border-[#E8622A]'
+                            : 'bg-white border-gray-100 hover:border-gray-300'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                            selected ? 'bg-teal-500 border-teal-500' : 'border-zinc-600'
+                            selected ? 'bg-[#E8622A] border-[#E8622A]' : 'border-gray-300'
                           }`}>
                             {selected && <CheckCircle2 size={14} className="text-white" />}
                           </div>
-                          <span className="text-xl">{getCategoryIcon(t.categoryId)}</span>
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg bg-gray-100">
+                            {getCategoryIcon(t.categoryId)}
+                          </div>
                           <div>
-                            <p className="text-sm font-medium text-white">{t.note || "ไม่ระบุ"}</p>
-                            <p className="text-xs text-zinc-500">{formatDate(t.date)} {t.tripId && `• ✈️ ${getTripName(t.tripId)}`}</p>
+                            <p className="text-sm font-bold text-[#1A1A1A]">{t.note || "ไม่ระบุ"}</p>
+                            <p className="text-xs text-[#6B6B6B] mt-0.5">{formatDate(t.date)} {t.tripId && `• ✈️ ${getTripName(t.tripId)}`}</p>
                           </div>
                         </div>
-                        <span className={`font-black text-sm ${selected ? 'text-teal-400' : 'text-zinc-300'}`}>
+                        <span className={`font-black text-sm ${selected ? 'text-[#E8622A]' : 'text-[#1A1A1A]'}`}>
                           ฿{Number(t.amount).toLocaleString()}
                         </span>
                       </div>
@@ -286,15 +288,15 @@ export default function SplitBillPage() {
 
             {/* Summary */}
             {selectedTxns.length > 0 && (
-              <div className="bg-gradient-to-r from-teal-950 to-teal-900 rounded-2xl p-4 border border-teal-700">
+              <div className="bg-[#FFF4EF] rounded-2xl p-5 border border-[#fbdcd0] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-teal-300 text-xs">เลือกแล้ว {selectedTxns.length} รายการ</p>
-                    <p className="text-3xl font-black text-white">฿{totalSelected.toLocaleString()}</p>
+                    <p className="text-[#E8622A] text-xs font-bold mb-1">เลือกแล้ว {selectedTxns.length} รายการ</p>
+                    <p className="text-3xl font-black text-[#1A1A1A]">฿{totalSelected.toLocaleString()}</p>
                   </div>
                   <button
                     onClick={() => setStep(2)}
-                    className="bg-teal-500 hover:bg-teal-400 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95"
+                    className="bg-[#E8622A] hover:bg-[#d65722] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-sm"
                   >
                     ถัดไป <ArrowRight size={18} />
                   </button>
@@ -307,40 +309,40 @@ export default function SplitBillPage() {
         {/* Step 2 — กำหนดคน */}
         {step === 2 && (
           <div className="space-y-4">
-            <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm font-bold text-white flex items-center gap-2">
-                  <Users size={16} className="text-teal-500" /> กำหนดผู้ร่วมจ่าย
+            <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-sm font-bold text-[#1A1A1A] flex items-center gap-2">
+                  <Users size={16} className="text-[#E8622A]" /> กำหนดผู้ร่วมจ่าย
                 </p>
-                <button onClick={addPerson} className="bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition">
-                  <Plus size={14} /> เพิ่มคน
+                <button onClick={addPerson} className="bg-white border border-gray-200 hover:bg-gray-50 text-[#1A1A1A] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-sm">
+                  <Plus size={14} className="text-[#E8622A]"/> เพิ่มคน
                 </button>
               </div>
 
               <div className="space-y-3">
                 {people.map((p, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                    <div className="w-8 h-8 bg-teal-900 rounded-full flex items-center justify-center text-sm font-black text-teal-300">
+                  <div key={i} className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                    <div className="w-8 h-8 bg-white border border-gray-200 shadow-sm rounded-full flex items-center justify-center text-sm font-black text-[#E8622A]">
                       {i + 1}
                     </div>
                     <input
                       value={p.name}
                       onChange={e => updatePerson(i, "name", e.target.value)}
-                      className="flex-1 bg-transparent text-white text-sm font-medium focus:outline-none"
+                      className="flex-1 bg-transparent text-[#1A1A1A] text-sm font-bold focus:outline-none"
                       placeholder={`คน ${i + 1}`}
                     />
                     <div className="flex items-center gap-1">
-                      <span className="text-zinc-500 text-xs">จ่ายไปแล้ว ฿</span>
+                      <span className="text-[#6B6B6B] text-xs font-medium">จ่ายไปแล้ว ฿</span>
                       <input
                         type="number"
                         value={p.paid}
                         onChange={e => updatePerson(i, "paid", parseFloat(e.target.value) || 0)}
-                        className="w-20 bg-zinc-900 border border-zinc-700 text-white text-sm text-right px-2 py-1 rounded-lg focus:outline-none focus:border-teal-500"
+                        className="w-20 bg-white border border-gray-200 text-[#1A1A1A] font-bold text-sm text-right px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#E8622A] shadow-sm"
                       />
                     </div>
                     {people.length > 2 && (
-                      <button onClick={() => removePerson(i)} className="text-red-500 hover:text-red-400 p-1 transition">
-                        <Minus size={16} />
+                      <button onClick={() => removePerson(i)} className="text-red-500 hover:text-red-600 p-1 transition bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <Minus size={14} />
                       </button>
                     )}
                   </div>
@@ -348,26 +350,26 @@ export default function SplitBillPage() {
               </div>
             </div>
 
-            <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
+            <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">ยอดรวม</span>
-                <span className="text-white font-bold">฿{totalSelected.toLocaleString()}</span>
+                <span className="text-[#6B6B6B] font-medium">ยอดรวม</span>
+                <span className="text-[#1A1A1A] font-bold">฿{totalSelected.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm mt-2">
-                <span className="text-zinc-400">จำนวนคน</span>
-                <span className="text-white font-bold">{people.length} คน</span>
+                <span className="text-[#6B6B6B] font-medium">จำนวนคน</span>
+                <span className="text-[#1A1A1A] font-bold">{people.length} คน</span>
               </div>
-              <div className="border-t border-zinc-700 mt-3 pt-3 flex justify-between">
-                <span className="text-teal-300 font-bold">แต่ละคนจ่าย</span>
-                <span className="text-teal-400 font-black text-xl">฿{perPerson.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <div className="border-t border-gray-100 mt-4 pt-4 flex justify-between items-center">
+                <span className="text-[#E8622A] font-bold">แต่ละคนจ่าย</span>
+                <span className="text-[#1A1A1A] font-black text-2xl">฿{perPerson.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold text-sm transition">
+              <button onClick={() => setStep(1)} className="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-[#1A1A1A] py-3.5 rounded-xl font-bold text-sm transition shadow-sm">
                 ← ย้อนกลับ
               </button>
-              <button onClick={() => setStep(3)} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition">
+              <button onClick={() => setStep(3)} className="flex-1 bg-[#E8622A] hover:bg-[#d65722] text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm">
                 <Calculator size={16} /> คำนวณ
               </button>
             </div>
@@ -378,19 +380,21 @@ export default function SplitBillPage() {
         {step === 3 && (
           <div className="space-y-4">
             {/* Summary Card */}
-            <div className="bg-gradient-to-br from-teal-950 to-zinc-900 rounded-2xl p-5 border border-teal-800">
-              <p className="text-teal-300 text-sm font-bold mb-3 flex items-center gap-2">
+            <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)] text-center relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 text-orange-500 opacity-5 text-7xl">🧮</div>
+              <p className="text-[#E8622A] text-sm font-bold mb-4 flex items-center justify-center gap-2 relative z-10">
                 <Calculator size={16} /> ผลการคำนวณ
               </p>
-              <div className="text-center py-3">
-                <p className="text-4xl font-black text-white">฿{perPerson.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                <p className="text-teal-400 text-sm mt-1">ต่อคน ({people.length} คน)</p>
+              <div className="py-2 relative z-10">
+                <p className="text-5xl font-black text-[#1A1A1A]">฿{perPerson.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="text-[#6B6B6B] text-sm mt-2 font-medium">ต่อคน ({people.length} คน)</p>
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-3">
+              
+              <div className="grid grid-cols-2 gap-3 mt-6 relative z-10">
                 {people.map((p, i) => (
-                  <div key={i} className="bg-zinc-900/60 rounded-xl p-3 border border-zinc-700">
-                    <p className="text-xs text-zinc-400 mb-1">{p.name}</p>
-                    <p className={`font-black text-sm ${(p.paid || 0) >= perPerson ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <div key={i} className="bg-gray-50 rounded-xl p-3 border border-gray-200 text-left">
+                    <p className="text-xs text-[#6B6B6B] mb-1 font-bold">{p.name}</p>
+                    <p className={`font-black text-sm ${(p.paid || 0) >= perPerson ? 'text-green-600' : 'text-red-500'}`}>
                       {(p.paid || 0) >= perPerson
                         ? `+฿${((p.paid || 0) - perPerson).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`
                         : `-฿${(perPerson - (p.paid || 0)).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`}
@@ -402,19 +406,19 @@ export default function SplitBillPage() {
 
             {/* Settlement */}
             {settlement.length > 0 && (
-              <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
-                <p className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                  <ArrowRight size={16} className="text-amber-400" /> ใครโอนให้ใคร
+              <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                <p className="text-sm font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
+                  <ArrowRight size={16} className="text-orange-500" /> ใครโอนให้ใคร
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {settlement.map((s, i) => (
-                    <div key={i} className="flex items-center justify-between bg-amber-950/40 rounded-xl p-3 border border-amber-800/40">
+                    <div key={i} className="flex items-center justify-between bg-[#FFF4EF] rounded-xl p-4 border border-[#fbdcd0]">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white">{s.from}</span>
-                        <ArrowRight size={14} className="text-amber-400" />
-                        <span className="text-sm font-bold text-white">{s.to}</span>
+                        <span className="text-sm font-bold text-[#1A1A1A]">{s.from}</span>
+                        <ArrowRight size={14} className="text-[#E8622A]" />
+                        <span className="text-sm font-bold text-[#1A1A1A]">{s.to}</span>
                       </div>
-                      <span className="font-black text-amber-400">฿{s.amount.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</span>
+                      <span className="font-black text-[#E8622A] text-lg">฿{s.amount.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</span>
                     </div>
                   ))}
                 </div>
@@ -422,21 +426,21 @@ export default function SplitBillPage() {
             )}
 
             {settlement.length === 0 && (
-              <div className="bg-emerald-950/40 rounded-2xl p-4 border border-emerald-800/40 text-center">
-                <CheckCircle2 size={32} className="text-emerald-400 mx-auto mb-2" />
-                <p className="text-emerald-300 font-bold text-sm">ทุกคนจ่ายเท่ากัน! 🎉</p>
+              <div className="bg-green-50 rounded-2xl p-6 border border-green-200 text-center">
+                <CheckCircle2 size={40} className="text-green-500 mx-auto mb-3" />
+                <p className="text-green-700 font-bold">ทุกคนจ่ายเท่ากัน! 🎉</p>
               </div>
             )}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 pt-2">
               <div className="flex gap-3">
-                <button onClick={() => setStep(2)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold text-sm transition">
+                <button onClick={() => setStep(2)} className="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-[#1A1A1A] py-3.5 rounded-xl font-bold text-sm transition shadow-sm">
                   ← ย้อนกลับ
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex-1 bg-teal-600 hover:bg-teal-500 disabled:bg-zinc-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition"
+                  className="flex-1 bg-[#E8622A] hover:bg-[#d65722] disabled:bg-gray-300 text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm"
                 >
                   {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                   {saving ? "กำลังบันทึก..." : "บันทึกการหาร"}
@@ -444,7 +448,7 @@ export default function SplitBillPage() {
               </div>
               <button
                 onClick={handleReset}
-                className="w-full bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition mt-4"
+                className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-[#6B6B6B] hover:text-[#1A1A1A] py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition mt-2 shadow-sm"
               >
                 <Plus size={16} /> เริ่มการหารบิลใหม่
               </button>

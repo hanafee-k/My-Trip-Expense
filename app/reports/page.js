@@ -50,13 +50,13 @@ export default function ReportsPage() {
 
   // --- Categories Configuration ---
   const categories = [
-    { id: "food", name: "อาหาร & เครื่องดื่ม", icon: "🍜", color: "#f97316" }, // Orange
+    { id: "food", name: "อาหาร & เครื่องดื่ม", icon: "🍜", color: "#E8622A" }, // Burnt Orange
     { id: "transport", name: "เดินทาง & ขนส่ง", icon: "🚕", color: "#0ea5e9" }, // Sky
     { id: "shopping", name: "ช็อปปิ้ง", icon: "🛍️", color: "#ec4899" }, // Pink
     { id: "hotel", name: "ที่พัก", icon: "🏨", color: "#8b5cf6" }, // Violet
     { id: "entertainment", name: "ความบันเทิง", icon: "🎭", color: "#a855f7" }, // Purple
     { id: "health", name: "สุขภาพ", icon: "💊", color: "#10b981" }, // Emerald
-    { id: "other", name: "อื่นๆ", icon: "📝", color: "#6b7280" }, // Gray
+    { id: "other", name: "อื่นๆ", icon: "📝", color: "#9ca3af" }, // Gray
   ];
 
   // --- Data Fetching ---
@@ -126,7 +126,7 @@ export default function ReportsPage() {
           name: cat ? cat.name : "อื่นๆ",
           icon: cat ? cat.icon : "📝",
           value: grouped[catId],
-          color: cat ? cat.color : "#6b7280",
+          color: cat ? cat.color : "#9ca3af",
           percentage: total > 0 ? ((grouped[catId] / total) * 100).toFixed(1) : 0
         };
       })
@@ -190,15 +190,15 @@ export default function ReportsPage() {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-zinc-900 border border-zinc-700 p-4 rounded-xl shadow-2xl">
+        <div className="bg-white border border-[#EBEBEB] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-2xl">{payload[0].payload.icon}</span>
-            <p className="font-bold text-white">{payload[0].name}</p>
+            <p className="font-bold text-[#1A1A1A]">{payload[0].name}</p>
           </div>
-          <p className="text-teal-400 font-bold text-lg">
+          <p className="text-[#E8622A] font-black text-lg">
             ฿{payload[0].value.toLocaleString()}
           </p>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-[#6B6B6B] mt-1 font-medium">
             {payload[0].payload.percentage}% ของยอดรวม
           </p>
         </div>
@@ -216,7 +216,7 @@ export default function ReportsPage() {
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-xs text-zinc-400">{entry.value}</span>
+            <span className="text-xs text-[#6B6B6B] font-medium">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -226,10 +226,10 @@ export default function ReportsPage() {
   // --- Loading State ---
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-teal-500 animate-spin" />
-          <p className="text-zinc-400 text-sm">กำลังโหลดรายงาน...</p>
+          <Loader2 className="w-12 h-12 text-[#E8622A] animate-spin" />
+          <p className="text-[#6B6B6B] text-sm">กำลังโหลดรายงาน...</p>
         </div>
       </div>
     );
@@ -237,37 +237,37 @@ export default function ReportsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">กรุณาเข้าสู่ระบบ</h1>
-          <p className="text-zinc-400">คุณต้องเข้าสู่ระบบก่อนดูรายงาน</p>
+          <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">กรุณาเข้าสู่ระบบ</h1>
+          <p className="text-[#6B6B6B]">คุณต้องเข้าสู่ระบบก่อนดูรายงาน</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 pb-24 font-sans selection:bg-teal-800/30">
+    <div className="min-h-screen pb-24 font-sans text-[#1A1A1A]">
       
       {/* Header */}
-      <div className="bg-[#18181b] p-5 border-b border-zinc-800/50 sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
+      <div className="bg-white/95 p-5 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-md shadow-sm">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <button
             onClick={() => window.history.back()}
-            className="p-2 hover:bg-zinc-800 rounded-lg transition"
+            className="p-2 hover:bg-gray-100 rounded-lg transition"
           >
-            <ArrowLeft size={20} className="text-zinc-400" />
+            <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           
-          <h1 className="text-xl font-bold flex items-center gap-2.5 text-white tracking-tight">
-            <PieChartIcon size={22} className="text-teal-400" />
-            <span>รายงาน<span className="text-teal-400">สรุปยอด</span></span>
-            <Sparkles className="w-5 h-5 text-teal-400" />
+          <h1 className="text-xl font-bold flex items-center gap-2.5 text-[#1A1A1A] tracking-tight">
+            <PieChartIcon size={22} className="text-[#E8622A]" />
+            <span>รายงาน<span className="text-[#E8622A]">สรุปยอด</span></span>
+            <Sparkles className="w-5 h-5 text-[#E8622A]" />
           </h1>
           
           <button
-            className="p-2 hover:bg-zinc-800 rounded-lg transition opacity-0 cursor-default"
+            className="p-2 hover:bg-gray-100 rounded-lg transition opacity-0 cursor-default"
             disabled
           >
             <Download size={20} />
@@ -281,16 +281,16 @@ export default function ReportsPage() {
         <div className="mb-5">
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="w-full flex justify-between items-center bg-[#18181b] p-4 rounded-xl border border-zinc-800 text-sm text-zinc-300 hover:border-teal-600/50 transition-all active:scale-[0.99]"
+            className="w-full flex justify-between items-center bg-white p-4 rounded-xl border border-[#EBEBEB] shadow-sm text-sm text-[#1A1A1A] hover:border-[#E8622A] transition-all active:scale-[0.99]"
           >
             <div className="flex items-center gap-3">
-              <Filter size={18} className="text-teal-400" />
-              <span className="font-semibold text-white">
+              <Filter size={18} className="text-[#E8622A]" />
+              <span className="font-bold">
                 {filterTrip === 'all' ? '📊 ทุกรายการ' :
                  filterTrip === 'no_trip' ? '🏠 ชีวิตประจำวัน' :
                  `✈️ ${getTripName(filterTrip)}`}
               </span>
-              <span className="text-xs text-zinc-500 font-normal">
+              <span className="text-xs text-[#6B6B6B] font-medium hidden sm:inline-block">
                 {new Date(filterStart).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                 {' - '}
                 {new Date(filterEnd).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
@@ -298,12 +298,12 @@ export default function ReportsPage() {
             </div>
             <ChevronRight
               size={18}
-              className={`transform transition-transform ${showFilter ? 'rotate-90' : ''} text-zinc-500`}
+              className={`transform transition-transform ${showFilter ? 'rotate-90' : ''} text-[#6B6B6B]`}
             />
           </button>
 
           {showFilter && (
-            <div className="mt-3 p-5 bg-[#18181b] rounded-xl border border-zinc-800 animate-in fade-in slide-in-from-top-2 duration-200 space-y-5">
+            <div className="mt-3 p-5 bg-white rounded-xl border border-[#EBEBEB] shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 space-y-5">
               
               {/* Quick Filters */}
               <div className="flex gap-2">
@@ -311,25 +311,25 @@ export default function ReportsPage() {
                   <button
                     key={filter.id}
                     onClick={filter.action}
-                    className="flex-1 bg-zinc-900 hover:bg-teal-600 text-zinc-300 hover:text-white px-3 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95"
+                    className="flex-1 bg-gray-50 border border-gray-200 hover:bg-[#FFF4EF] hover:border-[#fbdcd0] hover:text-[#E8622A] text-[#1A1A1A] px-3 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-95"
                   >
                     {filter.label}
                   </button>
                 ))}
               </div>
 
-              <div className="border-t border-zinc-800"></div>
+              <div className="border-t border-gray-100"></div>
 
               {/* Trip Filter */}
               <div>
-                <label className="text-xs text-zinc-400 font-semibold flex items-center gap-2 mb-2.5">
-                  <Plane size={14} className="text-teal-400" />
+                <label className="text-xs text-[#6B6B6B] font-bold flex items-center gap-2 mb-2.5">
+                  <Plane size={14} className="text-[#E8622A]" />
                   เลือกดูข้อมูลของ
                 </label>
                 <select
                   value={filterTrip}
                   onChange={(e) => setFilterTrip(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                  className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition"
                 >
                   <option value="all">🌐 รายการทั้งหมด</option>
                   <option value="no_trip">🏠 ชีวิตประจำวัน (ไม่เข้าทริป)</option>
@@ -340,31 +340,31 @@ export default function ReportsPage() {
                 </select>
               </div>
 
-              <div className="border-t border-zinc-800"></div>
+              <div className="border-t border-gray-100"></div>
 
               {/* Date Range */}
               <div className="space-y-3">
-                <label className="text-xs text-zinc-400 font-semibold flex items-center gap-2">
-                  <Calendar size={14} className="text-teal-400" />
+                <label className="text-xs text-[#6B6B6B] font-bold flex items-center gap-2">
+                  <Calendar size={14} className="text-[#E8622A]" />
                   ช่วงเวลา
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] text-zinc-500 block mb-1.5 ml-1">ตั้งแต่วันที่</label>
+                    <label className="text-[10px] text-[#6B6B6B] block mb-1.5 ml-1 font-medium">ตั้งแต่วันที่</label>
                     <input
                       type="date"
                       value={filterStart}
                       onChange={e => setFilterStart(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-zinc-500 block mb-1.5 ml-1">ถึงวันที่</label>
+                    <label className="text-[10px] text-[#6B6B6B] block mb-1.5 ml-1 font-medium">ถึงวันที่</label>
                     <input
                       type="date"
                       value={filterEnd}
                       onChange={e => setFilterEnd(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition"
                     />
                   </div>
                 </div>
@@ -376,49 +376,49 @@ export default function ReportsPage() {
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           {/* Total Expense */}
-          <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl p-4 shadow-2xl shadow-teal-900/30 border border-teal-500/30 col-span-2">
+          <div className="bg-[#E8622A] rounded-xl p-5 shadow-[0_4px_12px_rgba(232,98,42,0.2)] border border-[#E8622A] col-span-2">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-teal-100 text-sm font-semibold">
+              <div className="flex items-center gap-2 text-white text-sm font-bold opacity-90">
                 <TrendingDown size={16} />
                 รายจ่ายรวม
               </div>
-              <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg border border-white/30">
+              <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg border border-white/20">
                 <Target size={16} className="text-white" />
               </div>
             </div>
             <div className="text-4xl font-black text-white mb-1">
               {totalExpense.toLocaleString()}
             </div>
-            <div className="text-teal-100 text-sm font-medium">บาท</div>
+            <div className="text-white opacity-90 text-sm font-medium">บาท</div>
           </div>
 
           {/* Transactions Count */}
-          <div className="bg-[#18181b] rounded-xl p-4 border border-zinc-800">
-            <div className="text-xs text-zinc-400 mb-2 font-semibold">จำนวนรายการ</div>
-            <div className="text-2xl font-bold text-white mb-1">
+          <div className="bg-white rounded-xl p-4 border border-[#EBEBEB] shadow-sm">
+            <div className="text-xs text-[#6B6B6B] mb-2 font-bold">จำนวนรายการ</div>
+            <div className="text-2xl font-black text-[#1A1A1A] mb-1">
               {stats.totalTransactions}
             </div>
-            <div className="text-xs text-zinc-500">รายการ</div>
+            <div className="text-xs text-[#6B6B6B] font-medium">รายการ</div>
           </div>
 
           {/* Average Per Day */}
-          <div className="bg-[#18181b] rounded-xl p-4 border border-zinc-800">
-            <div className="text-xs text-zinc-400 mb-2 font-semibold">เฉลี่ยต่อวัน</div>
-            <div className="text-2xl font-bold text-white mb-1">
+          <div className="bg-white rounded-xl p-4 border border-[#EBEBEB] shadow-sm">
+            <div className="text-xs text-[#6B6B6B] mb-2 font-bold">เฉลี่ยต่อวัน</div>
+            <div className="text-2xl font-black text-[#1A1A1A] mb-1">
               {Math.round(stats.avgPerDay).toLocaleString()}
             </div>
-            <div className="text-xs text-zinc-500">บาท/วัน</div>
+            <div className="text-xs text-[#6B6B6B] font-medium">บาท/วัน</div>
           </div>
         </div>
 
         {/* Chart Type Toggle */}
-        <div className="flex gap-3 p-1.5 bg-zinc-900 rounded-xl border border-zinc-800 mb-5">
+        <div className="flex gap-2 p-1.5 bg-gray-100 rounded-xl border border-gray-200 mb-5">
           <button
             onClick={() => setChartType('pie')}
-            className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
               chartType === 'pie'
-                ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/50'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                ? 'bg-white text-[#1A1A1A] shadow-sm border border-gray-200'
+                : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
             }`}
           >
             <PieChartIcon size={16} />
@@ -426,10 +426,10 @@ export default function ReportsPage() {
           </button>
           <button
             onClick={() => setChartType('bar')}
-            className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
               chartType === 'bar'
-                ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/50'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                ? 'bg-white text-[#1A1A1A] shadow-sm border border-gray-200'
+                : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
             }`}
           >
             <BarChart3 size={16} />
@@ -438,7 +438,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Charts */}
-        <div className="bg-[#18181b] rounded-2xl p-5 border border-zinc-800 shadow-xl mb-6">
+        <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB] shadow-sm mb-6">
           {chartData.length > 0 ? (
             <div className="w-full">
               {chartType === 'pie' ? (
@@ -468,18 +468,18 @@ export default function ReportsPage() {
                 <div className="h-[320px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                       <XAxis 
                         dataKey="name" 
-                        stroke="#71717a"
-                        tick={{ fill: '#a1a1aa', fontSize: 10 }}
+                        stroke="#e5e7eb"
+                        tick={{ fill: '#6B6B6B', fontSize: 10, fontWeight: 500 }}
                         angle={-45}
                         textAnchor="end"
                         height={80}
                       />
                       <YAxis 
-                        stroke="#71717a"
-                        tick={{ fill: '#a1a1aa', fontSize: 12 }}
+                        stroke="#e5e7eb"
+                        tick={{ fill: '#6B6B6B', fontSize: 12, fontWeight: 500 }}
                       />
                       <Tooltip content={<CustomTooltip />} />
                       <Bar dataKey="value" radius={[8, 8, 0, 0]}>
@@ -495,8 +495,8 @@ export default function ReportsPage() {
           ) : (
             <div className="text-center py-16">
               <div className="mb-4 text-5xl">📊</div>
-              <p className="text-zinc-400 font-semibold mb-2">ไม่มีข้อมูลรายจ่าย</p>
-              <p className="text-zinc-600 text-sm">ลองเปลี่ยนช่วงเวลาหรือทริปดูครับ</p>
+              <p className="text-[#1A1A1A] font-bold mb-2">ไม่มีข้อมูลรายจ่าย</p>
+              <p className="text-[#6B6B6B] text-sm">ลองเปลี่ยนช่วงเวลาหรือทริปดูครับ</p>
             </div>
           )}
         </div>
@@ -505,11 +505,11 @@ export default function ReportsPage() {
         {chartData.length > 0 && (
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between px-1 mb-4">
-              <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                <BarChart3 size={20} className="text-teal-400" />
+              <h3 className="text-[#1A1A1A] font-bold text-lg flex items-center gap-2">
+                <BarChart3 size={20} className="text-[#E8622A]" />
                 รายละเอียดตามหมวดหมู่
               </h3>
-              <span className="text-xs text-zinc-500 font-semibold">
+              <span className="text-xs text-[#6B6B6B] font-bold bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">
                 {chartData.length} หมวด
               </span>
             </div>
@@ -517,38 +517,38 @@ export default function ReportsPage() {
             {chartData.map((item, index) => (
               <div
                 key={index}
-                className="bg-[#18181b] p-4 rounded-xl border border-zinc-800 hover:border-teal-600/30 transition-all group animate-in fade-in slide-in-from-bottom-1"
+                className="bg-white p-4 rounded-xl border border-[#EBEBEB] hover:border-[#fbdcd0] hover:shadow-sm transition-all group animate-in fade-in slide-in-from-bottom-1"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg border border-white/10"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-gray-100"
                       style={{ 
-                        background: `linear-gradient(135deg, ${item.color}dd, ${item.color})` 
+                        background: `linear-gradient(135deg, ${item.color}15, ${item.color}30)` 
                       }}
                     >
                       {item.icon}
                     </div>
                     <div>
-                      <div className="text-white font-bold text-sm mb-1">
+                      <div className="text-[#1A1A1A] font-bold text-sm mb-1">
                         {item.name}
                       </div>
-                      <div className="text-zinc-500 text-xs">
+                      <div className="text-[#6B6B6B] text-xs font-medium">
                         อันดับ {index + 1} • {item.percentage}%
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-white font-black text-lg">
+                    <div className="text-[#1A1A1A] font-black text-lg">
                       {item.value.toLocaleString()}
                     </div>
-                    <div className="text-zinc-500 text-xs font-semibold">บาท</div>
+                    <div className="text-[#6B6B6B] text-xs font-bold">บาท</div>
                   </div>
                 </div>
                 
                 {/* Progress Bar */}
-                <div className="w-full bg-zinc-900 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{ 
@@ -564,32 +564,32 @@ export default function ReportsPage() {
 
         {/* Insights Section */}
         {chartData.length > 0 && (
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-xl p-5 border border-zinc-700 mb-6">
+          <div className="bg-[#FFF4EF] rounded-xl p-5 border border-[#fbdcd0] mb-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={18} className="text-amber-400" />
-              <h3 className="text-white font-bold text-sm">💡 สรุปข้อมูลเชิงลึก</h3>
+              <Sparkles size={18} className="text-[#E8622A]" />
+              <h3 className="text-[#1A1A1A] font-black text-sm">💡 สรุปข้อมูลเชิงลึก</h3>
             </div>
             
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-2"></div>
-                <p className="text-zinc-300 text-sm leading-relaxed">
-                  คุณใช้จ่ายมากที่สุดกับหมวด <span className="font-bold text-white">{stats.highestCategory}</span> ถึง <span className="font-bold text-teal-400">{stats.highestAmount.toLocaleString()} บาท</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#E8622A] mt-2"></div>
+                <p className="text-[#6B6B6B] text-sm leading-relaxed font-medium">
+                  คุณใช้จ่ายมากที่สุดกับหมวด <span className="font-bold text-[#1A1A1A]">{stats.highestCategory}</span> ถึง <span className="font-bold text-[#E8622A]">{stats.highestAmount.toLocaleString()} บาท</span>
                 </p>
               </div>
               
               <div className="flex items-start gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-2"></div>
-                <p className="text-zinc-300 text-sm leading-relaxed">
-                  ค่าใช้จ่ายเฉลี่ย <span className="font-bold text-white">{Math.round(stats.avgPerDay).toLocaleString()} บาท/วัน</span> จากทั้งหมด <span className="font-bold text-white">{stats.totalTransactions} รายการ</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#E8622A] mt-2"></div>
+                <p className="text-[#6B6B6B] text-sm leading-relaxed font-medium">
+                  ค่าใช้จ่ายเฉลี่ย <span className="font-bold text-[#1A1A1A]">{Math.round(stats.avgPerDay).toLocaleString()} บาท/วัน</span> จากทั้งหมด <span className="font-bold text-[#1A1A1A]">{stats.totalTransactions} รายการ</span>
                 </p>
               </div>
               
               {chartData.length >= 3 && (
                 <div className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-2"></div>
-                  <p className="text-zinc-300 text-sm leading-relaxed">
-                    หมวด 3 อันดับแรก คิดเป็น <span className="font-bold text-teal-400">{(parseFloat(chartData[0].percentage) + parseFloat(chartData[1].percentage) + parseFloat(chartData[2].percentage)).toFixed(1)}%</span> ของยอดรวม
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#E8622A] mt-2"></div>
+                  <p className="text-[#6B6B6B] text-sm leading-relaxed font-medium">
+                    หมวด 3 อันดับแรก คิดเป็น <span className="font-bold text-[#E8622A]">{(parseFloat(chartData[0].percentage) + parseFloat(chartData[1].percentage) + parseFloat(chartData[2].percentage)).toFixed(1)}%</span> ของยอดรวม
                   </p>
                 </div>
               )}

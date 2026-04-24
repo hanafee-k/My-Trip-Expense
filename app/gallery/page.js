@@ -58,25 +58,25 @@ export default function GalleryPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 font-sans">
+    <div className="min-h-screen pb-24 font-sans text-[#1A1A1A]">
       {/* Header */}
-      <div className="bg-zinc-900/90 border-b border-zinc-800 sticky top-0 z-50 backdrop-blur-lg">
+      <div className="bg-white/95 border-b border-[#EBEBEB] sticky top-0 z-50 backdrop-blur-lg shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 hover:bg-zinc-800 rounded-lg transition">
-            <ArrowLeft size={20} className="text-zinc-400" />
+          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg transition">
+            <ArrowLeft size={20} className="text-[#1A1A1A]" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-white flex items-center gap-2">
-              <ImageIcon size={20} className="text-teal-500" />
+            <h1 className="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+              <ImageIcon size={20} className="text-[#E8622A]" />
               คลังสลิป
             </h1>
-            <p className="text-xs text-zinc-500">Receipt Gallery • {receipts.length} รูป</p>
+            <p className="text-xs text-[#6B6B6B]">Receipt Gallery • {receipts.length} รูป</p>
           </div>
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="p-2 hover:bg-zinc-800 rounded-lg transition border border-zinc-700"
+            className={`p-2 rounded-lg transition border ${showFilter ? 'bg-[#FFF4EF] border-[#E8622A]' : 'bg-white border-gray-200 hover:bg-gray-50'}`}
           >
-            <Filter size={18} className="text-teal-500" />
+            <Filter size={18} className="text-[#E8622A]" />
           </button>
         </div>
 
@@ -86,7 +86,7 @@ export default function GalleryPage() {
             <select
               value={filterTrip}
               onChange={e => setFilterTrip(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-teal-500"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] shadow-sm"
             >
               <option value="all">🌐 ทุกทริป</option>
               <option value="no_trip">🏠 ชีวิตประจำวัน</option>
@@ -98,10 +98,10 @@ export default function GalleryPage() {
 
       <div className="max-w-4xl mx-auto px-4 pt-6">
         {receipts.length === 0 ? (
-          <div className="text-center py-24 bg-zinc-900 rounded-2xl border border-dashed border-zinc-800">
+          <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-[#EBEBEB]">
             <div className="text-6xl mb-4">🧾</div>
-            <p className="text-zinc-400 font-bold">ยังไม่มีสลิปในคลัง</p>
-            <p className="text-zinc-600 text-sm mt-1">เพิ่มรายการพร้อมสแกนสลิปในหน้าหลัก</p>
+            <p className="text-[#1A1A1A] font-bold">ยังไม่มีสลิปในคลัง</p>
+            <p className="text-[#6B6B6B] text-sm mt-1">เพิ่มรายการพร้อมสแกนสลิปในหน้าหลัก</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -109,28 +109,28 @@ export default function GalleryPage() {
               <div
                 key={t.id}
                 onClick={() => setLightbox(t)}
-                className="group relative bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-teal-600 transition-all cursor-pointer"
+                className="group relative bg-white rounded-2xl overflow-hidden border border-[#EBEBEB] hover:border-[#E8622A] transition-all cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
               >
                 {/* Thumbnail */}
-                <div className="aspect-square relative overflow-hidden">
+                <div className="aspect-square relative overflow-hidden bg-gray-50">
                   <img
                     src={t.receiptUrl}
                     alt="สลิป"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
-                    <ZoomIn size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ZoomIn size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
                   </div>
                 </div>
                 {/* Info */}
-                <div className="p-2.5">
-                  <p className="text-xs font-bold text-white truncate">
+                <div className="p-3">
+                  <p className="text-xs font-bold text-[#1A1A1A] truncate">
                     {getCategoryIcon(t.categoryId)} {t.note || "ไม่ระบุ"}
                   </p>
-                  <p className="text-teal-400 font-black text-sm">฿{Number(t.amount).toLocaleString()}</p>
-                  <p className="text-zinc-500 text-[10px]">{formatDate(t.date)}</p>
+                  <p className="text-[#E8622A] font-black text-sm mt-0.5">฿{Number(t.amount).toLocaleString()}</p>
+                  <p className="text-[#6B6B6B] text-[10px] mt-0.5">{formatDate(t.date)}</p>
                   {t.tripId && (
-                    <span className="text-[9px] bg-teal-950 text-teal-400 px-1.5 py-0.5 rounded border border-teal-800/50 font-bold">
+                    <span className="inline-block mt-1.5 text-[9px] bg-[#FFF4EF] text-[#E8622A] px-1.5 py-0.5 rounded border border-[#fbdcd0] font-bold">
                       ✈️ {getTripName(t.tripId)}
                     </span>
                   )}
@@ -148,7 +148,7 @@ export default function GalleryPage() {
           onClick={() => setLightbox(null)}
         >
           <button
-            className="absolute top-4 right-4 bg-zinc-800 hover:bg-zinc-700 p-2 rounded-full transition z-10"
+            className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 backdrop-blur-md p-2 rounded-full transition z-10"
             onClick={() => setLightbox(null)}
           >
             <X size={20} className="text-white" />
@@ -156,30 +156,30 @@ export default function GalleryPage() {
 
           <div onClick={e => e.stopPropagation()} className="max-w-lg w-full space-y-4">
             {/* Image */}
-            <div className="rounded-2xl overflow-hidden border border-zinc-700 shadow-2xl">
+            <div className="rounded-2xl overflow-hidden shadow-2xl">
               <img
                 src={lightbox.receiptUrl}
                 alt="สลิปเต็ม"
-                className="w-full max-h-[65vh] object-contain bg-zinc-900"
+                className="w-full max-h-[65vh] object-contain bg-black"
               />
             </div>
 
             {/* Info Card */}
-            <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
+            <div className="bg-white rounded-2xl p-4 border border-[#EBEBEB] shadow-xl">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-white font-bold">
+                  <p className="text-[#1A1A1A] font-bold">
                     {getCategoryIcon(lightbox.categoryId)} {lightbox.note || "ไม่ระบุ"}
                   </p>
-                  <p className="text-zinc-400 text-xs flex items-center gap-1 mt-1">
+                  <p className="text-[#6B6B6B] text-xs flex items-center gap-1 mt-1 font-medium">
                     <Calendar size={12} /> {formatDate(lightbox.date)}
                   </p>
                 </div>
-                <p className="text-2xl font-black text-white">฿{Number(lightbox.amount).toLocaleString()}</p>
+                <p className="text-2xl font-black text-[#E8622A]">฿{Number(lightbox.amount).toLocaleString()}</p>
               </div>
               {lightbox.tripId && (
-                <div className="flex items-center gap-2 bg-teal-950/50 px-3 py-2 rounded-lg border border-teal-800/40">
-                  <span className="text-teal-400 text-xs font-bold">✈️ {getTripName(lightbox.tripId)}</span>
+                <div className="flex items-center gap-2 bg-[#FFF4EF] px-3 py-2 rounded-lg border border-[#fbdcd0] mt-2">
+                  <span className="text-[#E8622A] text-xs font-bold">✈️ {getTripName(lightbox.tripId)}</span>
                 </div>
               )}
             </div>
