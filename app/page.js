@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { db, storage } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
-import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy, onSnapshot, Timestamp, getDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   ChevronRight, Image as ImageIcon, Plus, Trash2, Save, X, Filter,
@@ -49,6 +49,9 @@ export default function Home() {
   const [ocrProgress, setOcrProgress] = useState(0);
   const fileInputRef = useRef(null);
   const [lightboxUrl, setLightboxUrl] = useState(null);
+  const [pendingReceiptFile, setPendingReceiptFile] = useState(null);
+  const [customPhoto, setCustomPhoto] = useState(null);
+  const [imgError, setImgError] = useState(false);
 
 
   // Feature 5 — Export
@@ -79,6 +82,22 @@ export default function Home() {
       if (tripsData.length > 0 && !selectedTrip) setSelectedTrip(tripsData[0].id);
     });
     return () => { unsubTrans(); unsubTrips(); };
+  }, [user]);
+
+  // Fetch custom profile pic
+  useEffect(() => {
+    if (!user) return;
+    const fetchProfilePic = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.photoURL) { setCustomPhoto(data.photoURL); setImgError(false); }
+          else if (data.photoBase64) { setCustomPhoto(data.photoBase64); setImgError(false); }
+        }
+      } catch (err) { console.error("Error fetching profile pic:", err); }
+    };
+    fetchProfilePic();
   }, [user]);
 
   // === Notifications ===
@@ -135,10 +154,11 @@ export default function Home() {
       showNotification("⚠️ กรุณาเลือกไฟล์รูปภาพเท่านั้น", "error"); return;
     }
     setCheckingSlip(true);
+    setPendingReceiptFile(file);
     setOcrProgress(0);
     try {
       const result = await Tesseract.recognize(file, 'tha+eng', {
-        logger: m => { 
+        logger: m => {
           if (m.status === 'recognizing text') {
             setOcrProgress(Math.round(m.progress * 100));
           }
@@ -304,6 +324,7 @@ export default function Home() {
   const resetForm = () => {
     setForm({ amount: "", note: "", type: "expense", category: "food", date: getTodayDate() });
     setEditId(null); setIsTrip(false);
+    setPendingReceiptFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -365,7 +386,7 @@ export default function Home() {
       // Header bg
       doc.setFillColor(20, 20, 20); doc.rect(0, 0, 210, 40, "F");
       doc.setTextColor(20, 184, 166); doc.setFontSize(20); doc.setFont("helvetica", "bold");
-      doc.text("MY TRIP EXPENSE", 105, 18, { align: "center" });
+      doc.text("FINVOY WALLET", 105, 18, { align: "center" });
       doc.setFontSize(10); doc.setTextColor(161, 161, 170);
       const tripLabel = filterTrip === "all" ? "ทุกรายการ" : filterTrip === "no_trip" ? "ชีวิตประจำวัน" : getTripName(filterTrip);
       doc.text(`${tripLabel} | ${new Date(filterStart).toLocaleDateString('en-GB')} - ${new Date(filterEnd).toLocaleDateString('en-GB')}`, 105, 27, { align: "center" });
@@ -408,7 +429,7 @@ export default function Home() {
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i); doc.setTextColor(100); doc.setFontSize(7);
-        doc.text(`My Trip Expense | สร้างเมื่อ ${new Date().toLocaleString('th-TH')} | หน้า ${i}/${pageCount}`, 105, 290, { align: "center" });
+        doc.text(`Finvoy Wallet | สร้างเมื่อ ${new Date().toLocaleString('th-TH')} | หน้า ${i}/${pageCount}`, 105, 290, { align: "center" });
       }
 
       doc.save(`my-trip-expense-${getTodayDate()}.pdf`);
@@ -432,7 +453,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F6F3] text-[#1A1A1A] pb-32 selection:bg-[#E8622A]/30">
+    <div className="min-h-screen bg-[#F7F6F3] text-[#1A1A1A] pb-32 selection:bg-[#E8622A]/30 font-sans">
 
 
       {/* Toast Notification */}
@@ -456,7 +477,7 @@ export default function Home() {
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
           <div className="flex justify-between items-start relative z-10">
             <div className="space-y-1">
-              <p className="text-[13px] text-gray-500 font-normal">ยินดีต้อนรับกลับมา </p>
+              <p className="text-[13px] text-gray-500 font-normal">ยินดีต้อนรับ </p>
               <h1 className="text-[18px] font-bold text-gray-900 leading-tight">
                 {user.displayName || "นักเดินทาง"}
               </h1>
@@ -467,8 +488,14 @@ export default function Home() {
 
 
             <div className="w-20 h-20 rounded-full border-[3px] border-[#E8622A] overflow-hidden shadow-md bg-[#E8622A] flex items-center justify-center text-white font-bold shrink-0">
-              {user.photoURL ? (
-                <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+              {(customPhoto || user.photoURL) && !imgError ? (
+                <img
+                  src={customPhoto || user.photoURL}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                  onError={() => setImgError(true)}
+                />
               ) : (
                 <span className="text-2xl">{user.displayName?.charAt(0) || "U"}</span>
               )}
@@ -480,7 +507,7 @@ export default function Home() {
           {/* Balance Summary Pill */}
           <div className="mt-5 flex">
             <div className="bg-[#E8622A] text-white rounded-full px-4 py-1.5 text-[13px] font-semibold flex items-center gap-2 self-start">
-              <span>💰 คงเหลือ ฿{(summary.income - summary.expense).toLocaleString()}</span>
+              <span> คงเหลือ ฿{(summary.income - summary.expense).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -503,6 +530,41 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-4">
           <div className="lg:col-span-2 space-y-6">
+            {/* Alerts & Banners */}
+            {budgetAlert && budgetAlert.percent >= 80 && (
+              <div className={`p-4 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top-2 border ${
+                budgetAlert.exceeded ? 'bg-red-50 border-red-100 text-red-600' : 'bg-orange-50 border-orange-100 text-orange-600'
+              }`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${budgetAlert.exceeded ? 'bg-red-100' : 'bg-orange-100'}`}>
+                  <AlertTriangle size={20} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-black italic">
+                    {budgetAlert.exceeded ? '🚨 เกินงบที่ตั้งไว้แล้ว!' : '⚠️ ใกล้เต็มงบประมาณแล้ว!'}
+                  </p>
+                  <p className="text-[11px] font-bold opacity-80">
+                    {budgetAlert.exceeded 
+                      ? `ยอดใช้จ่ายเกินงบไป ฿${(budgetAlert.totalExpense - budgetAlert.budget).toLocaleString()}`
+                      : `ใช้ไปแล้ว ${budgetAlert.percent.toFixed(0)}% ของงบประมาณทริป`}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {dailySpending && dailySpending.exceeded && (
+              <div className="p-4 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top-2 border bg-indigo-50 border-indigo-100 text-indigo-600">
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                  <Zap size={20} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-black italic">🚨 วันนี้ใช้เงินเกินลิมิต!</p>
+                  <p className="text-[11px] font-bold opacity-80">
+                    ยอดใช้วันนี้ ฿{dailySpending.todaySpent.toLocaleString()} (ลิมิต ฿{dailySpending.dailyLimit.toLocaleString()})
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Stats Row */}
             {/* Task 1 — Standardized Stats Cards */}
             <div className="grid grid-cols-2 gap-3">
@@ -592,22 +654,9 @@ export default function Home() {
                   <div className="bg-blue-50 p-1.5 rounded-full"><Plane size={16} className="text-blue-500" /></div>
                   <span className="text-sm font-semibold text-[#1A1A1A]">ทริปใหม่</span>
                 </button>
-                <button onClick={() => setShowExportMenu(!showExportMenu)} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative">
+                <button onClick={() => router.push('/reports')} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
                   <div className="bg-purple-50 p-1.5 rounded-full"><BarChart2 size={16} className="text-purple-500" /></div>
                   <span className="text-sm font-semibold text-[#1A1A1A]">รายงาน</span>
-
-                  {/* Export Dropdown */}
-                  {showExportMenu && (
-                    <div className="absolute top-full left-0 mt-2 bg-white border border-[#EBEBEB] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
-                      <div onClick={(e) => { e.stopPropagation(); exportCSV(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
-                        <FileSpreadsheet size={16} className="text-green-500" /> <span>Export CSV</span>
-                      </div>
-                      <div className="border-t border-gray-100" />
-                      <div onClick={(e) => { e.stopPropagation(); exportPDF(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left text-sm text-[#1A1A1A]">
-                        <FileText size={16} className="text-red-500" /> <span>Export PDF</span>
-                      </div>
-                    </div>
-                  )}
                 </button>
               </div>
             </div>

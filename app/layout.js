@@ -19,10 +19,10 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: 'My Trip Expense - จัดการค่าใช้จ่ายการเดินทาง',
-  description: 'แอปพลิเคชันบันทึกและจัดการค่าใช้จ่ายการเดินทางอย่างมืออาชีพ พร้อม OCR สแกนสลิป',
-  keywords: 'expense tracker, trip expense, การจัดการค่าใช้จ่าย, สลิป OCR',
-  authors: [{ name: 'My Trip Expense Team' }],
+  title: 'Finvoy Wallet - Smart Expense & Trip Manager',
+  description: 'แอปพลิเคชันบันทึกและจัดการค่าใช้จ่ายที่ครบวงจร ทั้งการใช้ชีวิตประจำวันและการเดินทาง พร้อมระบบหารบิลและ OCR',
+  keywords: 'expense tracker, trip expense, Finvoy, Finvoy Wallet, การจัดการค่าใช้จ่าย, สลิป OCR, หารบิล',
+  authors: [{ name: 'Finvoy Wallet Team' }],
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   themeColor: '#09090b',
 }

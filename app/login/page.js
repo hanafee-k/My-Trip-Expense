@@ -97,7 +97,7 @@ export default function LoginPage() {
             <div className="w-16 h-16 bg-[#E8622A] rounded-3xl flex items-center justify-center mb-5 shadow-xl shadow-[#E8622A]/20">
               <Plane size={32} className="text-white -rotate-12" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">My Trip Expense</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Finvoy Wallet</h1>
             <p className="text-slate-500 mt-2 text-sm">เข้าสู่ระบบเพื่อจัดการค่าใช้จ่ายของคุณ</p>
           </div>
 
@@ -153,7 +153,7 @@ export default function LoginPage() {
           </div>
           
           <p className="text-xs text-slate-400 font-medium text-center mt-8">
-            © {new Date().getFullYear()} My Trip Expense. All rights reserved.
+            © {new Date().getFullYear()} Finvoy Wallet. All rights reserved.
           </p>
         </div>
       </div>

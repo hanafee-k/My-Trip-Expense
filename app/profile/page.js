@@ -1,10 +1,10 @@
 "use client";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
-import { User, Mail, LogOut, Settings, Shield, Calendar, Plane, DollarSign, TrendingUp, ChevronRight, Camera, CheckCircle2, Loader2, X } from "lucide-react";
+import { User, Mail, LogOut, Settings, Shield, Calendar, Plane, DollarSign, TrendingUp, ChevronRight, Camera, CheckCircle2, Loader2, X, Smartphone, Save } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { db, storage } from "../../lib/firebase";
-import { collection, query, onSnapshot, deleteDoc, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, query, onSnapshot, deleteDoc, getDocs, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function ProfilePage() {
@@ -14,6 +14,9 @@ export default function ProfilePage() {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [customPhoto, setCustomPhoto] = useState(null);
+  const [imgError, setImgError] = useState(false);
+  const [promptPayId, setPromptPayId] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const [stats, setStats] = useState({
     totalTrips: 0,
@@ -30,22 +33,27 @@ export default function ProfilePage() {
       return;
     }
 
-    const fetchProfilePic = async () => {
+    const fetchUserData = async () => {
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
           if (data.photoURL) {
             setCustomPhoto(data.photoURL);
+            setImgError(false);
           } else if (data.photoBase64) {
             setCustomPhoto(data.photoBase64);
+            setImgError(false);
+          }
+          if (data.promptPayId) {
+            setPromptPayId(data.promptPayId);
           }
         }
       } catch (err) {
-        console.error("Error fetching profile pic:", err);
+        console.error("Error fetching user data:", err);
       }
     };
-    fetchProfilePic();
+    fetchUserData();
 
     const fetchStats = async () => {
       try {
@@ -110,11 +118,28 @@ export default function ProfilePage() {
       }, { merge: true });
 
       setCustomPhoto(downloadURL);
+      setImgError(false);
     } catch (error) {
       console.error("Save failed", error);
       alert("บันทึกรูปไม่สำเร็จ");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const savePromptPay = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      await setDoc(doc(db, "users", user.uid), {
+        promptPayId: promptPayId.trim()
+      }, { merge: true });
+      alert("บันทึกข้อมูลเรียบร้อย!");
+    } catch (err) {
+      console.error(err);
+      alert("บันทึกไม่สำเร็จ");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -155,7 +180,7 @@ export default function ProfilePage() {
       
       <div className="max-w-4xl mx-auto px-4 pt-10 space-y-6">
         
-        {/* TASK 4 — USER PROFILE CARD */}
+        {/* USER PROFILE CARD */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center gap-4">
             {/* Avatar */}
@@ -170,8 +195,14 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <>
-                  {displayPhoto ? (
-                    <img src={displayPhoto} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                  {displayPhoto && !imgError ? (
+                    <img 
+                      src={displayPhoto} 
+                      alt="Profile" 
+                      className="w-full h-full rounded-full object-cover" 
+                      referrerPolicy="no-referrer"
+                      onError={() => setImgError(true)}
+                    />
                   ) : (
                     <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
                       <User size={30} className="text-gray-400" />
@@ -209,7 +240,35 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* TASK 2 — SECTION: ภาพรวมการเดินทาง */}
+        {/* SECTION: การชำระเงิน (NEW Feature) */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-1">
+            <Smartphone className="w-4 h-4 text-[#E8622A]" />
+            <h3 className="text-[15px] font-semibold text-gray-800">ข้อมูลการรับเงิน (PromptPay)</h3>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+            <p className="text-[12px] text-gray-500">ใส่เบอร์โทรศัพท์หรือเลขบัตรประชาชนเพื่อสร้าง QR Code ให้เพื่อนเวลาหารบิล</p>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                value={promptPayId}
+                onChange={(e) => setPromptPayId(e.target.value)}
+                placeholder="เบอร์โทร หรือ เลขบัตรประชาชน"
+                className="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-200 transition"
+              />
+              <button 
+                onClick={savePromptPay}
+                disabled={isSaving}
+                className="bg-[#E8622A] text-white px-5 rounded-xl font-bold text-sm shadow-lg shadow-orange-100 flex items-center gap-2 disabled:bg-gray-400"
+              >
+                {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION: ภาพรวมการเดินทาง */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <TrendingUp className="w-4 h-4 text-[#E8622A]" />
@@ -251,7 +310,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* TASK 2/3 — SECTION: ความปลอดภัยและการตั้งค่า */}
+        {/* SECTION: ความปลอดภัยและการตั้งค่า */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Shield className="w-4 h-4 text-[#E8622A]" />
@@ -286,7 +345,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* TASK 2/3 — SECTION: เขตอันตราย */}
+        {/* SECTION: เขตอันตราย */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Shield className="w-4 h-4 text-red-500" />
@@ -317,7 +376,7 @@ export default function ProfilePage() {
             <Plane size={20} className="text-gray-400 -rotate-12" />
           </div>
           <div>
-            <p className="text-[11px] font-bold text-gray-400 tracking-widest uppercase">My Trip Expense</p>
+            <p className="text-[11px] font-bold text-gray-400 tracking-widest uppercase">Finvoy Wallet</p>
             <p className="text-[10px] text-gray-300 mt-1 uppercase tracking-tighter">v1.0.0 • Travel with Ease</p>
           </div>
         </div>

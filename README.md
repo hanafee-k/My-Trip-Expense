@@ -1,7 +1,7 @@
 <div align="center">
   
-# ✈️ My Trip Expense (แอปพลิเคชันบันทึกรายจ่ายการเดินทาง)
-**จัดการงบประมาณทริปในแบบที่โปรและง่ายที่สุด พร้อมฟีเจอร์ AI อ่านสลิปอัตโนมัติ**
+# ✈️ Finvoy Wallet (ฟินวอย วอลเล็ท)
+**แอปพลิเคชันจัดการรายจ่ายและการเดินทางอัจฉริยะ ครบจบในที่เดียว**
 
 [เข้าสู่เว็บไซต์จริง (Live Demo)](https://my-trip-expense-bb153.web.app/)
 
@@ -10,99 +10,87 @@
 ---
 
 ## 🌟 ภาพรวมโปรเจกต์ (Project Overview)
-**My Trip Expense** เป็นแอปพลิเคชัน Web App แบบ PWA-ready ที่ถูกออกแบบมาเพื่อคนที่ชอบเดินทางแต่เจอปัญหาคุมงบไม่อยู่ ด้วยดีไซน์สไตล์ **Pro Dark Theme** (โทนสีดำ-เทาคาร์บอน ตัดด้วยเขียวน้ำทะเล) ที่ให้ความรู้สึกพรีเมียม สบายตา และดูทันสมัย
+**Finvoy Wallet** คือผู้ช่วยจัดการการเงินส่วนตัวที่ถูกออกแบบมาให้ "ครบวงจร" ที่สุด ไม่ว่าจะเป็นการใช้จ่ายในชีวิตประจำวัน หรือการเดินทางท่องเที่ยวต่างประเทศ ด้วยดีไซน์สไตล์ **Premium Modern UI** ที่เน้นความเรียบหรู ใช้งานง่าย และตอบสนองรวดเร็ว
 
-ตัวแอปสามารถใช้ "บันทึกรายรับ-รายจ่ายในชีวิตประจำวัน" ควบคู่ไปกับการ "บันทึกแยกตามแพลนทริปเที่ยว" ได้อย่างสมบูรณ์แบบ!
+หัวใจของ Finvoy Wallet คือการทำให้เรื่องเงินเป็นเรื่องง่าย ตั้งแต่การบันทึก การหารบิลกับเพื่อน ไปจนถึงการสรุปรายงานที่แม่นยำ
 
-## ✨ ฟีเจอร์เด่นที่น่าสนใจ (Key Features)
-1. **🤖 AI OCR Slip Scanner**: ไม่ต้องแมนนวลพิมพ์ตัวเลข! มีระบบ AI (Tesseract.js) ที่ทำหน้าที่สแกนหาวันที่ จำนวนเงิน และจัดหมวดหมู่อัตโนมัติจากการอัปโหลดภาพสลิปโอนเงิน (รันบน Local 100% ปลอดภัย)
-2. **✈️ Smart Trip Management**: สร้างทริป (เช่น "ญี่ปุ่นใบไม้เปลี่ยนสี 2025") เพื่อแยกระบบกระเป๋าเงินออกจากชีวิตประจำวัน ทำให้รู้ตัวเลขการใช้จ่ายของทริปนั้นๆ ทันที
-3. **📊 Real-time Dashboard & Analytics**: แดชบอร์ดสรุปยอดรวม (รายรับ, รายจ่าย, คงเหลือ) และรายงานอัตราส่วนค่าใช้จ่ายด้วยกราฟวงกลมสุดสวยงาม (Recharts)
-4. **💸 Split Bill & PromptPay**: ระบบคำนวณหารค่าใช้จ่ายในกลุ่มเพื่อน พร้อมสร้าง QR Code PromptPay ให้สแกนจ่ายได้ทันที
-5. **📸 Receipt Gallery**: คลังเก็บภาพสลิปโอนเงินและใบเสร็จทั้งหมดในทริป ค้นหาและดูย้อนหลังได้ง่าย
-6. **📥 Export to PDF/CSV**: ส่งออกรายงานสรุปค่าใช้จ่ายของทริปในรูปแบบไฟล์ PDF หรือ CSV เพื่อนำไปใช้งานต่อ
-7. **⚠️ Budget Alert & Daily Limit**: ระบบตั้งงบประมาณทริปและจำกัดการใช้จ่ายรายวัน พร้อมแจ้งเตือนเมื่อใช้เงินใกล้เกินงบ
-8. **⏳ Trip Timeline View**: แสดงประวัติการใช้จ่ายเรียงตามเวลา (Timeline) ให้ดูง่ายว่าแต่ละวันใช้จ่ายอะไรไปบ้าง
-9. **🔐 Secure Google Authentication**: ระบบสมัครสมาชิกและล็อกอินที่รวดเร็วและปลอดภัยที่สุดผ่าน Google Account โดย Firebase
-10. **🕶️ Premium UI/UX**: หน้าตาแอปพลิเคชันรูปแบบ Dark Theme ที่ตอบสนองลื่นไหล (Responsive) จัดเต็มด้วยเอฟเฟกต์ Glassmorphism แบบเนียนตา
-11. **📱 Mobile-First Design**: ออกแบบโดยยึดหน้าจอมือถือเป็นหลัก ใช้งานจากสมาร์ทโฟนได้เหมือนโหลดแอปมาวางบนเครื่อง
+---
+
+## ✨ ฟีเจอร์เด่น (Key Features)
+
+### 1. 🤖 AI OCR Slip Scanner
+บันทึกรายจ่ายได้ในไม่กี่วินาทีเพียงแค่ "อัปโหลดสลิป" ระบบ AI (Tesseract.js) จะสแกนหาวันที่ จำนวนเงิน และหมวดหมู่อัตโนมัติ ช่วยลดความยุ่งยากในการพิมพ์เอง
+
+### 2. 💸 ระบบหารบิล & PromptPay (Split Bill)
+*   **หารบิลอัจฉริยะ**: รองรับทั้งการหารเท่ากัน หรือระบุจำนวนที่แต่ละคนต้องจ่ายเอง
+*   **ภาษี & เซอร์วิสชาร์จ**: คำนวณ VAT และ Service Charge แยกตามรายการได้แม่นยำ
+*   **Canvas Receipt**: สร้างใบเสร็จ (Slip) สรุปยอดของทุกคนพร้อม QR Code PromptPay ในรูปเดียว ส่งให้เพื่อนสแกนจ่ายได้ทันที
+
+### 3. 🤝 สรุปยอดค้างจ่าย (IOU & Debts)
+*   **ใครติดเงินเราบ้าง?**: ระบบรวบรวมหนี้สินจากการหารบิลมาสรุปแยกตามรายชื่อเพื่อน
+*   **ยืนยันการรับเงิน**: สามารถกดกางดูรายละเอียดแต่ละรายการ และกด "ยืนยันการรับเงิน" เพื่อหักลดยอดหนี้ได้แบบ Real-time
+
+### 4. 🔄 รายจ่ายประจำ (Recurring Expenses)
+บันทึกค่าใช้จ่ายที่ต้องจ่ายทุกเดือน (เช่น ค่าคอนโด, Netflix, ค่าเน็ต) ระบบจะช่วยเตือนและจัดการให้คุณไม่พลาดทุกรอบบิล
+
+### 5. ✈️ การจัดการทริป (Smart Trip Management)
+สร้างทริปแยกออกจากชีวิตประจำวัน เพื่อคุมงบประมาณท่องเที่ยวโดยเฉพาะ พร้อมระบบ **Budget Alert** แจ้งเตือนเมื่อใช้เงินใกล้เต็มงบ และ **Daily Limit** ควบคุมการใช้จ่ายรายวัน
+
+### 6. 📊 รายงานวิเคราะห์เชิงลึก (Advanced Analytics)
+*   สรุปยอดแยกตามหมวดหมู่ด้วยกราฟวงกลมสุดสวยงาม
+*   กรองข้อมูลได้ละเอียด ทั้งแบบ **รายสัปดาห์ / รายเดือน / รายปี / ทั้งหมด**
+*   **Exclude Trips**: เลือกดูเฉพาะรายจ่ายชีวิตประจำวันโดยไม่รวมทริปได้ เพื่อให้เห็นภาพรวมการใช้เงินที่แท้จริง
+
+### 7. 📥 การส่งออกข้อมูล (Export to PDF/CSV)
+สร้างรายงานสรุปในรูปแบบไฟล์ PDF ที่ดีไซน์มาอย่างพรีเมียม หรือไฟล์ CSV สำหรับนำไปวิเคราะห์ต่อใน Excel
 
 ---
 
 ## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-### Frontend (หน้าบ้าน)
-* **[Next.js 16+](https://nextjs.org/)** - React Framework ที่มาแรงที่สุด (ใช้งานแบบ Static Export)
-* **[Tailwind CSS v3](https://tailwindcss.com/)** - สำหรับจัดการ UI และดีไซน์ทั้งหมด
-* **[Tesseract.js](https://tesseract.projectnaptha.com/)** - Library สำหรับอ่านข้อความจากรูปภาพ (OCR) เพื่อประมวลผลสลิป
-* **[Recharts](https://recharts.org/)** - สำหรับทำ Data Visualization และรายงาน Dashboard
-* **[Lucide React](https://lucide.dev/)** - แพ็กเกจไอคอน UI ที่สวยงามและทันสมัย
-
-### Backend & Service (หลังบ้าน)
-* **[Firebase Authentication](https://firebase.google.com/docs/auth)** - สำหรับการยืนยันตัวตน (Google Sign-in)
-* **[Firebase Cloud Firestore](https://firebase.google.com/docs/firestore)** - NoSQL Database ทำงานแบบ Real-time ผูกข้อมูลแน่นกับแต่ละบัญชี
-* **[Firebase Hosting](https://firebase.google.com/docs/hosting)** - รันระบบเว็บประสิทธิภาพสูงผ่าน CDN ทั่วโลก
+*   **Frontend**: Next.js 14 (App Router), Tailwind CSS
+*   **Backend/Database**: Firebase Firestore
+*   **Authentication**: Firebase Auth (Google Login)
+*   **OCR Engine**: Tesseract.js
+*   **Charts**: Recharts
+*   **PDF Generation**: jsPDF & AutoTable
+*   **Icons**: Lucide React
 
 ---
 
-## 🚀 การติดตั้งและตั้งค่าสำหรับนักพัฒนา (Getting Started)
+## 🚀 เริ่มต้นใช้งาน (Getting Started)
 
-### 1. การ Clone โปรเจกต์
-ดึงโค้ดลงมาที่เครื่องของคุณผ่าน Git:
-```bash
-git clone https://github.com/your-username/my-trip-expense.git
-cd my-trip-expense
-```
+1. **Clone Project**
+   ```bash
+   git clone https://github.com/hanafee-k/My-Trip-Expense.git
+   ```
 
-### 2. การติดตั้ง Dependencies
-เปิด Terminal ในโฟลเดอร์โปรเจกต์และพิมพ์:
-```bash
-npm install
-```
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-### 3. การตั้งค่า Environment Variables (การเชื่อมฐานข้อมูล)
-สร้างไฟล์ที่ชื่อว่า `.env.local` ไว้ที่โฟลเดอร์นอกสุด (Root) และกรอกข้อมูล Project Settings ของ Firebase ของคุณ:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
+3. **Set Environment Variables**
+   สร้างไฟล์ `.env.local` และใส่ค่า Config จาก Firebase Project ของคุณ:
+   ```env
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+   ```
 
-### 4. รันระบบจำลอง (Development Server)
-```bash
-npm run dev
-```
-แอปจะรันที่พอร์ต `3000` คุณสามารถดูหน้าเว็บได้ที่ 👉 [http://localhost:3000](http://localhost:3000)
+4. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-## 📦 การนำระบบขึ้นออนไลน์ (Production Deployment)
-
-โปรเจกต์นี้ตั้งค่า `output: 'export'` ไว้ใน `next.config.mjs` ดังนั้นการนำขึ้นเว็บจริงจะใช้การคลายไฟล์ออกมาเป็น Static Files (HTML/CSS/JS) ทั้งหมด
-
-ถ้าคุณต้องการขึ้น **Firebase Hosting** สามารถรันคำสั่งได้ดังนี้:
-
-1. **สร้าง Build Production:**
-```bash
-npm run build
-```
-*(โค้ดทั้งหมดที่พร้อมใช้จะถูกสร้างไปไว้ในโฟลเดอร์ `/out`)*
-
-2. **Deploy ขึ้นเซิร์ฟเวอร์:**
-```bash
-firebase deploy --only hosting
-```
-*(กรณีที่ยังไม่เคยใช้ต้องรัน `firebase login` เพื่อล็อกอินก่อนด้วยนะ)*
+## 📱 PWA Support
+แอปพลิเคชันรองรับการติดตั้งลงบนหน้าจอมือถือ (Add to Home Screen) ทั้งบน iOS และ Android เพื่อการใช้งานที่ลื่นไหลเหมือน Native App
 
 ---
 
-## 💡 โครงสร้างโฟลเดอร์ที่สำคัญ
-* `/app` - โฟลเดอร์หลักสำหรับระบบ Routing ของ Next.js (หน้าเพจทั้งหมดอยู่ที่นี่)
-* `/components` - โฟลเดอร์สำหรับแยก Component ต่างๆ (ถ้ามี)
-* `/context` - สถานะส่วนกลาง (`AuthContext.js` เพื่อจัดการระบบ Login ผู้ใช้)
-* `/lib` - ไฟล์ Configuration เช่น `firebase.js` สำหรับเชื่อมต่อ Database
-
----
+© 2026 Finvoy Wallet Team. All rights reserved.

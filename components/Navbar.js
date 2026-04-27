@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PieChart, Layers, User, Plane, Image as ImageIcon, Split } from "lucide-react";
+import { Home, PieChart, Layers, User, Plane, Image as ImageIcon, Split, RefreshCw, DollarSign } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -10,6 +10,7 @@ export default function Navbar() {
     { id: "home", label: "หน้าหลัก", icon: Home, href: "/" },
     { id: "projects", label: "ทริป", icon: Layers, href: "/trips" },
     { id: "split-bill", label: "หารบิล", icon: Split, href: "/split-bill" },
+    { id: "debts", label: "หนี้สิน", icon: DollarSign, href: "/debts" },
     { id: "reports", label: "รายงาน", icon: PieChart, href: "/reports" },
     { id: "profile", label: "โปรไฟล์", icon: User, href: "/profile" },
   ];
@@ -30,8 +31,8 @@ export default function Navbar() {
               <Plane size={20} className="text-white -rotate-6" />
             </div>
             <div>
-              <p className="text-[#1A1A1A] font-black text-sm tracking-widest uppercase">My Trip</p>
-              <p className="text-[#6B6B6B] font-medium text-xs tracking-widest uppercase">Expense</p>
+              <p className="text-[#1A1A1A] font-black text-sm tracking-widest uppercase">Finvoy</p>
+              <p className="text-[#6B6B6B] font-medium text-xs tracking-widest uppercase">Wallet</p>
             </div>
           </div>
         </div>
