@@ -72,7 +72,7 @@ export default function Navbar() {
       </aside>
 
       {/* ===== MOBILE BOTTOM NAV (< lg) ===== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-2 pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-1 pb-safe">
 
         <div className="flex justify-around items-center">
           {navItems.map((item) => {
@@ -82,7 +82,7 @@ export default function Navbar() {
               <Link
                 key={item.id}
                 href={item.href}
-                className={`flex flex-col items-center justify-center py-3 px-4 transition-all active:scale-95 ${
+                className={`flex flex-col items-center justify-center py-3 px-1 transition-all active:scale-95 ${
                   active ? "text-[#E8622A]" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
                 }`}
               >
@@ -92,7 +92,7 @@ export default function Navbar() {
                     strokeWidth={active ? 2.5 : 2}
                   />
                 </div>
-                <span className={`text-[10px] font-bold mt-1 ${active ? "text-[#E8622A]" : "text-[#6B6B6B]"}`}>
+                <span className={`text-[10px] font-bold mt-1 whitespace-nowrap ${active ? "text-[#E8622A]" : "text-[#6B6B6B]"}`}>
                   {item.label}
                 </span>
                 {active && <div className="w-1 h-1 bg-[#E8622A] rounded-full mt-1" />}

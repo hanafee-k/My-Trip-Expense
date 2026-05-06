@@ -13,7 +13,8 @@ import {
 import Tesseract from 'tesseract.js';
 import { useRouter } from "next/navigation";
 import FilterBar from "../components/FilterBar";
-import { formatDateThai, getStartOfMonth, getEndOfMonth, getTodayDate } from "../lib/dateUtils";
+import TransactionList from "../components/transactions/TransactionList";
+import { formatDateThai, getStartOfMonth, getEndOfMonth, getTodayDate, getCurrentTime, getTimeFromTimestamp, combineDateAndTime } from "../lib/dateUtils";
 
 
 export default function Home() {
@@ -31,7 +32,7 @@ export default function Home() {
   const [showFilter, setShowFilter] = useState(false);
 
   const [form, setForm] = useState({
-    amount: "", note: "", type: "expense", category: "food", date: getTodayDate()
+    amount: "", note: "", type: "expense", category: "food", date: getTodayDate(), time: getCurrentTime()
   });
 
   const [isTrip, setIsTrip] = useState(false);
@@ -277,7 +278,8 @@ export default function Home() {
         type: form.type,
         categoryId: form.category,
         tripId: isTrip ? selectedTrip : null,
-        date: Timestamp.fromDate(new Date(form.date)),
+        // Combine date + time in LOCAL timezone (no UTC midnight shift)
+        date: Timestamp.fromDate(combineDateAndTime(form.date, form.time || "00:00")),
       };
 
       if (editId) {
@@ -313,7 +315,7 @@ export default function Home() {
   };
 
   const handleEditClick = (t) => {
-    setForm({ amount: t.amount.toString(), note: t.note, type: t.type, category: t.categoryId, date: t.date.toDate().toISOString().split('T')[0] });
+    setForm({ amount: t.amount.toString(), note: t.note, type: t.type, category: t.categoryId, date: t.date.toDate().toISOString().split('T')[0], time: getTimeFromTimestamp(t.date) });
     setIsTrip(!!t.tripId);
     if (t.tripId) setSelectedTrip(t.tripId);
     setEditId(t.id);
@@ -322,7 +324,7 @@ export default function Home() {
   };
 
   const resetForm = () => {
-    setForm({ amount: "", note: "", type: "expense", category: "food", date: getTodayDate() });
+    setForm({ amount: "", note: "", type: "expense", category: "food", date: getTodayDate(), time: getCurrentTime() });
     setEditId(null); setIsTrip(false);
     setPendingReceiptFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -663,35 +665,18 @@ export default function Home() {
 
           </div>
           <div className="lg:col-span-1 space-y-6">
-            {/* Transactions List */}
+            {/* ── Daily Transactions ── */}
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-[15px] font-semibold text-gray-800">รายการล่าสุด</h3>
-                <button onClick={() => setShowFilter(!showFilter)} className="text-[14px] text-[#E8622A] font-semibold flex items-center gap-1"><Filter size={14} /> ตัวกรอง</button>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-[15px] font-semibold text-gray-800">รายการวันนี้</h3>
               </div>
-
-
-              <div className="bg-white rounded-2xl p-2 border border-[#EBEBEB] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-                {filteredTransactions.length === 0 ? (
-                  <div className="p-8 text-center text-[#6B6B6B] text-sm">ไม่พบรายการ</div>
-                ) : (
-                  filteredTransactions.slice(0, 5).map(t => (
-                    <div key={t.id} onClick={() => handleEditClick(t)} className="flex items-center gap-3 p-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-gray-100">
-                        {getCategoryIcon(t.categoryId)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-normal text-gray-700 truncate">{t.note || categories.find(c => c.id === t.categoryId)?.name}</p>
-                        <p className="text-[12px] text-gray-400">{formatDateShort(t.date)} {t.tripId && <span className="ml-1 text-[#E8622A]">({getTripName(t.tripId)})</span>}</p>
-                      </div>
-                      <div className={`text-right text-[15px] font-semibold flex-shrink-0 ${t.type === 'income' ? 'text-green-600' : 'text-red-500'}`}>
-                        {t.type === 'income' ? '+' : '-'}{Number(t.amount).toLocaleString()}
-                      </div>
-                    </div>
-
-                  ))
-                )}
-              </div>
+              <TransactionList
+                transactions={transactions}
+                categories={categories}
+                trips={trips}
+                filterTrip={filterTrip}
+                onEdit={handleEditClick}
+              />
             </div>
           </div>
         </div>
@@ -785,9 +770,15 @@ export default function Home() {
                     <input type="text" placeholder="เช่น ข้าวเที่ยง, แท็กซี่..." value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
                       className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition" />
                   </div>
-                  <div className="col-span-2">
+                  {/* Date + Time side-by-side */}
+                  <div>
                     <label className="text-xs text-[#6B6B6B] block mb-2 font-medium flex items-center gap-1"><Clock size={14} /> วันที่</label>
                     <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
+                      className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#6B6B6B] block mb-2 font-medium flex items-center gap-1"><Clock size={14} /> เวลา</label>
+                    <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })}
                       className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] transition" />
                   </div>
                 </div>
