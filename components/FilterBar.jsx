@@ -9,6 +9,7 @@ export default function FilterBar({ trips, onChange, initialPeriod = 'month' }) 
   const [showTripDropdown, setShowTripDropdown] = useState(false);
 
   const periods = [
+    { id: 'today', label: 'วันนี้' },
     { id: 'month', label: 'เดือนนี้' },
     { id: 'year', label: 'ปีนี้' },
     { id: 'lastyear', label: 'ปีที่แล้ว' },

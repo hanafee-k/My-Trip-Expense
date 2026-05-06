@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import FilterBar from "../../components/FilterBar";
-import { getStartOfMonth, getEndOfMonth, getDateRange } from "../../lib/dateUtils";
+import { getStartOfMonth, getEndOfMonth, getDateRange, getTodayDate } from "../../lib/dateUtils";
 
 export default function ReportsPage() {
   const [user, setUser] = useState(null);
@@ -33,14 +33,14 @@ export default function ReportsPage() {
   
   // Filter State
   const [reportTab, setReportTab] = useState('date'); // 'date' | 'trip'
-  const [dateFrom, setDateFrom] = useState(getStartOfMonth());
-  const [dateTo, setDateTo] = useState(getEndOfMonth());
+  const [dateFrom, setDateFrom] = useState(getTodayDate());
+  const [dateTo, setDateTo] = useState(getTodayDate());
   const [selectedTrip, setSelectedTrip] = useState(null);
 
-  const [filterStart, setFilterStart] = useState(getStartOfMonth());
-  const [filterEnd, setFilterEnd] = useState(getEndOfMonth());
+  const [filterStart, setFilterStart] = useState(getTodayDate());
+  const [filterEnd, setFilterEnd] = useState(getTodayDate());
   const [filterTrip, setFilterTrip] = useState("all");
-  const [timePreset, setTimePreset] = useState("month"); // week, month, year, all
+  const [timePreset, setTimePreset] = useState("today"); // today, week, month, year, all
   const [includeTrips, setIncludeTrips] = useState(false);
   
   // UI State
@@ -233,10 +233,11 @@ export default function ReportsPage() {
             <div className="mt-6 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-6 animate-in fade-in slide-in-from-top-2">
               <div className="flex flex-wrap gap-2">
                 {[
-                  { id: 'week', label: 'รายสัปดาห์' },
-                  { id: 'month', label: 'รายเดือน' },
-                  { id: 'year', label: 'รายปี' },
-                  { id: 'all', label: 'ทั้งหมด' }
+                  { id: 'today',  label: 'วันนี้' },
+                  { id: 'week',   label: 'รายสัปดาห์' },
+                  { id: 'month',  label: 'รายเดือน' },
+                  { id: 'year',   label: 'รายปี' },
+                  { id: 'all',    label: 'ทั้งหมด' }
                 ].map(p => (
                   <button 
                     key={p.id}
