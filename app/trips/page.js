@@ -1,20 +1,22 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../context/AuthContext";
 import {
   collection, addDoc, query, onSnapshot, orderBy,
-  deleteDoc, doc, serverTimestamp, updateDoc
+  deleteDoc, doc, serverTimestamp, updateDoc, Timestamp
 } from "firebase/firestore";
 import {
   Trash2, Plane, Plus, Clock, TrendingDown, Edit2, X, Save,
   AlertTriangle, ShoppingBag, Home, Briefcase, Gift, Layers,
   MapPin, Wallet, List, BarChart3, Calendar, ChevronRight,
-  Target, Zap
+  Target, Zap, ExternalLink
 } from "lucide-react";
 
 export default function ProjectsPage() {
   const { user } = useAuth();
+  const router = useRouter();
 
   const projectTypes = [
     { id: 'trip', label: 'ท่องเที่ยว', icon: Plane, color: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-200' },
@@ -374,6 +376,14 @@ export default function ProjectsPage() {
                               </>
                             ) : (
                               <>
+                                {/* Detail Page Button */}
+                                <button
+                                  onClick={() => router.push(`/trips/detail?id=${item.id}`)}
+                                  className="p-2 border border-[#E8622A] rounded text-[#E8622A] bg-white hover:bg-[#FFF4EF] transition"
+                                  title="ดูรายละเอียด"
+                                >
+                                  <ExternalLink size={16} />
+                                </button>
                                 {/* Feature 6 — Timeline Button */}
                                 <button
                                   onClick={() => { setTimelineTrip(item); setViewMode("timeline"); }}

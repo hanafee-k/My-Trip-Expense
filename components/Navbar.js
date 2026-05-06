@@ -1,18 +1,19 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PieChart, Layers, User, Plane, Image as ImageIcon, Split, RefreshCw, DollarSign } from "lucide-react";
+import { Home, PieChart, Layers, User, Plane, Split, RefreshCw, DollarSign, TrendingUp } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
 
   const navItems = [
-    { id: "home", label: "หน้าหลัก", icon: Home, href: "/" },
-    { id: "projects", label: "ทริป", icon: Layers, href: "/trips" },
-    { id: "split-bill", label: "หารบิล", icon: Split, href: "/split-bill" },
-    { id: "debts", label: "หนี้สิน", icon: DollarSign, href: "/debts" },
-    { id: "reports", label: "รายงาน", icon: PieChart, href: "/reports" },
-    { id: "profile", label: "โปรไฟล์", icon: User, href: "/profile" },
+    { id: "home",       label: "หน้าหลัก",  icon: Home,       href: "/" },
+    { id: "projects",  label: "ทริป",       icon: Layers,     href: "/trips" },
+    { id: "allocation",label: "จัดสรร",     icon: TrendingUp, href: "/allocation" },
+    { id: "split-bill",label: "หารบิล",     icon: Split,      href: "/split-bill" },
+    { id: "debts",     label: "หนี้สิน",    icon: DollarSign, href: "/debts" },
+    { id: "reports",   label: "รายงาน",     icon: PieChart,   href: "/reports" },
+    { id: "profile",   label: "โปรไฟล์",   icon: User,       href: "/profile" },
   ];
 
 
