@@ -8,11 +8,13 @@ import {
   Filter, ChevronRight, Plane, TrendingDown, Calendar, PieChart as PieChartIcon, 
   BarChart3, Loader2, ArrowLeft, Download, Sparkles, Target, AlertCircle, X,
   FileSpreadsheet, FileText, ChevronDown, ArrowUpRight, TrendingUp, Tag, DollarSign,
-  Wallet, Layers, Activity, Award
+  Wallet, Layers, Activity, Award, Receipt
 } from "lucide-react";
 
 import FilterBar from "../../components/FilterBar";
 import { getStartOfMonth, getEndOfMonth, getDateRange, getTodayDate } from "../../lib/dateUtils";
+import DailySummary from "../../components/transactions/DailySummary";
+import TransactionItem from "../../components/transactions/TransactionItem";
 
 export default function ReportsPage() {
   const [user, setUser] = useState(null);
@@ -77,10 +79,10 @@ export default function ReportsPage() {
   }, [user]);
 
   // --- Data Processing ---
-  const { chartData, totalExpense, filteredTransactions, stats, top3Items } = useMemo(() => {
-    // Filter transactions
-    const filtered = transactions.filter(t => {
-      if (!t.date || t.type !== 'expense') return false;
+  const { chartData, totalExpense, filteredTransactions, allFilteredTransactions, stats, top3Items } = useMemo(() => {
+    // Filter ALL transactions (income + expense) for the Daily Transactions list
+    const allFiltered = transactions.filter(t => {
+      if (!t.date) return false;
       
       // Trip exclusion logic
       if (!includeTrips && t.tripId) return false;
@@ -89,7 +91,10 @@ export default function ReportsPage() {
       const dateMatch = tDate >= filterStart && tDate <= filterEnd;
       let tripMatch = filterTrip === "all" ? true : (filterTrip === "no_trip" ? !t.tripId : t.tripId === filterTrip);
       return dateMatch && tripMatch;
-    });
+    }).sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime());
+
+    // Filter transactions (expenses only for charts)
+    const filtered = allFiltered.filter(t => t.type === 'expense');
 
     const total = filtered.reduce((sum, t) => sum + t.amount, 0);
 
@@ -131,8 +136,8 @@ export default function ReportsPage() {
       highestAmount: processed[0]?.value || 0
     };
 
-    return { chartData: processed, totalExpense: total, filteredTransactions: filtered, stats, top3Items: top3 };
-  }, [transactions, filterStart, filterEnd, filterTrip]);
+    return { chartData: processed, totalExpense: total, filteredTransactions: filtered, allFilteredTransactions: allFiltered, stats, top3Items: top3 };
+  }, [transactions, filterStart, filterEnd, filterTrip, includeTrips]);
 
   // --- Export Functions ---
   const exportCSV = () => {
@@ -520,6 +525,53 @@ export default function ReportsPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Daily Transactions Section */}
+        <div className="mb-12 px-2">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1 h-6 bg-[#E8622A] rounded-full"></div>
+            <h3 className="font-black text-gray-900 text-lg">รายการเดินบัญชี</h3>
+          </div>
+
+          <div className="bg-white rounded-[32px] border border-gray-50 shadow-sm overflow-hidden flex flex-col">
+            {/* Daily Summary */}
+            {allFilteredTransactions.length > 0 && (
+              <div className="sticky top-0 z-10 bg-white">
+                <DailySummary transactions={allFilteredTransactions} />
+                <div className="h-px bg-gray-100" />
+              </div>
+            )}
+
+            {/* Scrollable list */}
+            <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: "500px" }}>
+              {allFilteredTransactions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-14 text-center px-6">
+                  <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
+                    <Receipt size={22} className="text-gray-300" />
+                  </div>
+                  <p className="text-[13px] font-semibold text-gray-400">ไม่พบรายการ</p>
+                </div>
+              ) : (
+                allFilteredTransactions.map((t) => (
+                  <TransactionItem
+                    key={t.id}
+                    transaction={t}
+                    categories={categories}
+                    trips={trips}
+                  />
+                ))
+              )}
+            </div>
+            
+            {allFilteredTransactions.length > 0 && (
+              <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+                <p className="text-[11px] text-gray-400 text-center font-bold uppercase">
+                  ทั้งหมด {allFilteredTransactions.length} รายการ
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
       </div>

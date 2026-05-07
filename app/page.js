@@ -15,6 +15,9 @@ import { useRouter } from "next/navigation";
 import FilterBar from "../components/FilterBar";
 import TransactionList from "../components/transactions/TransactionList";
 import { formatDateThai, getStartOfMonth, getEndOfMonth, getTodayDate, getCurrentTime, getTimeFromTimestamp, combineDateAndTime } from "../lib/dateUtils";
+import { useCategories } from "../hooks/useCategories";
+import CategorySelector from "../components/categories/CategorySelector";
+import CategoryManagerModal from "../components/categories/CategoryManagerModal";
 
 
 export default function Home() {
@@ -59,15 +62,8 @@ export default function Home() {
   const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Categories
-  const categories = [
-    { id: "food", name: "อาหาร & เครื่องดื่ม", icon: "🍜", color: "bg-orange-500" },
-    { id: "transport", name: "เดินทาง & น้ำมัน", icon: "🚕", color: "bg-blue-500" },
-    { id: "shopping", name: "ช็อปปิ้ง & ของที่ระลึก", icon: "🛍️", color: "bg-pink-500" },
-    { id: "hotel", name: "ที่พัก", icon: "🏨", color: "bg-purple-500" },
-    { id: "entertainment", name: "บันเทิง & กิจกรรม", icon: "🎡", color: "bg-yellow-500" },
-    { id: "medical", name: "ค่ารักษาพยาบาล", icon: "💊", color: "bg-red-500" },
-    { id: "other", name: "อื่นๆ", icon: "📝", color: "bg-zinc-500" },
-  ];
+  const { categories, addCategory, updateCategory } = useCategories();
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
 
   // === Firebase Listeners ===
   useEffect(() => {
@@ -534,9 +530,8 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-6">
             {/* Alerts & Banners */}
             {budgetAlert && budgetAlert.percent >= 80 && (
-              <div className={`p-4 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top-2 border ${
-                budgetAlert.exceeded ? 'bg-red-50 border-red-100 text-red-600' : 'bg-orange-50 border-orange-100 text-orange-600'
-              }`}>
+              <div className={`p-4 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top-2 border ${budgetAlert.exceeded ? 'bg-red-50 border-red-100 text-red-600' : 'bg-orange-50 border-orange-100 text-orange-600'
+                }`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${budgetAlert.exceeded ? 'bg-red-100' : 'bg-orange-100'}`}>
                   <AlertTriangle size={20} />
                 </div>
@@ -545,7 +540,7 @@ export default function Home() {
                     {budgetAlert.exceeded ? '🚨 เกินงบที่ตั้งไว้แล้ว!' : '⚠️ ใกล้เต็มงบประมาณแล้ว!'}
                   </p>
                   <p className="text-[11px] font-bold opacity-80">
-                    {budgetAlert.exceeded 
+                    {budgetAlert.exceeded
                       ? `ยอดใช้จ่ายเกินงบไป ฿${(budgetAlert.totalExpense - budgetAlert.budget).toLocaleString()}`
                       : `ใช้ไปแล้ว ${budgetAlert.percent.toFixed(0)}% ของงบประมาณทริป`}
                   </p>
@@ -752,15 +747,13 @@ export default function Home() {
                 </div>
 
                 {/* Category */}
-                <div>
-                  <label className="text-xs text-[#6B6B6B] block mb-2 font-medium flex items-center gap-1"><Tag size={14} /> หมวดหมู่</label>
-                  <div className="relative">
-                    <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
-                      className="w-full bg-white border border-gray-200 p-3 rounded-xl text-[#1A1A1A] text-sm focus:outline-none focus:border-[#E8622A] appearance-none transition pr-10">
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-                    </select>
-                    <ChevronRight size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rotate-90" />
-                  </div>
+                <div className="z-20 relative">
+                  <CategorySelector
+                    categories={categories}
+                    selectedId={form.category}
+                    onChange={(id) => setForm({ ...form, category: id })}
+                    onManageClick={() => setShowCategoryManager(true)}
+                  />
                 </div>
 
                 {/* Note + Date */}
@@ -839,37 +832,45 @@ export default function Home() {
                 </label>
                 <select value={filterTrip} onChange={(e) => setFilterTrip(e.target.value)}
                   className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition">
-                  <option value="all">🌐 รายการทั้งหมด</option>
-                  <option value="no_trip">🏠 ชีวิตประจำวัน</option>
+                  <option value="all">รายการทั้งหมด</option>
+                  <option value="no_trip">ชีวิตประจำวัน</option>
                   {trips.length > 0 && <option disabled>──────────</option>}
-                  {trips.map(t => <option key={t.id} value={t.id}>✈️ {t.name}</option>)}
+                  {trips.map(t => <option key={t.id} value={t.id}> {t.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-sm text-[#6B6B6B] block mb-2 font-medium flex items-center gap-2">
                   <Calendar size={16} className="text-[#E8622A]" /> ช่วงเวลา
                 </label>
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-2">ตั้งแต่วันที่</label>
-                    <input type="date" value={filterStart} onChange={e => setFilterStart(e.target.value)}
-                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A]" />
-                  </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-2">ถึงวันที่</label>
-                    <input type="date" value={filterEnd} onChange={e => setFilterEnd(e.target.value)}
-                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A]" />
-                  </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="date" value={filterStart} onChange={(e) => setFilterStart(e.target.value)}
+                    className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition" />
+                  <input type="date" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)}
+                    className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#E8622A] transition" />
                 </div>
               </div>
-              <button onClick={() => { setFilterStart(getStartOfMonth()); setFilterEnd(getEndOfMonth()); setFilterTrip("all"); setShowFilter(false); }}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] py-3 rounded-xl text-sm font-bold transition mt-2">
-                🔄 รีเซ็ตตัวกรอง
-              </button>
             </div>
+
+            <button onClick={() => setShowFilter(false)}
+              className="w-full bg-[#E8622A] text-white py-3.5 rounded-xl font-bold mt-8 shadow-md shadow-orange-200 hover:bg-[#d65722] active:scale-[0.98] transition">
+              นำไปใช้
+            </button>
+            <button onClick={() => { setFilterStart(getStartOfMonth()); setFilterEnd(getEndOfMonth()); setFilterTrip("all"); setShowFilter(false); }}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] py-3 rounded-xl text-sm font-bold transition mt-2">
+              🔄 รีเซ็ตตัวกรอง
+            </button>
           </div>
         </div>
       )}
+
+      {/* Category Manager Modal */}
+      <CategoryManagerModal
+        isOpen={showCategoryManager}
+        onClose={() => setShowCategoryManager(false)}
+        categories={categories}
+        onAddCategory={addCategory}
+        onUpdateCategory={updateCategory}
+      />
 
     </div>
   );
