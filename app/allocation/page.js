@@ -6,6 +6,7 @@ import {
   doc, updateDoc, getDoc, collection, addDoc,
   query, onSnapshot, orderBy, deleteDoc, serverTimestamp
 } from "firebase/firestore";
+import { useAllocationCalculations } from "../../hooks/useAllocationCalculations";
 import {
   Plus, Trash2, Save, AlertCircle, Loader2, CheckCircle2,
   TrendingUp, Wallet, Calendar, BarChart3, ChevronDown,
@@ -28,7 +29,7 @@ export default function AllocationPage() {
 
   // ── State ──
   const [tab, setTab] = useState("log"); // "log" | "setup" | "history"
-  const [categories, setCategories] = useState([]);
+  const [editingCategories, setEditingCategories] = useState([]); // Local state for editing
   const [savingSetup, setSavingSetup] = useState(false);
   const [setupNote, setSetupNote] = useState(null);
 
@@ -36,9 +37,7 @@ export default function AllocationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [lastEntry, setLastEntry] = useState(null);
 
-  const [incomes, setIncomes] = useState([]);
   const [spends, setSpends] = useState([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
 
   // Edit State
@@ -55,33 +54,24 @@ export default function AllocationPage() {
     date: getTodayDate() 
   });
 
-  // ── Load config from Firestore ──
-  useEffect(() => {
-    if (!user) return;
-    getDoc(doc(db, `users/${user.uid}/allocationConfig/main`)).then((snap) => {
-      if (snap.exists() && snap.data().categories?.length) {
-        setCategories(snap.data().categories);
-      } else {
-        setCategories(DEFAULT_CATS);
-      }
-    });
-  }, [user]);
+  // ─── Use custom hook for real-time allocation calculations ───
+  // This handles category loading, income fetching, and dynamic calculations
+  const { 
+    categories, 
+    incomes, 
+    loading, 
+    calculateAllocation, 
+    getCategoryTotals 
+  } = useAllocationCalculations(user?.uid);
 
-  // ── Real-time income history ──
+  // ─── Sync Hook categories to local editing state ───
   useEffect(() => {
-    if (!user) return;
-    const q = query(
-      collection(db, `users/${user.uid}/dailyIncomes`),
-      orderBy("date", "desc")
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setIncomes(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoadingHistory(false);
-    });
-    return () => unsub();
-  }, [user]);
+    if (categories.length > 0) {
+      setEditingCategories([...categories]);
+    }
+  }, [categories]);
 
-  // ── Real-time spending history ──
+  // ─── Load spending data ───
   useEffect(() => {
     if (!user) return;
     const q = query(
@@ -95,34 +85,30 @@ export default function AllocationPage() {
   }, [user]);
 
   // ── Computed ──
-  const total = categories.reduce((s, c) => s + (Number(c.pct) || 0), 0);
-  const isValid = total === 100 && categories.every((c) => c.name.trim());
+  const total = editingCategories.reduce((s, c) => s + (Number(c.pct) || 0), 0);
+  const isValid = total === 100 && editingCategories.length > 0 && editingCategories.every((c) => c.name.trim());
 
   const totalIncome = useMemo(() => incomes.reduce((s, i) => s + i.income, 0), [incomes]);
   const totalSpent = useMemo(() => spends.reduce((s, sp) => s + (Number(sp.amount) || 0), 0), [spends]);
-  const totalInitial = useMemo(() => categories.reduce((s, c) => s + (Number(c.initialBalance) || 0), 0), [categories]);
-  const currentBalance = totalInitial + totalIncome - totalSpent;
+  const currentBalance = totalIncome - totalSpent;
   const avgIncome = incomes.length > 0 ? totalIncome / incomes.length : 0;
 
-  const catTotals = useMemo(() =>
-    categories.map((cat) => {
-      const allocated = incomes.reduce((s, inc) => {
-        // Try to find the exact amount saved in history (to handle past % changes correctly)
-        const found = inc.categories?.find(c => c.name === cat.name || c.id === cat.id);
-        if (found && typeof found.amount === "number") return s + found.amount;
-        // Fallback for entries that don't have the breakdown stored
-        return s + (inc.income * (cat.pct || 0)) / 100;
-      }, 0);
+  // ─── Category totals using dynamic calculations ───
+  const catTotals = useMemo(() => {
+    return getCategoryTotals.map((cat) => {
+      // Calculate allocated amount from current income using CURRENT percentages
+      const allocated = incomes.reduce((s, inc) => 
+        s + calculateAllocation(inc.income, cat.pct), 0
+      );
 
+      // Calculate spent from this category
       const spent = spends
         .filter(s => s.categoryId === cat.id || s.categoryName === cat.name)
         .reduce((s, sp) => s + (Number(sp.amount) || 0), 0);
 
-      const initial = Number(cat.initialBalance) || 0;
-      const totalAllocated = allocated + initial;
-
-      return { ...cat, total: totalAllocated, spent, remaining: totalAllocated - spent };
-    }), [categories, incomes, spends]);
+      return { ...cat, total: allocated, spent, remaining: allocated - spent };
+    });
+  }, [getCategoryTotals, incomes, spends, calculateAllocation]);
 
   // Group history by Month
   const groupedIncomes = useMemo(() => {
@@ -141,23 +127,24 @@ export default function AllocationPage() {
     return groups;
   }, [incomes, spends]);
 
-  // ── Handlers ──
+  // ── Handlers for editing categories ──
   const updateCat = (id, field, value) =>
-    setCategories((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
+    setEditingCategories((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
 
   const addCat = () =>
-    setCategories((p) => [...p, { id: `cat_${Date.now()}`, name: "", pct: Math.max(0, 100 - total), initialBalance: 0 }]);
+    setEditingCategories((p) => [...p, { id: `cat_${Date.now()}`, name: "", pct: Math.max(0, 100 - total) }]);
 
-  const removeCat = (id) => categories.length > 1 && setCategories((p) => p.filter((c) => c.id !== id));
+  const removeCat = (id) => editingCategories.length > 1 && setEditingCategories((p) => p.filter((c) => c.id !== id));
 
+  // ── Handlers ──
   const saveSetup = async () => {
-    if (!isValid) return;
+    if (!isValid || !user) return;
     setSavingSetup(true);
     try {
-      await updateDoc(doc(db, `users/${user.uid}/allocationConfig/main`), { categories });
+      await updateDoc(doc(db, `users/${user.uid}/allocationConfig/main`), { categories: editingCategories });
     } catch {
       const { setDoc } = await import("firebase/firestore");
-      await setDoc(doc(db, `users/${user.uid}/allocationConfig/main`), { categories });
+      await setDoc(doc(db, `users/${user.uid}/allocationConfig/main`), { categories: editingCategories });
     }
     setSetupNote("success");
     setTimeout(() => setSetupNote(null), 3000);
@@ -166,16 +153,18 @@ export default function AllocationPage() {
 
   const handleLog = async (e) => {
     e.preventDefault();
-    if (!categories.length) return;
+    if (!editingCategories.length || !user) return;
     const amt = parseFloat(form.income);
     if (!amt || amt <= 0) return;
     setSubmitting(true);
     try {
+      // ─── KEY CHANGE: Store ONLY income + date + note ───
+      // NO pre-calculated category breakdown!
+      // Calculations happen on-the-fly using current percentages
       const payload = {
         date: form.date,
         income: amt,
         note: form.note.trim(),
-        categories: categories.map((c) => ({ ...c, amount: (amt * c.pct) / 100 })),
         updatedAt: serverTimestamp(),
       };
 
@@ -192,7 +181,6 @@ export default function AllocationPage() {
       
       setLastEntry({ income: amt, categories: [...categories] });
       setForm({ date: getTodayDate(), income: "", note: "" });
-      // Keep on log tab to show success highlight
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) { console.error(err); }
     setSubmitting(false);
@@ -581,7 +569,7 @@ export default function AllocationPage() {
               </div>
             )}
 
-            {loadingHistory ? (
+            {loading ? (
               <div className="flex justify-center py-20"><Loader2 size={32} className="animate-spin text-[#E8622A]" /></div>
             ) : Object.keys(groupedIncomes).length === 0 ? (
               <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
@@ -725,7 +713,7 @@ export default function AllocationPage() {
               </div>
 
               <div className="space-y-3">
-                {categories.map((cat, i) => (
+                {editingCategories.map((cat, i) => (
                     <div className="flex flex-col gap-2 flex-1">
                       <div className="flex items-center gap-3 bg-gray-50/50 rounded-2xl px-4 py-3 group hover:bg-white hover:border-gray-100 border border-transparent transition-all">
                         <span className="text-gray-300 text-[10px] font-black w-4">{i + 1}</span>

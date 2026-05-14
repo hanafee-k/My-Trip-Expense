@@ -1,5 +1,11 @@
-// Pure display component — no state, no Firestore
-// Props: income (number), categories (array of { id, name, pct })
+/**
+ * Pure presentational component for displaying allocation breakdown
+ * No state, no Firestore logic — receives props and renders
+ *
+ * @param {number} income - Total income to allocate
+ * @param {Array} categories - Array of { id, name, pct } objects
+ * @returns {JSX|null} Allocation breakdown table or null if insufficient data
+ */
 export default function DailyAllocationTable({ income, categories }) {
   if (!categories || categories.length === 0 || !income) return null;
 

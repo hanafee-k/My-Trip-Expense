@@ -1,40 +1,28 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { db } from "../../lib/firebase";
-import { collection, query, onSnapshot, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc } from "firebase/firestore";
+import { useAllocationCalculations } from "../../hooks/useAllocationCalculations";
 import { TrendingUp, Calendar, Wallet, BarChart3, Loader2, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
-export default function AllocationOverview({ tripId, userId, categories }) {
-  const [incomes, setIncomes] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function AllocationOverview({ tripId, userId, categories: externalCategories }) {
   const [expandedId, setExpandedId] = useState(null);
 
-  // ── onSnapshot with mandatory cleanup (ป้องกัน memory leak) ──
-  useEffect(() => {
-    if (!userId || !tripId) return;
-    const q = query(
-      collection(db, `users/${userId}/trips/${tripId}/dailyIncomes`),
-      orderBy("date", "asc")
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setIncomes(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    });
-    return () => unsub(); // cleanup ทุกครั้งเมื่อ tripId / userId เปลี่ยน หรือ unmount
-  }, [tripId, userId]);
+  // ─── Use the custom hook for real-time calculations ───
+  // This hook automatically listens for changes to both categories and incomes
+  const { categories, incomes, loading, getCategoryTotals } = useAllocationCalculations(userId, tripId);
+
+  // Use external categories if provided, otherwise use from hook
+  const activeCategories = externalCategories && externalCategories.length > 0 ? externalCategories : categories;
 
   // ── Summary stats ──
   const totalIncome = useMemo(() => incomes.reduce((s, i) => s + i.income, 0), [incomes]);
   const avgIncome = incomes.length > 0 ? totalIncome / incomes.length : 0;
 
-  // ── Cross-tab: category totals per row ──
+  // ── Category totals are now pre-computed by the hook ───
   const categoryTotals = useMemo(() => {
-    if (!categories || categories.length === 0) return [];
-    return categories.map((cat) => {
-      const total = incomes.reduce((s, inc) => s + (inc.income * cat.pct) / 100, 0);
-      return { ...cat, total };
-    });
-  }, [categories, incomes]);
+    return getCategoryTotals;
+  }, [getCategoryTotals]);
 
   const handleDelete = async (id) => {
     if (!confirm("ลบรายการนี้?")) return;
@@ -99,7 +87,7 @@ export default function AllocationOverview({ tripId, userId, categories }) {
       </div>
 
       {/* ── Category Breakdown with Progress Bars ── */}
-      {categories && categories.length > 0 && (
+      {activeCategories && activeCategories.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4">
           <p className="text-white font-bold text-sm">สรุปแยกตามหมวดหมู่</p>
           {categoryTotals.map((cat) => {
@@ -128,7 +116,7 @@ export default function AllocationOverview({ tripId, userId, categories }) {
       )}
 
       {/* ── Cross-Tab Table: Category × Date ── */}
-      {categories && categories.length > 0 && (
+      {activeCategories && activeCategories.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
           <div className="px-4 py-3 border-b border-zinc-800">
             <p className="text-white font-bold text-sm">ตารางรายรับแยกหมวดหมู่ × วัน</p>
@@ -158,7 +146,7 @@ export default function AllocationOverview({ tripId, userId, categories }) {
               </thead>
 
               <tbody>
-                {categories.map((cat) => (
+                {activeCategories.map((cat) => (
                   <tr key={cat.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
                     <td className="px-4 py-3 text-white font-medium sticky left-0 bg-zinc-900">
                       {cat.name}
@@ -242,9 +230,9 @@ export default function AllocationOverview({ tripId, userId, categories }) {
               </div>
 
               {/* Expanded: show allocation for this day */}
-              {expandedId === inc.id && categories && categories.length > 0 && (
+              {expandedId === inc.id && activeCategories && activeCategories.length > 0 && (
                 <div className="px-4 pb-3 space-y-1 border-t border-zinc-800/50 bg-zinc-800/20">
-                  {categories.map((cat) => (
+                  {activeCategories.map((cat) => (
                     <div key={cat.id} className="flex justify-between text-xs py-1">
                       <span className="text-zinc-400">{cat.name} ({cat.pct}%)</span>
                       <span className="text-white font-bold">

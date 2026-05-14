@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "../../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useAllocationCalculations } from "../../hooks/useAllocationCalculations";
 import { PlusCircle, Loader2, CheckCircle2, CalendarDays, Banknote, FileText, AlertCircle } from "lucide-react";
 import DailyAllocationTable from "./DailyAllocationTable";
 
@@ -9,13 +10,19 @@ function getTodayDate() {
   return new Date().toISOString().split("T")[0];
 }
 
-export default function DailyIncomeForm({ tripId, userId, categories }) {
+export default function DailyIncomeForm({ tripId, userId, categories: externalCategories }) {
   const [form, setForm] = useState({ date: getTodayDate(), income: "", note: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [lastSubmit, setLastSubmit] = useState(null); // { income, categories } แสดง table หลัง submit
+  const [lastSubmitIncome, setLastSubmitIncome] = useState(null); // Just store the income value
   const [notification, setNotification] = useState(null);
 
-  const hasCategories = categories && categories.length > 0;
+  // ─── Use the custom hook for real-time categories ───
+  // Now the preview will show CURRENT percentages, not percentages from submit time
+  const { categories: hookCategories } = useAllocationCalculations(userId, tripId);
+
+  // Use external categories if provided (for backward compatibility), otherwise use from hook
+  const activeCategories = externalCategories && externalCategories.length > 0 ? externalCategories : hookCategories;
+  const hasCategories = activeCategories && activeCategories.length > 0;
 
   const showNotif = (type, message) => {
     setNotification({ type, message });
@@ -33,6 +40,8 @@ export default function DailyIncomeForm({ tripId, userId, categories }) {
 
     setSubmitting(true);
     try {
+      // ─── Store only income + date + note ───
+      // NO pre-calculated allocated_amount — calculations happen on-the-fly
       await addDoc(
         collection(db, `users/${userId}/trips/${tripId}/dailyIncomes`),
         {
@@ -42,7 +51,7 @@ export default function DailyIncomeForm({ tripId, userId, categories }) {
           createdAt: serverTimestamp(),
         }
       );
-      setLastSubmit({ income: incomeAmount, categories: [...categories] });
+      setLastSubmitIncome(incomeAmount); // Store just the income
       setForm({ date: getTodayDate(), income: "", note: "" });
       showNotif("success", "✅ บันทึกรายรับสำเร็จ");
     } catch (err) {
@@ -149,16 +158,19 @@ export default function DailyIncomeForm({ tripId, userId, categories }) {
         </form>
       </div>
 
-      {/* Allocation Table — แสดงหลัง submit สำเร็จ */}
-      {lastSubmit && (
+      {/* Allocation Preview — shows with CURRENT percentages (real-time updates!) */}
+      {lastSubmitIncome && (
         <div className="animate-in slide-in-from-bottom-4 fade-in">
           <div className="flex items-center gap-2 mb-3 px-1">
             <CheckCircle2 size={15} className="text-teal-400" />
             <p className="text-teal-400 text-sm font-bold">
-              จัดสรร ฿{lastSubmit.income.toLocaleString("th-TH")} ออกเป็น:
+              จัดสรร ฿{lastSubmitIncome.toLocaleString("th-TH")} ออกเป็น:
             </p>
           </div>
-          <DailyAllocationTable income={lastSubmit.income} categories={lastSubmit.categories} />
+          {/* ─── KEY FIX: Display uses activeCategories from hook ───
+              This means if user changes percentages in settings,
+              the preview will automatically update! */}
+          <DailyAllocationTable income={lastSubmitIncome} categories={activeCategories} />
         </div>
       )}
     </div>
