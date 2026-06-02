@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { getTodayDate } from "../../lib/dateUtils";
+import { getTodayDate, formatLocalDate, getStartOfMonth, getEndOfMonth, getDateRange } from "../../lib/dateUtils";
 
 /**
  * DateFilter
@@ -19,12 +19,13 @@ const PRESETS = [
   { id: "yesterday", label: "เมื่อวาน" },
   { id: "week", label: "สัปดาห์นี้" },
   { id: "month", label: "เดือนนี้" },
+  { id: "lastmonth", label: "เดือนที่แล้ว" },
 ];
 
 /** Returns { start, end, label } for a given preset id */
 function resolvePreset(id) {
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
+  const todayStr = formatLocalDate(today);
 
   switch (id) {
     case "today":
@@ -33,7 +34,7 @@ function resolvePreset(id) {
     case "yesterday": {
       const d = new Date(today);
       d.setDate(d.getDate() - 1);
-      const s = d.toISOString().split("T")[0];
+      const s = formatLocalDate(d);
       return { start: s, end: s, label: "เมื่อวาน" };
     }
 
@@ -42,14 +43,18 @@ function resolvePreset(id) {
       const day = d.getDay(); // 0 = Sun
       const diff = day === 0 ? -6 : 1 - day; // Monday as week start
       d.setDate(d.getDate() + diff);
-      return { start: d.toISOString().split("T")[0], end: todayStr, label: "สัปดาห์นี้" };
+      return { start: formatLocalDate(d), end: todayStr, label: "สัปดาห์นี้" };
     }
 
     case "month": {
-      const start = new Date(today.getFullYear(), today.getMonth(), 1)
-        .toISOString()
-        .split("T")[0];
-      return { start, end: todayStr, label: "เดือนนี้" };
+      const start = getStartOfMonth();
+      const end = getEndOfMonth();
+      return { start, end, label: "เดือนนี้" };
+    }
+
+    case "lastmonth": {
+      const range = getDateRange('lastmonth');
+      return { start: range.start, end: range.end, label: "เดือนที่แล้ว" };
     }
 
     default:
@@ -90,7 +95,7 @@ export default function DateFilter({ onChange }) {
     const base = currentSingleDate || today;
     const d = new Date(base + "T12:00:00"); // noon avoids DST edge cases
     d.setDate(d.getDate() + delta);
-    const newStr = d.toISOString().split("T")[0];
+    const newStr = formatLocalDate(d);
     setCustomDate(newStr);
     setActivePreset("custom");
     onChange({ start: newStr, end: newStr, label: newStr });

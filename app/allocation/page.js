@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../context/AuthContext";
+import { getTodayDate } from "../../lib/dateUtils";
 import {
   doc, updateDoc, getDoc, collection, addDoc,
   query, onSnapshot, orderBy, deleteDoc, serverTimestamp
@@ -19,10 +20,6 @@ const DEFAULT_CATS = [
   { id: "spend",  name: "ใช้จ่าย",   pct: 30 },
   { id: "invest", name: "ลงทุน",     pct: 20 },
 ];
-
-function getTodayDate() {
-  return new Date().toISOString().split("T")[0];
-}
 
 export default function AllocationPage() {
   const { user } = useAuth();

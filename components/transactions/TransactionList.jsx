@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Receipt } from "lucide-react";
-import { getTodayDate } from "../../lib/dateUtils";
+import { getTodayDate, getLocalDateFromTimestamp } from "../../lib/dateUtils";
 import DateFilter from "./DateFilter";
 import DailySummary from "./DailySummary";
 import TransactionItem from "./TransactionItem";
@@ -45,7 +45,7 @@ export default function TransactionList({
     return transactions.filter((t) => {
       if (!t.date?.toDate) return false;
 
-      const tDate = t.date.toDate().toISOString().split("T")[0];
+      const tDate = getLocalDateFromTimestamp(t.date);
       const inRange = tDate >= dateRange.start && tDate <= dateRange.end;
       if (!inRange) return false;
 

@@ -2,13 +2,10 @@
 import { useState, useEffect } from "react";
 import { db } from "../../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getTodayDate } from "../../lib/dateUtils";
 import { useAllocationCalculations } from "../../hooks/useAllocationCalculations";
 import { PlusCircle, Loader2, CheckCircle2, CalendarDays, Banknote, FileText, AlertCircle } from "lucide-react";
 import DailyAllocationTable from "./DailyAllocationTable";
-
-function getTodayDate() {
-  return new Date().toISOString().split("T")[0];
-}
 
 export default function DailyIncomeForm({ tripId, userId, categories: externalCategories }) {
   const [form, setForm] = useState({ date: getTodayDate(), income: "", note: "" });

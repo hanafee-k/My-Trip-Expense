@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { db } from "../../../lib/firebase";
 import { useAuth } from "../../../context/AuthContext";
+import { getLocalDateFromTimestamp } from "../../../lib/dateUtils";
 import {
   doc, onSnapshot, collection, query, orderBy, where
 } from "firebase/firestore";
@@ -97,7 +98,7 @@ export default function TripDetailPage() {
       .filter((t) => t.type === "expense" && t.date)
       .forEach((t) => {
         try {
-          const d = t.date.toDate().toISOString().split("T")[0];
+          const d = getLocalDateFromTimestamp(t.date);
           if (!dayMap[d]) dayMap[d] = { date: d, total: 0, count: 0 };
           dayMap[d].total += Number(t.amount);
           dayMap[d].count++;

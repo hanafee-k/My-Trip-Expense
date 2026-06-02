@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 
 import FilterBar from "../../components/FilterBar";
-import { getStartOfMonth, getEndOfMonth, getDateRange, getTodayDate } from "../../lib/dateUtils";
+import { getStartOfMonth, getEndOfMonth, getDateRange, getTodayDate, getLocalDateFromTimestamp } from "../../lib/dateUtils";
+import { openReportPrintWindow } from "../../lib/printReport";
 import DailySummary from "../../components/transactions/DailySummary";
 import TransactionItem from "../../components/transactions/TransactionItem";
 
@@ -87,7 +88,7 @@ export default function ReportsPage() {
       // Trip exclusion logic
       if (!includeTrips && t.tripId) return false;
 
-      const tDate = t.date.toDate().toISOString().split('T')[0];
+      const tDate = getLocalDateFromTimestamp(t.date);
       const dateMatch = tDate >= filterStart && tDate <= filterEnd;
       let tripMatch = filterTrip === "all" ? true : (filterTrip === "no_trip" ? !t.tripId : t.tripId === filterTrip);
       return dateMatch && tripMatch;
@@ -121,7 +122,7 @@ export default function ReportsPage() {
     // Calculate daily average
     let avgPerDay = 0;
     if (filtered.length > 0) {
-      const uniqueDays = new Set(filtered.map(t => t.date.toDate().toISOString().split('T')[0])).size;
+      const uniqueDays = new Set(filtered.map(t => getLocalDateFromTimestamp(t.date))).size;
       avgPerDay = total / Math.max(1, uniqueDays);
     }
 
@@ -166,7 +167,14 @@ export default function ReportsPage() {
   };
 
   const exportPDF = () => {
-    window.print();
+    openReportPrintWindow({
+      transactions: allFilteredTransactions,
+      categories: categories,
+      startDate: filterStart,
+      endDate: filterEnd,
+      selectedTripName: selectedTrip?.name,
+      reportTitle: "รายงานสรุปยอด"
+    });
     setShowExportModal(false);
   };
 

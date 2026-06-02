@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../context/AuthContext";
+import { getLocalDateFromTimestamp, getTodayDate } from "../../lib/dateUtils";
 import {
   collection, addDoc, query, onSnapshot, orderBy,
   deleteDoc, doc, serverTimestamp, updateDoc, Timestamp
@@ -102,8 +103,8 @@ export default function ProjectsPage() {
     setEditName(project.name);
     setEditBudget(project.budget?.toString() || "0");
     setEditDailyLimit(project.dailyLimit?.toString() || "0");
-    setEditStartDate(project.startDate ? project.startDate.toDate().toISOString().split('T')[0] : "");
-    setEditEndDate(project.endDate ? project.endDate.toDate().toISOString().split('T')[0] : "");
+    setEditStartDate(project.startDate ? getLocalDateFromTimestamp(project.startDate) : "");
+    setEditEndDate(project.endDate ? getLocalDateFromTimestamp(project.endDate) : "");
   };
 
 
@@ -147,7 +148,7 @@ export default function ProjectsPage() {
     const dayMap = {};
     tripTxns.forEach(t => {
       try {
-        const d = t.date.toDate().toISOString().split('T')[0];
+        const d = getLocalDateFromTimestamp(t.date);
         if (!dayMap[d]) dayMap[d] = { date: d, total: 0, count: 0, txns: [] };
         dayMap[d].total += Number(t.amount) || 0;
         dayMap[d].count++;
@@ -306,10 +307,10 @@ export default function ProjectsPage() {
                     const TypeIcon = typeConfig.icon;
 
                     // Daily limit check for today
-                    const today = new Date().toISOString().split('T')[0];
-                    const todaySpent = transactions
-                      .filter(t => t.tripId === item.id && t.type === 'expense' && t.date)
-                      .filter(t => { try { return t.date.toDate().toISOString().split('T')[0] === today; } catch { return false; } })
+                    const today = getTodayDate();
+                    const todayExpenses = transactions
+                      .filter(t => t.tripId === trip.id && t.type === 'expense' && t.date)
+                      .filter(t => { try { return getLocalDateFromTimestamp(t.date) === today; } catch { return false; } })
                       .reduce((s, t) => s + (Number(t.amount) || 0), 0);
                     const dailyLimitVal = Number(item.dailyLimit) || 0;
                     const dailyExceeded = dailyLimitVal > 0 && todaySpent > dailyLimitVal;

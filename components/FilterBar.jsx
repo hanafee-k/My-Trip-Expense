@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Filter, ChevronDown, Check, X, Plane, Clock } from 'lucide-react';
-import { getDateRange, formatDateShortThai } from '../lib/dateUtils';
+import { getDateRange, formatDateShortThai, getLocalDateFromTimestamp } from '../lib/dateUtils';
 
 export default function FilterBar({ trips, onChange, initialPeriod = 'month' }) {
   const [filterMode, setFilterMode] = useState('period'); // 'period' | 'trip'
@@ -11,6 +11,7 @@ export default function FilterBar({ trips, onChange, initialPeriod = 'month' }) 
   const periods = [
     { id: 'today', label: 'วันนี้' },
     { id: 'month', label: 'เดือนนี้' },
+    { id: 'lastmonth', label: 'เดือนที่แล้ว' },
     { id: 'year', label: 'ปีนี้' },
     { id: 'lastyear', label: 'ปีที่แล้ว' },
     { id: 'all', label: 'ทั้งหมด' }
@@ -30,15 +31,20 @@ export default function FilterBar({ trips, onChange, initialPeriod = 'month' }) 
     setFilterMode('trip');
     setShowTripDropdown(false);
     
-    // If trip has startDate/endDate, use them. Otherwise, use a wide range.
-    // In our case, trips don't have startDate yet, so we'll use a wide range for now.
-    // But we'll try to get it if it exists.
-    const start = trip.startDate ? 
-      (typeof trip.startDate.toDate === 'function' ? trip.startDate.toDate().toISOString().split('T')[0] : trip.startDate) 
-      : "1970-01-01";
-    const end = trip.endDate ? 
-      (typeof trip.endDate.toDate === 'function' ? trip.endDate.toDate().toISOString().split('T')[0] : trip.endDate) 
-      : "2099-12-31";
+    // Use local timezone consistently for trip dates
+    let start = "1970-01-01";
+    let end = "2099-12-31";
+    
+    if (trip.startDate) {
+      start = typeof trip.startDate.toDate === 'function' 
+        ? getLocalDateFromTimestamp(trip.startDate) 
+        : trip.startDate;
+    }
+    if (trip.endDate) {
+      end = typeof trip.endDate.toDate === 'function' 
+        ? getLocalDateFromTimestamp(trip.endDate) 
+        : trip.endDate;
+    }
     
     onChange({ start, end, tripId: trip.id });
   };
@@ -129,7 +135,7 @@ export default function FilterBar({ trips, onChange, initialPeriod = 'month' }) 
                       <p className="text-xs opacity-70 flex items-center gap-1 mt-1 font-medium">
                         <Clock size={10} />
                         {trip.startDate ? 
-                          `${formatDateShortThai(typeof trip.startDate.toDate === 'function' ? trip.startDate.toDate().toISOString().split('T')[0] : trip.startDate)} - ${formatDateShortThai(typeof trip.endDate.toDate === 'function' ? trip.endDate.toDate().toISOString().split('T')[0] : trip.endDate)}` 
+                          `${formatDateShortThai(getLocalDateFromTimestamp(trip.startDate))} - ${formatDateShortThai(getLocalDateFromTimestamp(trip.endDate))}` 
                           : 'ไม่ระบุวันที่'}
                       </p>
                     </div>

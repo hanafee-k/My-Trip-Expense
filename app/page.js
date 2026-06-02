@@ -14,7 +14,7 @@ import Tesseract from 'tesseract.js';
 import { useRouter } from "next/navigation";
 import FilterBar from "../components/FilterBar";
 import TransactionList from "../components/transactions/TransactionList";
-import { formatDateThai, getStartOfMonth, getEndOfMonth, getTodayDate, getCurrentTime, getTimeFromTimestamp, combineDateAndTime } from "../lib/dateUtils";
+import { formatDateThai, getStartOfMonth, getEndOfMonth, getTodayDate, getCurrentTime, getTimeFromTimestamp, combineDateAndTime, getLocalDateFromTimestamp } from "../lib/dateUtils";
 import { useCategories } from "../hooks/useCategories";
 import CategorySelector from "../components/categories/CategorySelector";
 import CategoryManagerModal from "../components/categories/CategoryManagerModal";
@@ -107,7 +107,8 @@ export default function Home() {
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
       if (!t.date) return false;
-      const tDate = t.date.toDate().toISOString().split('T')[0];
+      // Use local timezone consistently with filter dates
+      const tDate = getLocalDateFromTimestamp(t.date);
       const dateMatch = tDate >= filterStart && tDate <= filterEnd;
       let tripMatch = true;
       if (filterTrip === "all") tripMatch = true;
@@ -138,7 +139,7 @@ export default function Home() {
     const today = getTodayDate();
     const todaySpent = transactions
       .filter(t => t.tripId === filterTrip && t.type === 'expense' && t.date)
-      .filter(t => { try { return t.date.toDate().toISOString().split('T')[0] === today; } catch { return false; } })
+      .filter(t => { try { return getLocalDateFromTimestamp(t.date) === today; } catch { return false; } })
       .reduce((s, t) => s + (Number(t.amount) || 0), 0);
     return { todaySpent, dailyLimit: trip.dailyLimit, exceeded: todaySpent > trip.dailyLimit };
   }, [filterTrip, trips, transactions]);
@@ -311,7 +312,7 @@ export default function Home() {
   };
 
   const handleEditClick = (t) => {
-    setForm({ amount: t.amount.toString(), note: t.note, type: t.type, category: t.categoryId, date: t.date.toDate().toISOString().split('T')[0], time: getTimeFromTimestamp(t.date) });
+    setForm({ amount: t.amount.toString(), note: t.note, type: t.type, category: t.categoryId, date: getLocalDateFromTimestamp(t.date), time: getTimeFromTimestamp(t.date) });
     setIsTrip(!!t.tripId);
     if (t.tripId) setSelectedTrip(t.tripId);
     setEditId(t.id);
