@@ -21,17 +21,18 @@ const DEFAULT_CATEGORIES = [
 export function useAllocationCalculations(userId, tripId = null) {
   const [categories, setCategories] = useState([]);
   const [incomes, setIncomes] = useState([]);
+  const [savingStartDate, setSavingStartDate] = useState("");
   const [loading, setLoading] = useState(true);
 
   // ─── Real-time listener for categories ───
   useEffect(() => {
     if (!userId) {
       setCategories(DEFAULT_CATEGORIES);
+      setSavingStartDate("");
       setLoading(false);
       return;
     }
 
-    // Determine collection path based on whether tripId exists
     const configPath = tripId
       ? `users/${userId}/trips/${tripId}`
       : `users/${userId}/allocationConfig`;
@@ -45,8 +46,10 @@ export function useAllocationCalculations(userId, tripId = null) {
         const data = snap.data();
         const cats = data.allocationCategories || data.categories || [];
         setCategories(cats.length > 0 ? cats : DEFAULT_CATEGORIES);
+        setSavingStartDate(data.savingStartDate || "");
       } else {
         setCategories(DEFAULT_CATEGORIES);
+        setSavingStartDate("");
       }
     });
 
@@ -101,10 +104,16 @@ export function useAllocationCalculations(userId, tripId = null) {
     const category = categories.find((c) => c.id === categoryId);
     if (!category) return 0;
 
-    return incomes.reduce(
+    const relevantIncomes = savingStartDate
+      ? incomes.filter((inc) => inc.date >= savingStartDate)
+      : incomes;
+
+    const allocatedSum = relevantIncomes.reduce(
       (sum, inc) => sum + calculateAllocation(inc.income, category.pct),
       0
     );
+
+    return (Number(category.initialBalance) || 0) + allocatedSum;
   };
 
   /**
@@ -118,7 +127,7 @@ export function useAllocationCalculations(userId, tripId = null) {
       ...cat,
       total: getCategoryTotal(cat.id),
     }));
-  }, [categories, incomes]);
+  }, [categories, incomes, savingStartDate]);
 
   /**
    * Gets income breakdown by category
@@ -141,6 +150,7 @@ export function useAllocationCalculations(userId, tripId = null) {
   return {
     categories,
     incomes,
+    savingStartDate,
     loading,
     calculateAllocation,
     getCategoryTotal,

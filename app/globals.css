@@ -21,6 +21,9 @@
   --color-light-orange: var(--light-orange-bg);
   --font-sans: var(--font-noto-thai), var(--font-inter), sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --tracking-wide: 0;
+  --tracking-wider: 0;
+  --tracking-widest: 0;
 }
 
 body {
