@@ -384,7 +384,23 @@ export default function SplitBillPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 pt-8">
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        
+        {/* Sub Navigation Bar for Split Bill & Debts */}
+        <div className="flex bg-white p-1 rounded-2xl border border-gray-100 shadow-sm mb-6 max-w-xs sm:max-w-sm mx-auto">
+          <button
+            onClick={() => router.push("/split-bill")}
+            className="flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 bg-[#E8622A] text-white shadow-sm"
+          >
+            <Split size={14} /> หารบิลใหม่
+          </button>
+          <button
+            onClick={() => router.push("/debts")}
+            className="flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 text-gray-400 hover:text-gray-600"
+          >
+            <DollarSign size={14} /> หนี้ค้างจ่าย
+          </button>
+        </div>
         
         {/* Step 1: People & Fees */}
         {step === 1 && (

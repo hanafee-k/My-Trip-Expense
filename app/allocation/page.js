@@ -11,6 +11,7 @@ import { useAllocationCalculations } from "../../hooks/useAllocationCalculations
 import { useMonthlyRecap } from "../../hooks/useMonthlyRecap";
 import { OverviewTab } from "../../components/allocation/OverviewTab";
 import { GoalsTab } from "../../components/allocation/GoalsTab";
+import { FixedExpensesTab } from "../../components/allocation/FixedExpensesTab";
 import { MonthlyRecapModal } from "../../components/allocation/MonthlyRecapModal";
 import {
   Plus, Trash2, Save, AlertCircle, Loader2, CheckCircle2,
@@ -20,9 +21,11 @@ import {
 } from "lucide-react";
 
 const DEFAULT_CATS = [
-  { id: "save",   name: "ออม/เก็บ",  pct: 50 },
-  { id: "spend",  name: "ใช้จ่าย",   pct: 30 },
-  { id: "invest", name: "ลงทุน",     pct: 20 },
+  { id: "bills", name: "ค่าหอ & ผ่อนชำระ", pct: 35 },
+  { id: "gas",   name: "ค่าน้ำมันรถ",       pct: 12 },
+  { id: "spend", name: "ใช้จ่ายรายวัน",     pct: 33 },
+  { id: "save",  name: "เงินออมสะสม",       pct: 12 },
+  { id: "fun",   name: "ความสุขส่วนตัว",    pct: 8 },
 ];
 
 export default function AllocationPage() {
@@ -139,6 +142,44 @@ export default function AllocationPage() {
     });
     return groups;
   }, [incomes, spends]);
+
+  // ── Monthly Logged Days Breakdown ──
+  const monthlyStats = useMemo(() => {
+    const groups = {};
+    incomes.forEach((inc) => {
+      if (!inc.date) return;
+      const dateObj = new Date(inc.date + "T00:00:00");
+      if (isNaN(dateObj.getTime())) return;
+      const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+      const monthLabel = dateObj.toLocaleDateString("th-TH", { month: "long", year: "numeric" });
+
+      if (!groups[monthKey]) {
+        groups[monthKey] = {
+          monthKey,
+          monthLabel,
+          year: dateObj.getFullYear(),
+          month: dateObj.getMonth(),
+          dates: new Set(),
+          totalIncome: 0,
+        };
+      }
+      groups[monthKey].dates.add(inc.date);
+      groups[monthKey].totalIncome += (inc.income || 0);
+    });
+
+    return Object.values(groups).map((g) => {
+      const totalDaysInMonth = new Date(g.year, g.month + 1, 0).getDate();
+      return {
+        monthKey: g.monthKey,
+        monthLabel: g.monthLabel,
+        daysLogged: g.dates.size,
+        totalDaysInMonth,
+        totalIncome: g.totalIncome,
+        avgPerDay: g.dates.size > 0 ? Math.round(g.totalIncome / g.dates.size) : 0,
+        percentage: Math.round((g.dates.size / totalDaysInMonth) * 100),
+      };
+    }).sort((a, b) => b.monthKey.localeCompare(a.monthKey));
+  }, [incomes]);
 
   // ── Handlers for editing categories ──
   const updateCat = (id, field, value) =>
@@ -310,23 +351,24 @@ export default function AllocationPage() {
           </div>
 
           {/* Navigation Tab Bar */}
-          <div className="flex bg-gray-50 p-1 rounded-xl mb-4">
+          <div className="flex bg-gray-50 p-1 rounded-xl mb-4 overflow-x-auto">
             {[
               { id: "log",      label: "บันทึก",       icon: PlusCircle },
               { id: "overview", label: "ภาพรวม",       icon: BookOpen },
               { id: "goals",    label: "เป้าหมาย",     icon: Target },
+              { id: "bills",    label: "รายจ่าย",      icon: Wallet },
               { id: "setup",    label: "ตั้งค่า %",     icon: Settings },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`flex-1 py-2.5 text-xs font-black flex items-center justify-center gap-2 rounded-lg transition-all duration-300 ${
+                className={`flex-1 py-2.5 text-[11px] font-black flex items-center justify-center gap-1.5 rounded-lg transition-all duration-300 whitespace-nowrap ${
                   tab === id
                     ? "bg-white text-[#E8622A] shadow-sm"
                     : "text-gray-400 hover:text-gray-600"
                 }`}
               >
-                <Icon size={14} strokeWidth={2.5} /> {label}
+                <Icon size={13} strokeWidth={2.5} /> {label}
               </button>
             ))}
           </div>
@@ -341,7 +383,7 @@ export default function AllocationPage() {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
-                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">จำนวนวันที่บันทึก</p>
+                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">จำนวนวันที่บันทึกรวม</p>
                 <p className="text-2xl font-black text-[#1A1A1A]">{incomes.length} <span className="text-xs text-gray-400 font-bold uppercase">วัน</span></p>
               </div>
               <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
@@ -349,6 +391,48 @@ export default function AllocationPage() {
                 <p className="text-2xl font-black text-[#E8622A]">฿{Math.round(avgIncome).toLocaleString()}</p>
               </div>
             </div>
+
+            {/* Monthly Logged Days Breakdown Card */}
+            {monthlyStats.length > 0 && (
+              <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-black text-[#1A1A1A] flex items-center gap-2">
+                    <Calendar size={16} className="text-[#E8622A]" /> จำนวนวันที่บันทึกแยกรายเดือน
+                  </p>
+                  <span className="text-[10px] text-[#E8622A] font-black uppercase tracking-widest bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100">
+                    {monthlyStats.length} เดือน
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2.5">
+                  {monthlyStats.map((stat) => (
+                    <div key={stat.monthKey} className="bg-gray-50/60 rounded-2xl p-4 border border-gray-100/80 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-xs font-black text-[#1A1A1A]">{stat.monthLabel}</p>
+                          <p className="text-[10px] text-gray-400 font-bold mt-0.5">
+                            รายรับ ฿{stat.totalIncome.toLocaleString()} · เฉลี่ย ฿{stat.avgPerDay.toLocaleString()}/วัน
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-black text-[#E8622A]">
+                            {stat.daysLogged} <span className="text-[10px] text-gray-400 font-bold uppercase">/ {stat.totalDaysInMonth} วัน</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Progress bar of month logging rate */}
+                      <div className="h-1.5 bg-gray-200/60 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#E8622A] to-[#ff8c5a] rounded-full transition-all duration-700"
+                          style={{ width: `${stat.percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Category accumulation progress */}
             {incomes.length > 0 && categories.length > 0 && (
@@ -532,6 +616,14 @@ export default function AllocationPage() {
           />
         )}
 
+        {/* ════ TAB: รายจ่ายประจำ (Fixed Expenses / Bills) ════ */}
+        {tab === "bills" && (
+          <FixedExpensesTab
+            userId={user?.uid}
+            categories={categories}
+          />
+        )}
+
         {/* ════ TAB: ตั้งค่า % ════ */}
         {tab === "setup" && (
           <div className="space-y-6 animate-in fade-in duration-500">
@@ -550,6 +642,24 @@ export default function AllocationPage() {
                    {total}%
                 </div>
               </div>
+
+              {/* Preset 5-Bucket Quick Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingCategories([
+                    { id: "bills", name: "ค่าหอ & ผ่อนชำระ", pct: 35, initialBalance: 0 },
+                    { id: "gas",   name: "ค่าน้ำมันรถ",       pct: 12, initialBalance: 0 },
+                    { id: "spend", name: "ใช้จ่ายรายวัน",     pct: 33, initialBalance: 0 },
+                    { id: "save",  name: "เงินออมสะสม",       pct: 12, initialBalance: 0 },
+                    { id: "fun",   name: "ความสุขส่วนตัว",    pct: 8,  initialBalance: 0 },
+                  ]);
+                  setEditingSavingStartDate("2026-08-01");
+                }}
+                className="w-full py-3 bg-[#FFF4EF] border border-orange-200 text-[#E8622A] hover:bg-[#FFEAE0] rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+              >
+                🚀 โหลดสูตรแนะนำ 5 กระปุก (รวมค่าน้ำมัน) + เริ่มนับ 1 ส.ค. 2026
+              </button>
 
               {/* Savings Start Date Selector */}
               <div className="bg-[#FFF4EF] rounded-2xl p-4 border border-orange-100/60 space-y-2">

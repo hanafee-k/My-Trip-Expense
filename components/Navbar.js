@@ -7,18 +7,21 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const navItems = [
-    { id: "home",       label: "หน้าหลัก",  icon: Home,       href: "/" },
-    { id: "projects",  label: "ทริป",       icon: Layers,     href: "/trips" },
-    { id: "allocation",label: "จัดสรร",     icon: TrendingUp, href: "/allocation" },
-    { id: "split-bill",label: "หารบิล",     icon: Split,      href: "/split-bill" },
-    { id: "debts",     label: "หนี้สิน",    icon: DollarSign, href: "/debts" },
-    { id: "reports",   label: "รายงาน",     icon: PieChart,   href: "/reports" },
-    { id: "profile",   label: "โปรไฟล์",   icon: User,       href: "/profile" },
+    { id: "home",       label: "หน้าหลัก",     icon: Home,       href: "/" },
+    { id: "projects",   label: "ทริป",          icon: Layers,     href: "/trips" },
+    { id: "allocation", label: "จัดสรร",        icon: TrendingUp, href: "/allocation" },
+    { id: "split-bill", label: "หารบิล & หนี้", icon: Split,      href: "/split-bill", matchPaths: ["/split-bill", "/debts"] },
+    { id: "reports",    label: "รายงาน",        icon: PieChart,   href: "/reports" },
+    { id: "profile",    label: "โปรไฟล์",      icon: User,       href: "/profile" },
   ];
 
-
-  const isActive = (href) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (item) => {
+    if (item.href === "/") return pathname === "/";
+    if (item.matchPaths) {
+      return item.matchPaths.some((p) => pathname.startsWith(p));
+    }
+    return pathname.startsWith(item.href);
+  };
 
   return (
     <>
@@ -41,7 +44,7 @@ export default function Navbar() {
         <nav className="flex-1 px-4 py-8 space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.href);
+            const active = isActive(item);
             return (
               <Link
                 key={item.id}
@@ -77,7 +80,7 @@ export default function Navbar() {
         <div className="flex justify-around items-center">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.href);
+            const active = isActive(item);
             return (
               <Link
                 key={item.id}

@@ -7,7 +7,7 @@ import {
 } from "firebase/firestore";
 import {
   ArrowLeft, Users, DollarSign, CheckCircle2, 
-  Trash2, Search, Filter, ArrowRight, User, Clock, AlertCircle, Smartphone, ScanLine, X, Download
+  Trash2, Search, Filter, ArrowRight, User, Clock, AlertCircle, Smartphone, ScanLine, X, Download, Split
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { generatePromptPayPayload } from "../../lib/promptpay";
@@ -183,6 +183,25 @@ export default function DebtsPage() {
         </div>
       </div>
 
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        
+        {/* Sub Navigation Bar for Split Bill & Debts */}
+        <div className="flex bg-white p-1 rounded-2xl border border-gray-100 shadow-sm mb-6 max-w-xs sm:max-w-sm mx-auto">
+          <button
+            onClick={() => router.push("/split-bill")}
+            className="flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 text-gray-400 hover:text-gray-600"
+          >
+            <Split size={14} /> หารบิลใหม่
+          </button>
+          <button
+            onClick={() => router.push("/debts")}
+            className="flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 bg-[#E8622A] text-white shadow-sm"
+          >
+            <DollarSign size={14} /> หนี้ค้างจ่าย
+          </button>
+        </div>
+      </div>
+
       <div className="max-w-4xl mx-auto px-4 pt-8">
         
         {loading ? (
@@ -204,7 +223,7 @@ export default function DebtsPage() {
              <div className="bg-[#1A1A1A] rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-orange-100/50">
                <div className="absolute top-0 right-0 p-8 opacity-10"><DollarSign size={100} /></div>
                <p className="text-[10px] text-white/50 font-black uppercase tracking-widest mb-2">ยอดเงินทั้งหมดที่รอรับ</p>
-               <h2 className="text-5xl font-black italic">฿{debts.reduce((sum, d) => sum + d.total, 0).toLocaleString()}</h2>
+               <h2 className="text-5xl font-black italic">{"฿"}{debts.reduce((sum, d) => sum + d.total, 0).toLocaleString()}</h2>
                <div className="flex items-center gap-2 mt-6">
                   <div className="flex -space-x-2">
                     {debts.slice(0, 3).map((d, i) => (
@@ -234,7 +253,7 @@ export default function DebtsPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-black text-[#E8622A]">฿{debt.total.toLocaleString()}</p>
+                        <p className="text-2xl font-black text-[#E8622A]">{"฿"}{debt.total.toLocaleString()}</p>
                         <button 
                           onClick={() => setExpandedPerson(expandedPerson === debt.name ? null : debt.name)}
                           className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 flex items-center gap-1 justify-end hover:text-[#E8622A] transition"
@@ -278,7 +297,7 @@ export default function DebtsPage() {
                               </p>
                             </div>
                             <div className="flex items-center gap-4">
-                              <p className="text-lg font-black text-gray-900">฿{s.amount.toLocaleString()}</p>
+                              <p className="text-lg font-black text-gray-900">{"฿"}{s.amount.toLocaleString()}</p>
                               <button 
                                 onClick={() => markAsPaid(s.id, s.personId)}
                                 className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-green-500 shadow-sm border border-green-50 hover:bg-green-50 transition"
@@ -319,7 +338,7 @@ export default function DebtsPage() {
 
             <div className="bg-blue-50 p-4 rounded-2xl mb-8">
                <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-1">ยอดเงินรวมที่ค้างจ่าย</p>
-               <p className="text-3xl font-black text-blue-600 italic">฿{qrData.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
+               <p className="text-3xl font-black text-blue-600 italic">{"฿"}{qrData.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
             </div>
 
             <div className="flex gap-3">

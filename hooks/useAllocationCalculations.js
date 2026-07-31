@@ -3,9 +3,11 @@ import { db } from "../lib/firebase";
 import { doc, collection, query, onSnapshot, orderBy } from "firebase/firestore";
 
 const DEFAULT_CATEGORIES = [
-  { id: "save", name: "ออม/เก็บ", pct: 50 },
-  { id: "spend", name: "ใช้จ่าย", pct: 30 },
-  { id: "invest", name: "ลงทุน", pct: 20 },
+  { id: "bills", name: "ค่าหอ & ผ่อนชำระ", pct: 35 },
+  { id: "gas",   name: "ค่าน้ำมันรถ",       pct: 12 },
+  { id: "spend", name: "ใช้จ่ายรายวัน",     pct: 33 },
+  { id: "save",  name: "เงินออมสะสม",       pct: 12 },
+  { id: "fun",   name: "ความสุขส่วนตัว",    pct: 8 },
 ];
 
 /**
