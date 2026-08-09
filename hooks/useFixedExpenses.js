@@ -16,13 +16,31 @@ export function useFixedExpenses(userId) {
   const [spendsHistory, setSpendsHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ── One-time & real-time cleanup for fixed expense spends so they NEVER deduct from pockets ──
+  useEffect(() => {
+    if (!userId) return;
+
+    // Purge any existing isFixedExpense spend records from allocationSpends collection
+    const purgeFixedSpends = async () => {
+      try {
+        const qFixedSpends = query(
+          collection(db, `users/${userId}/allocationSpends`),
+          where('isFixedExpense', '==', true)
+        );
+        const snap = await getDocs(qFixedSpends);
+        snap.docs.forEach(async (d) => {
+          await deleteDoc(doc(db, `users/${userId}/allocationSpends`, d.id));
+        });
+      } catch (e) {
+        console.error("Purge fixed spends error:", e);
+      }
+    };
+    purgeFixedSpends();
+  }, [userId]);
+
   // ── Real-time listener for fixed expenses ──
   useEffect(() => {
-    if (!userId) {
-      setExpenses([]);
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
     const q = query(
       collection(db, `users/${userId}/fixedExpenses`),
@@ -39,10 +57,7 @@ export function useFixedExpenses(userId) {
 
   // ── Real-time listener for allocation spends ──
   useEffect(() => {
-    if (!userId) {
-      setSpendsHistory([]);
-      return;
-    }
+    if (!userId) return;
 
     const qSpends = query(
       collection(db, `users/${userId}/allocationSpends`),
@@ -50,7 +65,11 @@ export function useFixedExpenses(userId) {
     );
 
     const unsubSpends = onSnapshot(qSpends, (snap) => {
-      setSpendsHistory(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      // Filter out any fixed expense spends
+      const filtered = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((s) => !s.isFixedExpense && !s.fixedExpenseId);
+      setSpendsHistory(filtered);
     });
 
     return () => unsubSpends();
@@ -67,8 +86,6 @@ export function useFixedExpenses(userId) {
       type: data.type, // 'fixed' or 'installment'
       amount: Number(data.amount),
       dueDay: Number(data.dueDay) || 1,
-      categoryId: data.categoryId || '',
-      categoryName: data.categoryName || '',
       note: data.note || '',
       // Installment-specific fields
       totalInstallments: data.type === 'installment' ? Number(data.totalInstallments) || 0 : 0,
@@ -88,24 +105,10 @@ export function useFixedExpenses(userId) {
     });
   }, [userId]);
 
-  // ── Delete expense & associated spends ──
+  // ── Delete expense ──
   const deleteExpense = useCallback(async (expenseId) => {
     if (!userId) return;
     await deleteDoc(doc(db, `users/${userId}/fixedExpenses`, expenseId));
-
-    // Also delete any allocationSpends logged for this fixed expense
-    try {
-      const q = query(
-        collection(db, `users/${userId}/allocationSpends`),
-        where('fixedExpenseId', '==', expenseId)
-      );
-      const snap = await getDocs(q);
-      snap.docs.forEach(async (d) => {
-        await deleteDoc(doc(db, `users/${userId}/allocationSpends`, d.id));
-      });
-    } catch (e) {
-      console.error("Failed to clean up associated spends:", e);
-    }
   }, [userId]);
 
   // ── Delete a spend record directly ──
@@ -115,30 +118,10 @@ export function useFixedExpenses(userId) {
   }, [userId]);
 
   // ── Mark as paid for current month ──
-  // Creates a spend record in allocationSpends and updates expense status
-  // Accepts optional customAmount for variable monthly expenses (e.g. TikTok PayLater, electricity bill)
+  // ONLY updates fixed expense status (lastPaidMonth / paidInstallments). DOES NOT deduct from any category/pocket!
   const markAsPaid = useCallback(async (expense, customAmount = null) => {
     if (!userId) return;
 
-    const today = getTodayDate();
-    const actualAmount = customAmount !== null && !isNaN(Number(customAmount)) && Number(customAmount) > 0
-      ? Number(customAmount)
-      : Number(expense.amount);
-
-    // 1. Create a spend record in allocationSpends (auto-deduct from category)
-    await addDoc(collection(db, `users/${userId}/allocationSpends`), {
-      date: today,
-      amount: actualAmount,
-      categoryId: expense.categoryId,
-      categoryName: expense.categoryName,
-      note: `💳 ${expense.name}${expense.type === 'installment' ? ` (งวดที่ ${(expense.paidInstallments || 0) + 1}/${expense.totalInstallments})` : ' (ค่าใช้จ่ายประจำ)'}`,
-      isFixedExpense: true,
-      fixedExpenseId: expense.id,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-
-    // 2. Update the fixed expense record
     const updateData = {
       lastPaidMonth: currentMonthKey,
       updatedAt: serverTimestamp(),
@@ -148,9 +131,7 @@ export function useFixedExpenses(userId) {
     if (expense.type === 'installment') {
       const newPaid = (expense.paidInstallments || 0) + 1;
       updateData.paidInstallments = newPaid;
-
-      // Auto-deactivate if all installments paid
-      if (newPaid >= expense.totalInstallments) {
+      if (expense.totalInstallments > 0 && newPaid >= expense.totalInstallments) {
         updateData.isActive = false;
       }
     }

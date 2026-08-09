@@ -13,6 +13,7 @@ import { OverviewTab } from "../../components/allocation/OverviewTab";
 import { GoalsTab } from "../../components/allocation/GoalsTab";
 import { FixedExpensesTab } from "../../components/allocation/FixedExpensesTab";
 import { MonthlyRecapModal } from "../../components/allocation/MonthlyRecapModal";
+import { TransactionHistoryList } from "../../components/allocation/TransactionHistoryList";
 import {
   Plus, Trash2, Save, AlertCircle, Loader2, CheckCircle2,
   TrendingUp, Wallet, Calendar, BarChart3, ChevronDown,
@@ -95,7 +96,8 @@ export default function AllocationPage() {
       orderBy("date", "desc")
     );
     const unsub = onSnapshot(q, (snap) => {
-      setSpends(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const allSpends = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setSpends(allSpends.filter(s => !s.isFixedExpense && !s.fixedExpenseId));
     });
     return () => unsub();
   }, [user]);
@@ -213,14 +215,11 @@ export default function AllocationPage() {
 
   const handleLog = async (e) => {
     e.preventDefault();
-    if (!editingCategories.length || !user) return;
+    if (submitting || !editingCategories.length || !user) return;
     const amt = parseFloat(form.income);
     if (!amt || amt <= 0) return;
     setSubmitting(true);
     try {
-      // ─── KEY CHANGE: Store ONLY income + date + note ───
-      // NO pre-calculated category breakdown!
-      // Calculations happen on-the-fly using current percentages
       const payload = {
         date: form.date,
         income: amt,
@@ -248,6 +247,7 @@ export default function AllocationPage() {
 
   const handleSpend = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     const amt = parseFloat(spendForm.amount);
     if (!amt || amt <= 0 || !spendForm.categoryId) return;
     setSubmitting(true);
@@ -581,6 +581,14 @@ export default function AllocationPage() {
                 </div>
               </div>
             )}
+
+            {/* Transaction History List with Search, Edit & Delete */}
+            <TransactionHistoryList
+              incomes={incomes}
+              spends={spends}
+              onEditClick={handleEditClick}
+              onDeleteClick={handleDelete}
+            />
           </div>
         )}
 
@@ -677,7 +685,7 @@ export default function AllocationPage() {
 
               <div className="space-y-3">
                 {editingCategories.map((cat, i) => (
-                    <div className="flex flex-col gap-2 flex-1">
+                    <div key={cat.id} className="flex flex-col gap-2 flex-1">
                       <div className="flex items-center gap-3 bg-gray-50/50 rounded-2xl px-4 py-3 group hover:bg-white hover:border-gray-100 border border-transparent transition-all">
                         <span className="text-gray-300 text-[10px] font-black w-4">{i + 1}</span>
                         <input

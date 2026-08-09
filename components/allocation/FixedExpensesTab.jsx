@@ -227,7 +227,7 @@ export function FixedExpensesTab({ userId, categories }) {
                       {paid && <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />}
                     </div>
                     <p className="text-[10px] text-gray-400 font-bold mt-0.5">
-                      ฿{expense.amount.toLocaleString()}/เดือน · จ่ายวันที่ {expense.dueDay} · หักจาก: {expense.categoryName}
+                      ฿{expense.amount.toLocaleString()}/เดือน · จ่ายวันที่ {expense.dueDay}
                     </p>
                   </div>
 
@@ -319,7 +319,7 @@ export function FixedExpensesTab({ userId, categories }) {
                       {paid && <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />}
                     </div>
                     <p className="text-[10px] text-gray-400 font-bold mt-0.5">
-                      ฿{expense.amount.toLocaleString()}/เดือน · จ่ายวันที่ {expense.dueDay} · หักจาก: {expense.categoryName}
+                      ฿{expense.amount.toLocaleString()}/เดือน · จ่ายวันที่ {expense.dueDay}
                     </p>
                   </div>
 
@@ -457,8 +457,8 @@ export function FixedExpensesTab({ userId, categories }) {
         <div className="bg-[#FFF4EF] rounded-2xl p-4 border border-orange-100 space-y-2">
           <p className="text-[10px] text-[#E8622A] font-black uppercase tracking-widest">💡 วิธีใช้งาน</p>
           <ul className="text-[11px] text-orange-900/70 font-medium space-y-1 leading-relaxed">
-            <li>• กดปุ่ม <strong className="text-[#E8622A]">"จ่ายเงิน"</strong> เพื่อเปิดหน้าต่างระบุยอดเงินที่จ่ายจริงของเดือนนั้นๆ (เช่น TikTok PayLater, ค่าน้ำ, ค่าไฟ) ระบบจะหักยอดจากหมวดหมู่ที่ตั้งไว้ให้อัตโนมัติ</li>
-            <li>• สถานะจะรีเซ็ตเป็น <strong>"ยังไม่ได้จ่าย"</strong> ทุกต้นเดือนใหม่อัตโนมัติ</li>
+            <li>• กดปุ่ม <strong className="text-[#E8622A]">&quot;จ่ายเงิน&quot;</strong> เพื่อเปิดหน้าต่างระบุยอดเงินที่จ่ายจริงของเดือนนั้นๆ (เช่น TikTok PayLater, ค่าน้ำ, ค่าไฟ) ระบบจะหักยอดจากหมวดหมู่ที่ตั้งไว้ให้อัตโนมัติ</li>
+            <li>• สถานะจะรีเซ็ตเป็น <strong>&quot;ยังไม่ได้จ่าย&quot;</strong> ทุกต้นเดือนใหม่อัตโนมัติ</li>
             <li>• รายการผ่อนชำระจะถูกปิดอัตโนมัติเมื่อผ่อนครบทุกงวด</li>
           </ul>
         </div>
@@ -531,8 +531,12 @@ function FixedExpenseForm({ expense, categories, onClose, onSubmit }) {
   const [submitting, setSubmitting] = useState(false);
 
   const handleCategoryChange = (catId) => {
-    const cat = categories.find(c => c.id === catId);
-    setForm(f => ({ ...f, categoryId: catId, categoryName: cat?.name || "" }));
+    if (catId === 'none') {
+      setForm(f => ({ ...f, categoryId: 'none', categoryName: 'ไม่หักจากหมวดใด' }));
+    } else {
+      const cat = categories.find(c => c.id === catId);
+      setForm(f => ({ ...f, categoryId: catId, categoryName: cat?.name || "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -703,26 +707,7 @@ function FixedExpenseForm({ expense, categories, onClose, onSubmit }) {
             </div>
           )}
 
-          {/* Category selector */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">หักเงินจากหมวดหมู่</label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => handleCategoryChange(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                    form.categoryId === cat.id
-                      ? "bg-[#E8622A] border-[#E8622A] text-white shadow-md shadow-orange-500/20"
-                      : "bg-white border-gray-200 text-gray-500 hover:border-[#E8622A]/40"
-                  }`}
-                >
-                  {cat.name} ({cat.pct}%)
-                </button>
-              ))}
-            </div>
-          </div>
+
 
           {/* Note */}
           <div className="space-y-1.5">
@@ -794,9 +779,7 @@ function PayConfirmationModal({ expense, submitting, onClose, onConfirm }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-1.5">
             <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider">รายละเอียดการชำระ</p>
-            <p className="text-xs font-bold text-gray-700">
-              • หักเงินออกจากหมวด: <span className="text-[#E8622A] font-black">{expense.categoryName}</span>
-            </p>
+
             {expense.type === "installment" && (
               <p className="text-xs font-bold text-gray-700">
                 • งวดชำระ: <span className="font-black text-gray-800">งวดที่ {(expense.paidInstallments || 0) + 1} จาก {expense.totalInstallments} งวด</span>

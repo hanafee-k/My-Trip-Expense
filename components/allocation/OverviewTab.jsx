@@ -4,6 +4,7 @@ import { useTimeFilter } from "../../hooks/useTimeFilter";
 import { TimeViewSwitcher } from "./TimeViewSwitcher";
 import { MonthComparison } from "./MonthComparison";
 import { IncomeHistoryView } from "./IncomeHistoryView";
+import { TransactionHistoryList } from "./TransactionHistoryList";
 import {
   Copy, MinusCircle, FileText, BarChart3
 } from "lucide-react";
@@ -116,6 +117,8 @@ export function OverviewTab({
       <IncomeHistoryView
         incomes={incomes}
         spends={spends}
+        onEditClick={onEditClick}
+        onDeleteClick={onDeleteClick}
       />
 
       {/* Time View Switcher */}
@@ -322,6 +325,14 @@ export function OverviewTab({
           </div>
         </div>
       )}
+
+      {/* ═══ Transaction History List (Edit & Delete) ═══ */}
+      <TransactionHistoryList
+        incomes={incomes}
+        spends={spends}
+        onEditClick={onEditClick}
+        onDeleteClick={onDeleteClick}
+      />
     </div>
   );
 }

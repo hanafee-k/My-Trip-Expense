@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { ArrowLeft, HelpCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, HelpCircle, ChevronLeft, ChevronRight, Edit2, Trash2, TrendingUp, MinusCircle } from "lucide-react";
 
 // ─── Helpers ───────────────────────────────────────────────
 const fmt = (d) => {
@@ -84,13 +84,18 @@ function generateMonthDateStrip(year, month) {
 }
 
 // ─── Component ─────────────────────────────────────────────
-export function IncomeHistoryView({ incomes = [], spends = [], onBack }) {
+export function IncomeHistoryView({ incomes = [], spends = [], onBack, onEditClick, onDeleteClick }) {
   const now = new Date();
   const [viewMode, setViewMode] = useState("daily");
   const [selectedDate, setSelectedDate] = useState(fmt(now));
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
-  const [selectedWeekNum, setSelectedWeekNum] = useState(1);
+  const [selectedWeekNum, setSelectedWeekNum] = useState(() => {
+    const todayStr = fmt(now);
+    const initialWeeks = getWeeksForMonth(now.getFullYear(), now.getMonth());
+    const found = initialWeeks.find((w) => todayStr >= w.start && todayStr <= w.end);
+    return found ? found.weekNum : 1;
+  });
 
   const selectedDayRef = useRef(null);
 
@@ -98,13 +103,6 @@ export function IncomeHistoryView({ incomes = [], spends = [], onBack }) {
     () => getWeeksForMonth(selectedYear, selectedMonth),
     [selectedYear, selectedMonth]
   );
-
-  useEffect(() => {
-    const todayStr = fmt(now);
-    const found = weeks.find((w) => todayStr >= w.start && todayStr <= w.end);
-    if (found) setSelectedWeekNum(found.weekNum);
-    else setSelectedWeekNum(1);
-  }, []);
 
   const selectedWeek = weeks.find((w) => w.weekNum === selectedWeekNum) || weeks[0];
 
@@ -193,9 +191,14 @@ export function IncomeHistoryView({ incomes = [], spends = [], onBack }) {
     return incomes.some((i) => i.date === dateStr) || spends.some((s) => s.date === dateStr);
   };
 
+  const selectedDateTransactions = useMemo(() => {
+    const incs = incomes.filter((i) => i.date === selectedDate).map(i => ({ ...i, type: 'income' }));
+    const sps = spends.filter((s) => s.date === selectedDate).map(s => ({ ...s, type: 'spend' }));
+    return [...incs, ...sps];
+  }, [incomes, spends, selectedDate]);
+
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-
       {/* ═══ HEADER — minimal & compact ═══ */}
       <div className="px-5 pt-5 pb-3">
         <div className="flex items-center justify-between mb-3">
@@ -304,16 +307,63 @@ export function IncomeHistoryView({ incomes = [], spends = [], onBack }) {
           </div>
 
           {/* Net Income */}
-          <div className="px-5 pt-4 pb-6 text-center">
-            <p className="text-[11px] text-gray-300 font-medium mb-1.5 uppercase tracking-wider">ยอดรายได้สุทธิ</p>
+          <div className="px-5 pt-4 pb-4 text-center">
+            <p className="text-[11px] text-gray-300 font-medium mb-1.5 uppercase tracking-wider">ยอดรายได้สุทธิประจำวัน ({selectedDate})</p>
             <p className={`text-[36px] font-black leading-none tracking-tight ${dailyNetIncome >= 0 ? "text-[#1A1A1A]" : "text-rose-500"}`}>
               <span className="text-xl font-semibold text-gray-300 mr-0.5">฿</span>
               {Math.abs(dailyNetIncome).toLocaleString("th-TH")}
             </p>
-            {dailyNetIncome === 0 && (
-              <p className="text-[10px] text-gray-200 mt-2 font-medium">ไม่มีรายการ</p>
-            )}
           </div>
+
+          {/* Selected Date Transaction Items */}
+          {selectedDateTransactions.length > 0 && (
+            <div className="px-5 pb-5 space-y-2 border-t border-gray-50 pt-3">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">รายการประจำวันที่ {selectedDate}</p>
+              {selectedDateTransactions.map((tx) => {
+                const isIncome = tx.type === "income";
+                const amt = isIncome ? tx.income : tx.amount;
+                return (
+                  <div key={tx.id} className="flex items-center justify-between p-3 bg-gray-50/80 rounded-2xl border border-gray-100">
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isIncome ? 'bg-orange-100 text-[#E8622A]' : 'bg-rose-100 text-rose-500'}`}>
+                        {isIncome ? <TrendingUp size={16} /> : <MinusCircle size={16} />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-black text-[#1A1A1A] truncate">
+                          {isIncome ? "รายรับจัดสรร" : tx.categoryName || "หักใช้เงิน"}
+                        </p>
+                        {tx.note && <p className="text-[10px] text-gray-400 font-medium truncate">{tx.note}</p>}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`text-xs font-black ${isIncome ? 'text-[#E8622A]' : 'text-rose-500'}`}>
+                        {isIncome ? '+' : '-'}฿{Number(amt || 0).toLocaleString()}
+                      </span>
+                      {onEditClick && (
+                        <button
+                          onClick={() => onEditClick(tx)}
+                          title="แก้ไข"
+                          className="p-1 text-gray-400 hover:text-[#E8622A] hover:bg-orange-100/60 rounded-lg transition cursor-pointer"
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                      )}
+                      {onDeleteClick && (
+                        <button
+                          onClick={() => onDeleteClick(tx.id, tx.type)}
+                          title="ลบ"
+                          className="p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-100/60 rounded-lg transition cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
